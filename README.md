@@ -85,14 +85,5 @@ export DASHSCOPE_API_KEY=your_api_key
 python api_server.py
 ```
 
-或使用启动脚本：
-```bash
-# Windows
-start.bat
-
-# Linux/Mac
-./start.sh
-```
-
 ### 4. 访问
 打开浏览器访问 http://localhost:7958
