@@ -1,0 +1,365 @@
+/* ========================================
+   用户管理和健康记录 - 玻璃态设计
+   ======================================== */
+
+/* ========== 用户卡片 ========== */
+.user-card {
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    margin-bottom: var(--spacing-md);
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: var(--spacing-lg);
+    align-items: center;
+    transition: all var(--transition-normal);
+}
+
+.user-card:hover {
+    border-color: rgba(102, 126, 234, 0.2);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+    transform: translateY(-2px);
+}
+
+.user-avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: var(--radius-md);
+    background: var(--gradient-accent);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    font-weight: 700;
+    font-family: var(--font-display);
+    box-shadow: 0 4px 15px var(--color-primary-glow);
+}
+
+.user-info h3 {
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--color-text);
+    margin-bottom: var(--spacing-xs);
+}
+
+.user-info p {
+    font-size: 0.85rem;
+    color: var(--color-text-secondary);
+}
+
+.user-stats {
+    display: flex;
+    gap: var(--spacing-lg);
+    align-items: center;
+}
+
+.user-stat {
+    text-align: center;
+}
+
+.user-stat-value {
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--color-primary);
+}
+
+.user-stat-label {
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+}
+
+/* ========== 健康记录卡片 ========== */
+.health-record-card {
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-md);
+    margin-bottom: var(--spacing-sm);
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: var(--spacing-sm);
+}
+
+.record-item {
+    text-align: center;
+    padding: var(--spacing-sm);
+}
+
+.record-value {
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--color-text);
+}
+
+.record-label {
+    font-size: 0.75rem;
+    color: var(--color-text-secondary);
+    margin-top: var(--spacing-xs);
+}
+
+.record-value.normal { color: var(--color-success); }
+.record-value.warning { color: var(--color-warning); }
+.record-value.danger { color: var(--color-danger); }
+
+.record-date {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-primary);
+    grid-column: 1 / -1;
+    padding-bottom: var(--spacing-sm);
+    border-bottom: 1px solid var(--glass-border);
+    margin-bottom: var(--spacing-xs);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+/* ========== BMI 结果展示 ========== */
+.bmi-result-card {
+    text-align: center;
+    padding: var(--spacing-xl);
+}
+
+.bmi-value {
+    font-family: var(--font-display);
+    font-size: 3.5rem;
+    font-weight: 700;
+    margin: var(--spacing-md) 0;
+    background: var(--gradient-accent);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.bmi-category {
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin-bottom: var(--spacing-lg);
+    padding: var(--spacing-sm) var(--spacing-lg);
+    background: rgba(102, 126, 234, 0.15);
+    border-radius: var(--radius-md);
+    border: 1px solid rgba(102, 126, 234, 0.2);
+}
+
+.bmi-category.normal {
+    background: rgba(74, 222, 128, 0.15);
+    border-color: rgba(74, 222, 128, 0.2);
+    color: var(--color-success);
+}
+
+.bmi-category.warning {
+    background: rgba(251, 191, 36, 0.15);
+    border-color: rgba(251, 191, 36, 0.2);
+    color: var(--color-warning);
+}
+
+.bmi-category.danger {
+    background: rgba(248, 113, 113, 0.15);
+    border-color: rgba(248, 113, 113, 0.2);
+    color: var(--color-danger);
+}
+
+.bmi-bar {
+    height: 12px;
+    border-radius: 6px;
+    background: linear-gradient(90deg,
+        rgba(96, 165, 250, 0.8),
+        rgba(74, 222, 128, 0.8),
+        rgba(251, 191, 36, 0.8),
+        rgba(248, 113, 113, 0.8));
+    position: relative;
+    margin: var(--spacing-lg) 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.bmi-bar::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 16px;
+    height: 16px;
+    background: white;
+    border-radius: 50%;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    transition: left var(--transition-slow);
+}
+
+.bmi-bar-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    color: var(--color-text-secondary);
+}
+
+/* ========== 热量卡片 ========== */
+.calorie-card {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--spacing-md);
+    margin-top: var(--spacing-lg);
+}
+
+.calorie-item {
+    text-align: center;
+    padding: var(--spacing-lg);
+    border-radius: var(--radius-lg);
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    transition: all var(--transition-fast);
+}
+
+.calorie-item:hover {
+    border-color: rgba(102, 126, 234, 0.2);
+    transform: translateY(-2px);
+}
+
+.calorie-item .value {
+    font-family: var(--font-display);
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--color-primary);
+}
+
+.calorie-item .label {
+    font-size: 0.85rem;
+    color: var(--color-text-secondary);
+    margin-top: var(--spacing-sm);
+}
+
+.calorie-item .sublabel {
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+}
+
+/* ========== 运动方案 ========== */
+.exercise-plan {
+    margin-top: var(--spacing-lg);
+}
+
+.exercise-step {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--spacing-sm);
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    transition: all var(--transition-fast);
+}
+
+.exercise-step:hover {
+    background: rgba(102, 126, 234, 0.1);
+    border-color: rgba(102, 126, 234, 0.2);
+}
+
+.exercise-step-number {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-md);
+    background: var(--gradient-accent);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1rem;
+    font-family: var(--font-display);
+    flex-shrink: 0;
+    box-shadow: 0 4px 15px var(--color-primary-glow);
+}
+
+.exercise-step-info {
+    flex: 1;
+}
+
+.exercise-step-name {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--color-text);
+}
+
+.exercise-step-detail {
+    font-size: 0.85rem;
+    color: var(--color-text-secondary);
+}
+
+/* ========== 饮食分析 ========== */
+.diet-food-item {
+    display: flex;
+    gap: var(--spacing-sm);
+    align-items: center;
+    margin-bottom: var(--spacing-sm);
+}
+
+.diet-food-select {
+    flex: 1;
+}
+
+.diet-result-card {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    margin-top: var(--spacing-lg);
+}
+
+.diet-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+}
+
+.diet-summary-item {
+    text-align: center;
+    padding: var(--spacing-md);
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: var(--radius-md);
+}
+
+.diet-summary-value {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-primary);
+}
+
+.diet-summary-label {
+    font-size: 0.8rem;
+    color: var(--color-text-secondary);
+}
+
+/* ========== 睡眠评估 ========== */
+.sleep-score {
+    font-family: var(--font-display);
+    font-size: 4rem;
+    font-weight: 700;
+    text-align: center;
+    margin: var(--spacing-lg) 0;
+}
+
+.sleep-score.excellent { color: var(--color-success); }
+.sleep-score.good { color: var(--color-info); }
+.sleep-score.fair { color: var(--color-warning); }
+.sleep-score.poor { color: var(--color-danger); }
+
+.sleep-recommendations {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-lg);
+    margin-top: var(--spacing-lg);
+}

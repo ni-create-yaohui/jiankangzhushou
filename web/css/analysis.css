@@ -1,0 +1,142 @@
+/* ========================================
+   数据分析页面 - 玻璃态设计
+   ======================================== */
+
+/* ========== 图表网格 ========== */
+.analysis-charts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+}
+
+.analysis-chart-card {
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    transition: all var(--transition-normal);
+}
+
+.analysis-chart-card:hover {
+    border-color: rgba(102, 126, 234, 0.2);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+}
+
+.analysis-chart-card.full-width {
+    grid-column: 1 / -1;
+}
+
+.analysis-chart-title {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: var(--spacing-md);
+    color: var(--color-text);
+}
+
+/* ========== 报告表单 ========== */
+.report-form {
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    margin-bottom: var(--spacing-lg);
+}
+
+.report-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-md);
+}
+
+.report-option {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    font-size: 0.88rem;
+    cursor: pointer;
+    color: var(--color-text-secondary);
+}
+
+.report-option:hover {
+    color: var(--color-text);
+}
+
+/* ========== 分析摘要网格 ========== */
+.analysis-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+}
+
+.analysis-summary-card {
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-md);
+    text-align: center;
+    transition: all var(--transition-fast);
+}
+
+.analysis-summary-card:hover {
+    border-color: rgba(102, 126, 234, 0.15);
+    transform: translateY(-2px);
+}
+
+.analysis-summary-card .title {
+    font-size: 0.82rem;
+    color: var(--color-text-secondary);
+    margin-bottom: var(--spacing-xs);
+}
+
+.analysis-summary-card .value {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-primary);
+}
+
+.analysis-summary-card .trend {
+    font-size: 0.78rem;
+    margin-top: var(--spacing-xs);
+}
+
+.analysis-summary-card .trend.up { color: var(--color-success); }
+.analysis-summary-card .trend.down { color: var(--color-danger); }
+
+/* ========== 分析结果展示 ========== */
+.analysis-result-container {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+}
+
+.analysis-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--spacing-lg);
+    padding-bottom: var(--spacing-md);
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.analysis-title {
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--color-text);
+}
+
+.analysis-date {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+}

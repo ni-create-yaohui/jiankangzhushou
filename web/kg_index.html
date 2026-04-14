@@ -1,0 +1,3443 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>健康知识图谱 - HealthKG</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0d9488;
+            --primary-light: #14b8a6;
+            --primary-dark: #0f766e;
+            --accent: #f97316;
+            --bg-dark: #1e293b;
+            --bg-darker: #0f172a;
+            --bg-card: #334155;
+            --bg-card-light: #475569;
+            --text-light: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border: #475569;
+            --success: #22c55e;
+            --warning: #eab308;
+            --danger: #ef4444;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
+            background: var(--bg-darker);
+            color: var(--text-light);
+            min-height: 100vh;
+            display: flex;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: var(--bg-dark);
+            border-right: 1px solid var(--border);
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-brand {
+            padding: 24px 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .sidebar-brand h1 {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--primary-light);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .sidebar-brand h1 i {
+            font-size: 28px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            padding: 8px;
+            border-radius: 10px;
+        }
+
+        .sidebar-brand span {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-left: 40px;
+            font-weight: 400;
+        }
+
+        .sidebar-menu {
+            padding: 16px 12px;
+        }
+
+        .menu-section {
+            color: var(--text-muted);
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 8px 12px;
+            margin-top: 8px;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-radius: 8px;
+            margin: 4px 0;
+            transition: all 0.2s ease;
+            font-size: 14px;
+        }
+
+        .menu-item:hover {
+            background: var(--bg-card);
+            color: var(--text-light);
+        }
+
+        .menu-item.active {
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+            color: white;
+            font-weight: 500;
+        }
+
+        .menu-item i {
+            font-size: 18px;
+            width: 24px;
+        }
+
+        .sidebar-footer {
+            padding: 20px;
+            border-top: 1px solid var(--border);
+            margin-top: auto;
+        }
+
+        .sidebar-footer p {
+            color: var(--text-muted);
+            font-size: 12px;
+            text-align: center;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 260px;
+            flex: 1;
+            min-height: 100vh;
+            background: linear-gradient(180deg, var(--bg-darker) 0%, #1a1a2e 100%);
+        }
+
+        /* Header */
+        .header {
+            background: var(--bg-dark);
+            border-bottom: 1px solid var(--border);
+            padding: 16px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header-title {
+            font-size: 20px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .header-title i {
+            color: var(--primary-light);
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(13, 148, 136, 0.4);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--primary);
+            color: var(--primary-light);
+        }
+
+        /* Page Content */
+        .page-content {
+            padding: 32px;
+            display: none;
+        }
+
+        .page-content.active {
+            display: block;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-title i {
+            color: var(--primary-light);
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-card-light) 100%);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid var(--border);
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--primary-light);
+        }
+
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 13px;
+            margin-top: 4px;
+        }
+
+        .stat-icon {
+            font-size: 24px;
+            opacity: 0.6;
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .form-control {
+            background: var(--bg-darker);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px 16px;
+            color: var(--text-light);
+            font-size: 14px;
+            width: 100%;
+            transition: border-color 0.2s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .form-control::placeholder {
+            color: var(--text-muted);
+        }
+
+        textarea.form-control {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .modal-content {
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .modal-header h3 {
+            font-size: 18px;
+            color: var(--text-light);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .modal-close {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 4px;
+            font-size: 20px;
+            transition: color 0.2s ease;
+        }
+
+        .modal-close:hover {
+            color: var(--text-light);
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .modal-body .form-group {
+            margin-bottom: 16px;
+        }
+
+        .modal-body .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .modal-body .form-group label i {
+            margin-right: 6px;
+        }
+
+        .modal-body .form-control {
+            width: 100%;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            padding: 16px 20px;
+            border-top: 1px solid var(--border);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* Search Box */
+        .search-box {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .search-box .form-control {
+            flex: 1;
+        }
+
+        /* Hot Tags */
+        .hot-tags {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+            flex-wrap: wrap;
+        }
+
+        .hot-tag {
+            background: var(--bg-card-light);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 6px 14px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .hot-tag:hover {
+            background: var(--primary-dark);
+            border-color: var(--primary);
+            color: white;
+        }
+
+        /* Graph Container */
+        .graph-container {
+            width: 100%;
+            height: 500px;
+            background: var(--bg-darker);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        /* Chart Grid for User Demographics */
+        .chart-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .chart-item {
+            background: var(--bg-darker);
+            border-radius: 8px;
+            padding: 16px;
+        }
+
+        .chart-item h4 {
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+
+        .chart-container {
+            height: 200px;
+        }
+
+        /* Results */
+        .results-section {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 24px;
+        }
+
+        .answer-list {
+            list-style: none;
+        }
+
+        .answer-item {
+            background: var(--bg-card-light);
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 8px;
+            color: var(--text-light);
+            font-size: 14px;
+        }
+
+        /* Entity Types */
+        .entity-types {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .entity-type {
+            background: var(--bg-card-light);
+            border-radius: 20px;
+            padding: 8px 16px;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .entity-type i {
+            font-size: 14px;
+        }
+
+        .entity-type.disease { color: #ef4444; }
+        .entity-type.symptom { color: #f97316; }
+        .entity-type.drug { color: #8b5cf6; }
+        .entity-type.food { color: #22c55e; }
+        .entity-type.nutrient { color: #0ea5e9; }
+        .entity-type.exercise { color: #14b8a6; }
+
+        /* Breadcrumb */
+        .breadcrumb {
+            display: flex;
+            gap: 8px;
+            color: var(--text-muted);
+            font-size: 13px;
+            margin-bottom: 16px;
+        }
+
+        .breadcrumb a {
+            color: var(--text-secondary);
+            text-decoration: none;
+        }
+
+        .breadcrumb a:hover {
+            color: var(--primary-light);
+        }
+
+        /* Table */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th, .data-table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            text-align: left;
+        }
+
+        .data-table th {
+            color: var(--text-muted);
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .data-table td {
+            color: var(--text-light);
+            font-size: 14px;
+        }
+
+        .data-table tr:hover td {
+            background: var(--bg-card-light);
+        }
+
+        /* Knowledge Graph Schema */
+        .schema-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+
+        .schema-card {
+            background: var(--bg-card-light);
+            border-radius: 12px;
+            padding: 16px;
+        }
+
+        .schema-card h4 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--primary-light);
+        }
+
+        .schema-list {
+            list-style: none;
+        }
+
+        .schema-list li {
+            padding: 4px 0;
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+
+        /* Chat Section */
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 200px);
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: var(--bg-darker);
+            border-radius: 12px;
+            margin-bottom: 16px;
+        }
+
+        .chat-message {
+            margin-bottom: 16px;
+            display: flex;
+            gap: 12px;
+        }
+
+        .chat-message.user {
+            flex-direction: row-reverse;
+        }
+
+        .chat-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+        }
+
+        .chat-message.user .chat-avatar {
+            background: var(--accent);
+        }
+
+        .chat-content {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 12px 16px;
+            max-width: 70%;
+        }
+
+        .chat-message.user .chat-content {
+            background: var(--primary-dark);
+        }
+
+        .chat-input-area {
+            display: flex;
+            gap: 12px;
+        }
+
+        .chat-input {
+            flex: 1;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .page-content.active {
+            animation: fadeInUp 0.3s ease;
+        }
+
+        .stat-card {
+            animation: fadeInUp 0.4s ease;
+        }
+
+        .stat-card:nth-child(1) { animation-delay: 0.1s; }
+        .stat-card:nth-child(2) { animation-delay: 0.15s; }
+        .stat-card:nth-child(3) { animation-delay: 0.2s; }
+        .stat-card:nth-child(4) { animation-delay: 0.25s; }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0;
+            }
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .results-section {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            .schema-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Upload Area */
+        .upload-area {
+            border: 2px dashed var(--border);
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: var(--bg-darker);
+        }
+
+        .upload-area:hover {
+            border-color: var(--primary);
+            background: rgba(13, 148, 136, 0.1);
+        }
+
+        .upload-area.dragover {
+            border-color: var(--primary-light);
+            background: rgba(13, 148, 136, 0.2);
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            color: var(--primary-light);
+            margin-bottom: 16px;
+        }
+
+        .upload-text {
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: var(--bg-card);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--primary-light));
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        /* Status Badges */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-completed {
+            background: rgba(34, 197, 94, 0.2);
+            color: var(--success);
+        }
+
+        .status-processing {
+            background: rgba(234, 179, 8, 0.2);
+            color: var(--warning);
+        }
+
+        .status-pending {
+            background: rgba(148, 163, 184, 0.2);
+            color: var(--text-secondary);
+        }
+
+        .status-failed {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+        }
+
+        /* Disease Graph Styles */
+        .disease-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 12px;
+        }
+
+        .disease-card {
+            background: var(--bg-darker);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 16px 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .disease-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .disease-card.selected {
+            border-color: var(--danger);
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .disease-card i {
+            font-size: 24px;
+            color: var(--danger);
+            margin-bottom: 8px;
+        }
+
+        .disease-card span {
+            color: var(--text-light);
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .disease-content {
+            display: grid;
+            grid-template-columns: 1fr 360px;
+            gap: 24px;
+        }
+
+        .disease-graph-section {
+            min-height: 400px;
+        }
+
+        .disease-details-section .card {
+            padding: 20px;
+        }
+
+        .detail-section {
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .detail-section:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .detail-section h4 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .detail-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .detail-list li {
+            background: var(--bg-darker);
+            border-radius: 8px;
+            padding: 10px 14px;
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .detail-list li:before {
+            content: '';
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: var(--primary-light);
+        }
+
+        .detail-list.empty {
+            color: var(--text-muted);
+            font-size: 12px;
+        }
+
+        /* Knowledge Graph Query Page Styles */
+        .kg-query-tabs {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 12px;
+        }
+
+        .kg-tab {
+            padding: 12px 24px;
+            border-radius: 8px 8px 0 0;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-secondary);
+            transition: all 0.2s ease;
+            background: transparent;
+        }
+
+        .kg-tab:hover {
+            background: var(--bg-card-light);
+            color: var(--text-light);
+        }
+
+        .kg-tab.active {
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+            color: white;
+            font-weight: 500;
+        }
+
+        .kg-tab-content {
+            padding: 20px 0;
+        }
+
+        .tab-description {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-bottom: 16px;
+        }
+
+        .kg-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .relation-input-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .kg-results-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 24px;
+        }
+
+        .kg-entity-item {
+            background: var(--bg-card-light);
+            border-radius: 8px;
+            padding: 10px 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: var(--text-light);
+        }
+
+        .kg-entity-item:hover {
+            background: var(--primary-dark);
+            color: white;
+        }
+
+        .kg-entity-item i {
+            font-size: 14px;
+        }
+
+        .kg-entity-item .entity-type-badge {
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.1);
+        }
+
+        .graph-tip {
+            margin-top: 12px;
+            padding: 8px 12px;
+            background: var(--bg-card-light);
+            border-radius: 6px;
+            font-size: 13px;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* 实体链接样式（表格中可点击的实体名称） */
+        .kg-entity-link {
+            color: var(--primary-light);
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+
+        .kg-entity-link:hover {
+            color: var(--primary);
+            text-decoration: underline;
+        }
+
+        /* 实体类型徽章 */
+        .entity-type-badge {
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.1);
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <h1>
+                <i class="bi bi-heart-pulse"></i>
+                HealthKG
+            </h1>
+            <span>健康知识图谱系统</span>
+        </div>
+
+        <nav class="sidebar-menu">
+            <div class="menu-section">知识图谱</div>
+            <div class="menu-item active" onclick="switchPage('overview')">
+                <i class="bi bi-graph-up"></i>
+                <span>图谱概览</span>
+            </div>
+            <div class="menu-item" onclick="switchPage('kg-query')">
+                <i class="bi bi-diagram-3"></i>
+                <span>知识图谱查询</span>
+            </div>
+            <div class="menu-item" onclick="switchPage('disease')">
+                <i class="bi bi-virus2"></i>
+                <span>疾病图谱</span>
+            </div>
+
+            <div class="menu-section">智能对话</div>
+            <div class="menu-item" onclick="switchPage('chat')">
+                <i class="bi bi-robot"></i>
+                <span>AI健康助手</span>
+            </div>
+
+            <div class="menu-section">健康管理</div>
+            <div class="menu-item" onclick="switchPage('users')">
+                <i class="bi bi-people"></i>
+                <span>用户管理</span>
+            </div>
+            <div class="menu-item" onclick="switchPage('analysis')">
+                <i class="bi bi-chart-bar"></i>
+                <span>数据分析</span>
+            </div>
+            <div class="menu-item" onclick="switchPage('tools')">
+                <i class="bi bi-calculator"></i>
+                <span>健康工具</span>
+            </div>
+
+            <div class="menu-section">知识管理</div>
+            <div class="menu-item" onclick="switchPage('knowledge')">
+                <i class="bi bi-folder-plus"></i>
+                <span>文档管理</span>
+            </div>
+        </nav>
+
+        <div class="sidebar-footer">
+            <p>沈阳建筑大学</p>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Header -->
+        <header class="header">
+            <h2 class="header-title">
+                <i class="bi bi-house"></i>
+                <span id="pageTitle">图谱概览</span>
+            </h2>
+        </header>
+
+        <!-- Page: Overview -->
+        <div class="page-content active" id="page-overview">
+            <div class="breadcrumb">
+                <a href="#"><i class="bi bi-house"></i> Home</a>
+                <span>/</span>
+                <span>图谱概览</span>
+            </div>
+
+            <!-- Stats -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="statNodes">--</div>
+                    <div class="stat-label"><i class="bi bi-node stat-icon"></i> 实体节点</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="statEdges">--</div>
+                    <div class="stat-label"><i class="bi bi-link stat-icon"></i> 关系边</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="statEntityTypes">--</div>
+                    <div class="stat-label"><i class="bi bi-folder stat-icon"></i> 实体类型</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="statRelationTypes">--</div>
+                    <div class="stat-label"><i class="bi bi-diagram-3 stat-icon"></i> 关系类型</div>
+                </div>
+            </div>
+
+            <!-- Schema -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="bi bi-diagram-3"></i> 知识图谱架构</h3>
+                    <button class="btn btn-outline btn-sm" onclick="loadOverview()">
+                        <i class="bi bi-refresh"></i> 刷新
+                    </button>
+                </div>
+                <div class="schema-grid">
+                    <div class="schema-card">
+                        <h4>实体类型</h4>
+                        <ul class="schema-list" id="entityTypesList">
+                            <li style="color: var(--text-muted);">加载中...</li>
+                        </ul>
+                    </div>
+                    <div class="schema-card">
+                        <h4>关系类型</h4>
+                        <ul class="schema-list" id="relationTypesList">
+                            <li style="color: var(--text-muted);">加载中...</li>
+                        </ul>
+                    </div>
+                    <div class="schema-card">
+                        <h4>图谱特点</h4>
+                        <ul class="schema-list">
+                            <li>声明式服务定义</li>
+                            <li>规则匹配问答</li>
+                            <li>实体路径推理</li>
+                            <li>NER自动识别</li>
+                            <li>图谱可视化</li>
+                            <li>向量语义检索</li>
+                            <li>动态实体抽取</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Graph Visualization -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="bi bi-graph-up"></i> 知识图谱可视化</h3>
+                    <button class="btn btn-outline btn-sm" onclick="loadGraphVisualization()">
+                        <i class="bi bi-refresh"></i> 刷新
+                    </button>
+                </div>
+                <div class="graph-container" id="overviewGraph"></div>
+            </div>
+        </div>
+
+        <!-- Page: Knowledge Graph Query (合并页面) -->
+        <div class="page-content" id="page-kg-query">
+            <div class="breadcrumb">
+                <a href="#"><i class="bi bi-house"></i> Home</a>
+                <span>/</span>
+                <span>知识图谱查询</span>
+            </div>
+
+            <!-- Tab切换区域 -->
+            <div class="kg-query-tabs">
+                <div class="kg-tab active" onclick="switchKgTab('smart')" id="kg-tab-smart">
+                    <i class="bi bi-magic"></i>
+                    <span>智能查询</span>
+                </div>
+                <div class="kg-tab" onclick="switchKgTab('entity')" id="kg-tab-entity">
+                    <i class="bi bi-search"></i>
+                    <span>实体查询</span>
+                </div>
+                <div class="kg-tab" onclick="switchKgTab('relation')" id="kg-tab-relation">
+                    <i class="bi bi-share"></i>
+                    <span>关系查询</span>
+                </div>
+            </div>
+
+            <!-- 智能查询Tab -->
+            <div class="kg-tab-content" id="kg-content-smart">
+                <p class="tab-description">输入一段文本，系统将自动识别其中的健康实体，并构建关系图谱。</p>
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="bi bi-text-left"></i> 输入文本</h3>
+                    </div>
+                    <textarea class="form-control kg-textarea" id="kgSmartInput" placeholder="输入包含健康实体的文本，如：糖尿病患者应该注意饮食，避免高糖食物，适量运动有助于控制血糖..."></textarea>
+                    <div style="display: flex; gap: 12px; margin-top: 16px;">
+                        <button class="btn btn-primary" onclick="smartQuery()">
+                            <i class="bi bi-magic"></i> 智能识别
+                        </button>
+                        <button class="btn btn-outline" onclick="clearGraph()">
+                            <i class="bi bi-eraser"></i> 清除
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 实体查询Tab -->
+            <div class="kg-tab-content" id="kg-content-entity" style="display: none;">
+                <p class="tab-description">输入单个实体名称，查询该实体的所有相关关系。</p>
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="bi bi-search"></i> 查询条件</h3>
+                    </div>
+                    <div class="search-box">
+                        <input type="text" class="form-control" id="kgEntityInput" placeholder="输入实体名称，如：高血压、糖尿病、鸡胸肉...">
+                        <button class="btn btn-primary" onclick="queryEntity()">
+                            <i class="bi bi-search"></i> 查询
+                        </button>
+                    </div>
+                    <div class="entity-types">
+                        <span class="entity-type disease"><i class="bi bi-virus"></i> 疾病</span>
+                        <span class="entity-type symptom"><i class="bi bi-thermometer"></i> 症状</span>
+                        <span class="entity-type drug"><i class="bi bi-capsule"></i> 药物</span>
+                        <span class="entity-type food"><i class="bi bi-apple"></i> 食物</span>
+                        <span class="entity-type nutrient"><i class="bi bi-droplet"></i> 营养素</span>
+                        <span class="entity-type exercise"><i class="bi bi-bicycle"></i> 运动</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 关系查询Tab -->
+            <div class="kg-tab-content" id="kg-content-relation" style="display: none;">
+                <p class="tab-description">输入两个实体，查询它们之间的关系路径。</p>
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="bi bi-share"></i> 查询两个实体的关系</h3>
+                    </div>
+                    <div class="relation-input-grid">
+                        <div class="form-group">
+                            <label class="form-label">实体1</label>
+                            <input type="text" class="form-control" id="kgRelationEntity1" placeholder="如：高血压">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">实体2</label>
+                            <input type="text" class="form-control" id="kgRelationEntity2" placeholder="如：心脏">
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" onclick="queryRelation()">
+                        <i class="bi bi-search"></i> 查询关系路径
+                    </button>
+                </div>
+            </div>
+
+            <!-- 结果展示区域 -->
+            <div id="kgResultsSection" style="display: none; margin-top: 24px;">
+                <!-- NER标注结果（仅智能查询时显示） -->
+                <div class="card" id="kgNerResultCard" style="display: none;">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="bi bi-highlighter"></i> 实体标注</h3>
+                    </div>
+                    <div id="kgNerAnnotated" style="padding: 16px; background: var(--bg-darker); border-radius: 8px; line-height: 1.8;"></div>
+                </div>
+
+                <!-- 统一图谱展示区域 -->
+                <div class="kg-results-grid">
+                    <!-- 实体列表 -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title"><i class="bi bi-list-ul"></i> 实体列表</h3>
+                            <small style="color: var(--text-muted);">点击实体可深入查询</small>
+                        </div>
+                        <div id="kgEntityList" style="display: flex; flex-direction: column; gap: 8px;"></div>
+                    </div>
+
+                    <!-- 关系图谱 -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title"><i class="bi bi-diagram-3"></i> 知识图谱</h3>
+                            <div style="display: flex; gap: 8px;">
+                                <button class="btn btn-outline btn-sm" onclick="clearGraph()">
+                                    <i class="bi bi-eraser"></i> 清除
+                                </button>
+                                <button class="btn btn-outline btn-sm" onclick="exportGraph()">
+                                    <i class="bi bi-download"></i> 导出
+                                </button>
+                            </div>
+                        </div>
+                        <div class="graph-container" id="kgGraph"></div>
+                        <div class="graph-tip">
+                            <i class="bi bi-info-circle"></i> 提示：点击图谱节点可以查询该实体的详细关系
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 关系详情表格 -->
+                <div class="card" id="kgRelationTableCard" style="display: none; margin-top: 24px;">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="bi bi-table"></i> 关系详情</h3>
+                    </div>
+                    <div class="table-container">
+                        <table class="data-table" id="kgRelationTable">
+                            <thead>
+                                <tr>
+                                    <th>实体1</th>
+                                    <th>关系</th>
+                                    <th>实体2</th>
+                                </tr>
+                            </thead>
+                            <tbody id="kgRelationTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Page: Disease Graph -->
+        <div class="page-content" id="page-disease">
+            <div class="breadcrumb">
+                <a href="#"><i class="bi bi-house"></i> Home</a>
+                <span>/</span>
+                <span>疾病图谱</span>
+            </div>
+
+            <!-- Disease Selector -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="bi bi-virus2"></i> 选择疾病</h3>
+                </div>
+                <div class="disease-selector" id="diseaseSelector">
+                    <!-- Disease cards will be loaded dynamically -->
+                </div>
+            </div>
+
+            <!-- Disease Graph and Details -->
+            <div class="disease-content" id="diseaseContent" style="display: none;">
+                <div class="disease-graph-section">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title"><i class="bi bi-graph-up"></i> 疾病知识图谱</h3>
+                            <span id="selectedDiseaseName" style="color: var(--danger); font-weight: 600;"></span>
+                        </div>
+                        <div class="graph-container" id="diseaseGraph"></div>
+                    </div>
+                </div>
+
+                <div class="disease-details-section">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title"><i class="bi bi-info-circle"></i> 疾病详情</h3>
+                        </div>
+                        <div class="detail-section" id="symptomsSection">
+                            <h4><i class="bi bi-thermometer" style="color: #f97316;"></i> 症状列表</h4>
+                            <ul id="symptomsList" class="detail-list"></ul>
+                        </div>
+                        <div class="detail-section" id="riskSection">
+                            <h4><i class="bi bi-exclamation-triangle" style="color: #8b5cf6;"></i> 风险因素</h4>
+                            <ul id="riskList" class="detail-list"></ul>
+                        </div>
+                        <div class="detail-section" id="treatmentSection">
+                            <h4><i class="bi bi-bandaid" style="color: #3b82f6;"></i> 治疗方式</h4>
+                            <ul id="treatmentList" class="detail-list"></ul>
+                        </div>
+                        <div class="detail-section" id="drugsSection">
+                            <h4><i class="bi bi-capsule" style="color: #ec4899;"></i> 相关药物</h4>
+                            <ul id="drugsList" class="detail-list"></ul>
+                        </div>
+                        <div class="detail-section" id="dietsSection">
+                            <h4><i class="bi bi-apple" style="color: #22c55e;"></i> 饮食建议</h4>
+                            <ul id="dietsList" class="detail-list"></ul>
+                        </div>
+                        <div class="detail-section" id="partsSection">
+                            <h4><i class="bi bi-heart" style="color: #eab308;"></i> 影响部位</h4>
+                            <ul id="partsList" class="detail-list"></ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Page: Chat -->
+        <div class="page-content" id="page-chat">
+            <div class="breadcrumb">
+                <a href="#"><i class="bi bi-house"></i> Home</a>
+                <span>/</span>
+                <span>智能对话</span>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="bi bi-robot"></i> AI健康助手</h3>
+                    <button class="btn btn-outline btn-sm" onclick="clearChat()">
+                        <i class="bi bi-trash"></i> 清空
+                    </button>
+                </div>
+
+                <!-- 热门问题快捷输入 -->
+                <div style="margin-bottom: 16px; padding: 0 20px;">
+                    <span style="color: var(--text-muted); font-size: 12px; margin-right: 8px;">热门问题:</span>
+                    <span class="hot-tag" onclick="quickAsk('高血压有什么症状')">高血压有什么症状</span>
+                    <span class="hot-tag" onclick="quickAsk('糖尿病吃什么好')">糖尿病吃什么好</span>
+                    <span class="hot-tag" onclick="quickAsk('想减脂瘦身做什么运动')">想减脂瘦身做什么运动</span>
+                    <span class="hot-tag" onclick="quickAsk('鸡胸肉有什么营养')">鸡胸肉有什么营养</span>
+                    <span class="hot-tag" onclick="quickAsk('失眠怎么治疗')">失眠怎么治疗</span>
+                </div>
+
+                <div class="chat-container">
+                    <div class="chat-messages" id="chatMessages">
+                        <div class="chat-message">
+                            <div class="chat-avatar"><i class="bi bi-robot"></i></div>
+                            <div class="chat-content">
+                                您好！我是健康智能助手，可以帮助您进行健康数据管理、饮食分析、运动推荐等。请问有什么可以帮您的？
+                            </div>
+                        </div>
+                    </div>
+                    <div class="chat-input-area">
+                        <div class="chat-input">
+                            <input type="text" class="form-control" id="chatInput" placeholder="输入您的健康问题...">
+                        </div>
+                        <button class="btn btn-primary" onclick="sendChat()">
+                            <i class="bi bi-send"></i> 发送
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 知识图谱可视化展示区 (默认隐藏) -->
+            <div class="card" id="chatGraphCard" style="display: none;">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="bi bi-graph-up"></i> 相关知识图谱</h3>
+                    <button class="btn btn-outline btn-sm" onclick="toggleGraphVisibility()">
+                        <i class="bi bi-arrows-collapse"></i> 收起
+                    </button>
+                </div>
+                <div class="graph-container" id="chatGraph"></div>
+            </div>
+        </div>
+
+        <!-- Page: Users -->
+        <div class="page-content" id="page-users">
+            <div class="breadcrumb">
+                <a href="#"><i class="bi bi-house"></i> Home</a>
+                <span>/</span>
+                <span>用户管理</span>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="bi bi-people"></i> 用户列表</h3>
+                    <button class="btn btn-primary btn-sm" onclick="showCreateUser()">
+                        <i class="bi bi-plus"></i> 新建用户
+                    </button>
+                </div>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>用户ID</th>
+                                <th>姓名</th>
+                                <th>性别/年龄</th>
+                                <th>身高/体重</th>
+                                <th>BMI</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="userTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- User Creation Modal -->
+        <div id="createUserModal" class="modal-overlay" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3><i class="bi bi-person-plus"></i> 新建用户</h3>
+                    <button class="modal-close" onclick="hideCreateUserModal()">
+                        <i class="bi bi-x"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="createUserForm">
+                        <div class="form-group">
+                            <label><i class="bi bi-person"></i> 姓名</label>
+                            <input type="text" id="userName" class="form-control" placeholder="请输入姓名" required>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="bi bi-gender-ambiguous"></i> 性别</label>
+                            <select id="userGender" class="form-control">
+                                <option value="男">男</option>
+                                <option value="女">女</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="bi bi-calendar"></i> 年龄</label>
+                            <input type="number" id="userAge" class="form-control" placeholder="年龄" value="25" min="1" max="120">
+                        </div>
+                        <div class="form-group">
+                            <label><i class="bi bi-rulers"></i> 身高 (cm)</label>
+                            <input type="number" id="userHeight" class="form-control" placeholder="身高" value="170" min="50" max="250" step="0.1">
+                        </div>
+                        <div class="form-group">
+                            <label><i class="bi bi-speedometer2"></i> 体重 (kg)</label>
+                            <input type="number" id="userWeight" class="form-control" placeholder="体重" value="65" min="10" max="300" step="0.1">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-outline" onclick="hideCreateUserModal()">取消</button>
+                    <button class="btn btn-primary" onclick="createUser()">
+                        <i class="bi bi-check"></i> 创建
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Page: Analysis -->
+        <div class="page-content" id="page-analysis">
+            <div class="breadcrumb">
+                <a href="#"><i class="bi bi-house"></i> Home</a>
+                <span>/</span>
+                <span>数据分析</span>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="analysisUserCount">--</div>
+                    <div class="stat-label"><i class="bi bi-people stat-icon"></i> 用户总数</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="analysisHealthRecords">--</div>
+                    <div class="stat-label"><i class="bi bi-file-text stat-icon"></i> 健康记录</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="analysisChatCount">--</div>
+                    <div class="stat-label"><i class="bi bi-chat stat-icon"></i> 对话次数</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="analysisToolCalls">--</div>
+                    <div class="stat-label"><i class="bi bi-calculator stat-icon"></i> 工具调用</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="bi bi-chart-line"></i> 数据分布</h3>
+                </div>
+                <div class="graph-container" id="analysisChart"></div>
+            </div>
+
+            <!-- 用户群体统计分析 -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="bi bi-pie-chart"></i> 用户群体分布</h3>
+                </div>
+                <div class="chart-grid">
+                    <div class="chart-item">
+                        <h4>BMI分布</h4>
+                        <div class="chart-container" id="bmiDistributionChart"></div>
+                    </div>
+                    <div class="chart-item">
+                        <h4>年龄分布</h4>
+                        <div class="chart-container" id="ageDistributionChart"></div>
+                    </div>
+                    <div class="chart-item">
+                        <h4>性别比例</h4>
+                        <div class="chart-container" id="genderDistributionChart"></div>
+                    </div>
+                    <div class="chart-item">
+                        <h4>活动水平分布</h4>
+                        <div class="chart-container" id="activityDistributionChart"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Page: Tools -->
+        <div class="page-content" id="page-tools">
+            <div class="breadcrumb">
+                <a href="#"><i class="bi bi-house"></i> Home</a>
+                <span>/</span>
+                <span>健康工具</span>
+            </div>
+
+            <div class="schema-grid">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="bi bi-calculator"></i> BMI计算</h3>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">身高 (cm)</label>
+                        <input type="number" class="form-control" id="bmiHeight" placeholder="170" value="170">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">体重 (kg)</label>
+                        <input type="number" class="form-control" id="bmiWeight" placeholder="65" value="65">
+                    </div>
+                    <button class="btn btn-primary" onclick="calculateBMI()">计算BMI</button>
+                    <div id="bmiResult" style="margin-top: 16px;"></div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="bi bi-fire"></i> 热量计算</h3>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">性别</label>
+                        <select class="form-control" id="calorieGender">
+                            <option value="男">男</option>
+                            <option value="女">女</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">年龄</label>
+                        <input type="number" class="form-control" id="calorieAge" placeholder="25" value="25">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">身高 (cm)</label>
+                        <input type="number" class="form-control" id="calorieHeight" placeholder="170" value="170">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">体重 (kg)</label>
+                        <input type="number" class="form-control" id="calorieWeight" placeholder="65" value="65">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">活动水平</label>
+                        <select class="form-control" id="calorieActivity">
+                            <option value="久坐不动">久坐不动</option>
+                            <option value="轻度活动">轻度活动</option>
+                            <option value="中度活动">中度活动</option>
+                            <option value="积极运动">积极运动</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary" onclick="calculateCalorie()">计算热量</button>
+                    <div id="calorieResult" style="margin-top: 16px;"></div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="bi bi-moon"></i> 睡眠评估</h3>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">睡眠时长 (小时)</label>
+                        <input type="number" class="form-control" id="sleepHours" placeholder="7" value="7">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">睡眠质量 (1-10)</label>
+                        <input type="number" class="form-control" id="sleepQuality" placeholder="7" min="1" max="10" value="7">
+                    </div>
+                    <button class="btn btn-primary" onclick="assessSleep()">评估睡眠</button>
+                    <div id="sleepResult" style="margin-top: 16px;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Page: Knowledge Management -->
+        <div class="page-content" id="page-knowledge">
+            <div class="breadcrumb">
+                <a href="#"><i class="bi bi-house"></i> Home</a>
+                <span>/</span>
+                <span>文档管理</span>
+            </div>
+
+            <!-- Stats -->
+            <div class="stats-grid" style="margin-bottom: 24px;">
+                <div class="stat-card">
+                    <div class="stat-value" id="knowledgeTotalDocs">--</div>
+                    <div class="stat-label"><i class="bi bi-folder stat-icon"></i> 文档总数</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="knowledgeCompleted">--</div>
+                    <div class="stat-label"><i class="bi bi-check-circle stat-icon"></i> 已完成</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="knowledgeTotalEntities">--</div>
+                    <div class="stat-label"><i class="bi bi-node stat-icon"></i> 图谱实体</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="knowledgeTotalRelations">--</div>
+                    <div class="stat-label"><i class="bi bi-link stat-icon"></i> 图谱关系</div>
+                </div>
+            </div>
+
+            <!-- Upload Section -->
+            <div class="card" style="margin-bottom: 24px;">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="bi bi-upload"></i> 上传文档</h3>
+                    <div class="card-actions">
+                        <small style="color: var(--text-muted);">支持 txt, pdf 文件，最大 10MB</small>
+                    </div>
+                </div>
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-icon"><i class="bi bi-cloud-arrow-up"></i></div>
+                    <div class="upload-text">拖放文件到此处上传</div>
+                    <div class="upload-text" style="color: var(--text-muted); font-size: 12px;">或点击选择文件</div>
+                    <input type="file" id="fileInput" accept=".txt,.pdf" style="display: none;" onchange="handleFileSelect(this)">
+                </div>
+                <div id="uploadProgress" style="display: none; margin-top: 16px;">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <div style="text-align: center; margin-top: 8px; color: var(--text-secondary);">
+                        <span id="uploadFileName"></span> - <span id="uploadStatus">上传中...</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Documents Table -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="bi bi-list-ul"></i> 文档列表</h3>
+                    <div class="card-actions">
+                        <select id="statusFilter" class="form-control" style="width: 120px;" onchange="loadKnowledgeDocuments()">
+                            <option value="">全部状态</option>
+                            <option value="completed">已完成</option>
+                            <option value="processing">处理中</option>
+                            <option value="pending">待处理</option>
+                            <option value="failed">失败</option>
+                        </select>
+                        <button class="btn btn-outline" onclick="loadKnowledgeDocuments()">
+                            <i class="bi bi-refresh"></i> 刷新
+                        </button>
+                    </div>
+                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>文件名</th>
+                            <th>状态</th>
+                            <th>Chunk数</th>
+                            <th>实体数</th>
+                            <th>关系数</th>
+                            <th>大小</th>
+                            <th>上传时间</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="knowledgeTableBody"></tbody>
+                </table>
+                <div id="knowledgePagination" style="margin-top: 16px; display: flex; justify-content: center; gap: 8px;"></div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // API Base URL
+        const API_BASE = '/api/v1';
+
+        // Page Switching
+        function switchPage(page) {
+            document.querySelectorAll('.page-content').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
+
+            const pageEl = document.getElementById('page-' + page);
+            const menuItem = document.querySelector(`.menu-item[onclick*="${page}"]`);
+
+            if (pageEl) pageEl.classList.add('active');
+            if (menuItem) menuItem.classList.add('active');
+
+            // Update title
+            const titles = {
+                'overview': '图谱概览',
+                'kg-query': '知识图谱查询',
+                'disease': '疾病图谱',
+                'chat': 'AI健康助手',
+                'users': '用户管理',
+                'analysis': '数据分析',
+                'tools': '健康工具',
+                'knowledge': '文档管理'
+            };
+            document.getElementById('pageTitle').textContent = titles[page] || '图谱概览';
+
+            // Load page data
+            if (page === 'overview') loadOverview();
+            if (page === 'kg-query') { /* 初始化知识图谱查询页面 */ }
+            if (page === 'disease') loadDiseases();
+            if (page === 'users') loadUsers();
+            if (page === 'analysis') loadAnalysisStats();
+            if (page === 'knowledge') { loadKnowledgeDocuments(); loadKnowledgeStats(); }
+        }
+
+        // Load Overview - 从后端实时同步
+        function loadOverview() {
+            // 获取图谱schema数据
+            fetch(`${API_BASE}/kg/schema`)
+                .then(r => r.json())
+                .then(data => {
+                    // 更新统计卡片
+                    document.getElementById('statNodes').textContent = data.nodes || 0;
+                    document.getElementById('statEdges').textContent = data.edges || 0;
+                    document.getElementById('statEntityTypes').textContent = Object.keys(data.entity_types || {}).length;
+                    document.getElementById('statRelationTypes').textContent = Object.keys(data.relation_types || {}).length;
+
+                    // 更新实体类型列表
+                    const entityTypesList = document.getElementById('entityTypesList');
+                    entityTypesList.innerHTML = '';
+                    const entityTypeIcons = {
+                        '疾病': { icon: 'bi-virus', class: 'disease' },
+                        '症状': { icon: 'bi-thermometer', class: 'symptom' },
+                        '药物': { icon: 'bi-capsule', class: 'drug' },
+                        '食物': { icon: 'bi-apple', class: 'food' },
+                        '营养素': { icon: 'bi-droplet', class: 'nutrient' },
+                        '运动': { icon: 'bi-bicycle', class: 'exercise' },
+                        '人体部位': { icon: 'bi-heart', class: 'disease' },
+                        '治疗方法': { icon: 'bi-firstaid', class: 'drug' },
+                        '医学检查': { icon: 'bi-activity', class: 'drug' },
+                        '饮食类型': { icon: 'bi-leaf', class: 'food' },
+                        '运动水平': { icon: 'bi-speedometer', class: 'exercise' },
+                        '生活习惯': { icon: 'bi-calendar-check', class: 'exercise' },
+                        '危险因素': { icon: 'bi-exclamation-triangle', class: 'symptom' },
+                        '健康目标': { icon: 'bi-flag', class: 'exercise' },
+                        '健康术语': { icon: 'bi-book', class: 'nutrient' },
+                        '其他实体': { icon: 'bi-tag', class: '' }
+                    };
+
+                    for (const [type, count] of Object.entries(data.entity_types || {})) {
+                        const iconInfo = entityTypeIcons[type] || { icon: 'bi-tag', class: '' };
+                        const li = document.createElement('li');
+                        li.innerHTML = `<span class="entity-type ${iconInfo.class}"><i class="bi ${iconInfo.icon}"></i> ${type} (${count})</span>`;
+                        entityTypesList.appendChild(li);
+                    }
+
+                    // 更新关系类型列表
+                    const relationTypesList = document.getElementById('relationTypesList');
+                    relationTypesList.innerHTML = '';
+                    const sortedRelations = Object.entries(data.relation_types || {})
+                        .sort((a, b) => b[1] - a[1])
+                        .slice(0, 10);
+
+                    for (const [type, count] of sortedRelations) {
+                        const li = document.createElement('li');
+                        li.textContent = `${type} (${count}条)`;
+                        relationTypesList.appendChild(li);
+                    }
+                })
+                .catch(e => {
+                    console.error('加载schema失败:', e);
+                    document.getElementById('statNodes').textContent = '--';
+                    document.getElementById('statEdges').textContent = '--';
+                });
+
+            // 加载图谱可视化
+            loadGraphVisualization();
+        }
+
+        // Load Graph Visualization - 从后端获取真实图谱数据
+        function loadGraphVisualization() {
+            fetch(`${API_BASE}/kg/overview-graph`)
+                .then(r => r.json())
+                .then(data => {
+                    if (data.nodes && data.nodes.length > 0) {
+                        const categories = data.categories.map(c => ({
+                            name: c.name,
+                            itemStyle: { color: c.color }
+                        }));
+                        const links = data.links.map(l => ({
+                            source: l.source,
+                            target: l.target,
+                            value: l.relation
+                        }));
+                        initOverviewGraphWithData(data.nodes, links, categories);
+                    } else {
+                        initDefaultGraph();
+                    }
+                })
+                .catch(() => initDefaultGraph());
+        }
+
+        // 使用真实数据初始化图谱
+        function initOverviewGraphWithData(nodes, links, categories) {
+            const chart = echarts.init(document.getElementById('overviewGraph'));
+            const option = {
+                tooltip: {
+                    trigger: 'item',
+                    formatter: (params) => {
+                        if (params.dataType === 'edge') {
+                            return `${params.data.source} → ${params.data.value} → ${params.data.target}`;
+                        }
+                        return params.data.name;
+                    }
+                },
+                legend: {
+                    data: categories.map(c => c.name),
+                    textStyle: { color: '#94a3b8' },
+                    top: 'top'
+                },
+                series: [{
+                    type: 'graph',
+                    layout: 'force',
+                    data: nodes,
+                    links: links,
+                    categories: categories,
+                    roam: true,
+                    label: { show: true, color: '#f1f5f9', fontSize: 12 },
+                    force: { repulsion: 200, edgeLength: 80 },
+                    lineStyle: { color: '#475569', curveness: 0.3, width: 2 },
+                    emphasis: { focus: 'adjacency', lineStyle: { width: 4 } }
+                }],
+                color: categories.map(c => c.itemStyle.color)
+            };
+            chart.setOption(option);
+        }
+
+        // 默认图谱示例
+        function initDefaultGraph() {
+            const chart = echarts.init(document.getElementById('overviewGraph'));
+            const option = {
+                tooltip: { trigger: 'item' },
+                legend: {
+                    data: ['疾病', '症状', '药物', '食物', '营养素', '运动'],
+                    textStyle: { color: '#94a3b8' },
+                    top: 'top'
+                },
+                series: [{
+                    type: 'graph',
+                    layout: 'force',
+                    data: [
+                        { name: '高血压', category: 0, symbolSize: 40 },
+                        { name: '糖尿病', category: 0, symbolSize: 40 },
+                        { name: '头晕', category: 1 },
+                        { name: '乏力', category: 1 },
+                        { name: '降压药', category: 2 },
+                        { name: '胰岛素', category: 2 },
+                        { name: '鸡胸肉', category: 3 },
+                        { name: '牛奶', category: 3 },
+                        { name: '蛋白质', category: 4 },
+                        { name: '钙', category: 4 },
+                        { name: '跑步', category: 5 },
+                        { name: '游泳', category: 5 }
+                    ],
+                    links: [
+                        { source: '高血压', target: '头晕', value: '具有症状' },
+                        { source: '高血压', target: '降压药', value: '治疗方式' },
+                        { source: '糖尿病', target: '乏力', value: '具有症状' },
+                        { source: '糖尿病', target: '胰岛素', value: '治疗方式' },
+                        { source: '鸡胸肉', target: '蛋白质', value: '含有' },
+                        { source: '牛奶', target: '钙', value: '含有' },
+                        { source: '跑步', target: '减脂瘦身', value: '适合' },
+                        { source: '游泳', target: '减脂瘦身', value: '适合' }
+                    ],
+                    categories: [
+                        { name: '疾病', itemStyle: { color: '#ef4444' } },
+                        { name: '症状', itemStyle: { color: '#f97316' } },
+                        { name: '药物', itemStyle: { color: '#8b5cf6' } },
+                        { name: '食物', itemStyle: { color: '#22c55e' } },
+                        { name: '营养素', itemStyle: { color: '#0ea5e9' } },
+                        { name: '运动', itemStyle: { color: '#14b8a6' } }
+                    ],
+                    roam: true,
+                    label: { show: true, color: '#f1f5f9' },
+                    force: { repulsion: 100, edgeLength: 50 },
+                    lineStyle: { color: '#475569', curveness: 0.3 },
+                    emphasis: { focus: 'adjacency', lineStyle: { width: 3 } }
+                }],
+                color: ['#ef4444', '#f97316', '#8b5cf6', '#22c55e', '#0ea5e9', '#14b8a6']
+            };
+            chart.setOption(option);
+        }
+
+        // Knowledge Graph Query Functions
+        let kgGraphInstance = null;
+        let currentKgEntities = [];
+
+        // Tab切换
+        function switchKgTab(tabName) {
+            document.querySelectorAll('.kg-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.kg-tab-content').forEach(c => c.style.display = 'none');
+
+            document.getElementById('kg-tab-' + tabName).classList.add('active');
+            document.getElementById('kg-content-' + tabName).style.display = 'block';
+        }
+
+        // 智能查询（NER + 自动图谱构建）
+        async function smartQuery() {
+            const text = document.getElementById('kgSmartInput').value;
+            if (!text) {
+                alert('请输入文本');
+                return;
+            }
+
+            try {
+                // 1. 先进行NER识别
+                const nerResponse = await fetch(`${API_BASE}/kg/ner`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query: text })
+                });
+                const nerData = await nerResponse.json();
+
+                // 2. 显示NER结果
+                document.getElementById('kgResultsSection').style.display = 'block';
+                document.getElementById('kgNerResultCard').style.display = 'block';
+                document.getElementById('kgNerAnnotated').innerHTML = nerData.annotated;
+
+                // 3. 收集所有实体并去重
+                const entities = nerData.entities || [];
+                currentKgEntities = entities;
+                renderKgEntityList(entities);
+
+                // 4. 并行查询每个实体的关系，构建综合图谱
+                if (entities.length > 0) {
+                    const allRelations = [];
+                    const entityNames = entities.map(e => e.entity_name);
+
+                    // 查询所有识别到的实体的关系
+                    for (const entity of entities) {
+                        try {
+                            const entityResponse = await fetch(`${API_BASE}/kg/entity/${encodeURIComponent(entity.entity_name)}`);
+                            const entityData = await entityResponse.json();
+                            if (entityData.relations) {
+                                allRelations.push(...entityData.relations);
+                            }
+                        } catch (err) {
+                            console.log(`Entity ${entity.entity_name} not found in KG`);
+                        }
+                    }
+
+                    // 5. 构建图谱
+                    if (allRelations.length > 0) {
+                        setTimeout(() => initKgGraph(allRelations, entities), 100);
+                        renderKgRelationTable(allRelations);
+                        document.getElementById('kgRelationTableCard').style.display = 'block';
+                    } else {
+                        document.getElementById('kgRelationTableCard').style.display = 'none';
+                        // 即使没有关系数据，也显示提示
+                        document.getElementById('kgEntityList').innerHTML += '<p style="color: var(--text-muted); margin-top: 16px;">识别的实体暂无图谱关系数据</p>';
+                    }
+                } else {
+                    // 没有识别到实体
+                    document.getElementById('kgEntityList').innerHTML = '<p style="color: var(--text-muted);">未识别到健康实体</p>';
+                }
+            } catch (err) {
+                console.error('Smart query failed:', err);
+                alert('查询失败，请稍后重试');
+            }
+        }
+
+        // 实体查询
+        function queryEntity() {
+            const entity = document.getElementById('kgEntityInput').value;
+            if (!entity) {
+                alert('请输入实体名称');
+                return;
+            }
+
+            fetch(`${API_BASE}/kg/entity/${encodeURIComponent(entity)}`)
+                .then(r => r.json())
+                .then(data => {
+                    document.getElementById('kgResultsSection').style.display = 'block';
+                    document.getElementById('kgNerResultCard').style.display = 'none';
+
+                    // 渲染实体列表（仅包含查询的实体）
+                    currentKgEntities = [{
+                        entity_name: entity,
+                        entity_type_name: data.entity?.entity_type_name || '未知'
+                    }];
+                    renderKgEntityList(currentKgEntities);
+
+                    // 渲染关系表格
+                    renderKgRelationTable(data.relations);
+                    document.getElementById('kgRelationTableCard').style.display = 'block';
+
+                    // 渲染图谱
+                    setTimeout(() => initKgGraph(data.relations, currentKgEntities), 100);
+                })
+                .catch(() => alert('未找到该实体'));
+        }
+
+        // 关系查询
+        function queryRelation() {
+            const e1 = document.getElementById('kgRelationEntity1').value;
+            const e2 = document.getElementById('kgRelationEntity2').value;
+            if (!e1 || !e2) {
+                alert('请输入两个实体');
+                return;
+            }
+
+            fetch(`${API_BASE}/kg/relation`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ entity1: e1, entity2: e2 })
+            })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.found) {
+                        document.getElementById('kgResultsSection').style.display = 'block';
+                        document.getElementById('kgNerResultCard').style.display = 'none';
+                        document.getElementById('kgRelationTableCard').style.display = 'none';
+
+                        // 渲染实体列表
+                        currentKgEntities = [
+                            { entity_name: e1, entity_type_name: '查询实体' },
+                            { entity_name: e2, entity_type_name: '查询实体' }
+                        ];
+                        renderKgEntityList(currentKgEntities);
+
+                        // 构建路径图谱
+                        setTimeout(() => initRelationPathGraph(data), 100);
+                    } else {
+                        alert('未找到两个实体之间的关系路径');
+                    }
+                })
+                .catch(() => alert('查询失败'));
+        }
+
+        // 统一图谱初始化（用于实体查询和智能查询）- 与主页图谱风格一致
+        function initKgGraph(relations, entities) {
+            const chartDom = document.getElementById('kgGraph');
+            if (kgGraphInstance) {
+                kgGraphInstance.dispose();
+            }
+            kgGraphInstance = echarts.init(chartDom);
+
+            console.log('Building graph with relations:', relations);
+            console.log('Entities info:', entities);
+
+            // 英文枚举名到中文类型名称的映射
+            const enumToChinese = {
+                'DISEASE': '疾病',
+                'SYMPTOM': '症状',
+                'DRUG': '药物',
+                'FOOD': '食物',
+                'NUTRIENT': '营养素',
+                'EXERCISE': '运动',
+                'BODY_PART': '人体部位',
+                'TREATMENT': '治疗方法',
+                'MEDICAL_TEST': '医学检查',
+                'DIET_TYPE': '饮食类型',
+                'FITNESS_LEVEL': '运动水平',
+                'HABIT': '生活习惯',
+                'RISK_FACTOR': '危险因素',
+                'HEALTH_GOAL': '健康目标',
+                'HEALTH_TERM': '健康术语',
+                'OTHER': '其他实体'
+            };
+
+            // 实体类型颜色映射 - 与主页一致（使用中文类型名）
+            const typeColors = {
+                '疾病': '#ef4444',
+                '症状': '#f97316',
+                '药物': '#8b5cf6',
+                '食物': '#22c55e',
+                '营养素': '#0ea5e9',
+                '运动': '#14b8a6',
+                '人体部位': '#eab308',
+                '治疗方法': '#3b82f6',
+                '医学检查': '#6366f1',
+                '饮食类型': '#84cc16',
+                '运动水平': '#06b6d4',
+                '生活习惯': '#a855f7',
+                '危险因素': '#dc2626',
+                '健康目标': '#f59e0b',
+                '健康术语': '#0284c7',
+                '其他实体': '#64748b'
+            };
+
+            // 将英文枚举名转换为中文类型名
+            function getChineseTypeName(enumName) {
+                return enumToChinese[enumName] || enumName || '其他实体';
+            }
+
+            // 创建实体名称到类型的映射
+            const entityTypeMap = {};
+            entities.forEach(e => {
+                // 将英文枚举名转换为中文
+                entityTypeMap[e.entity_name] = getChineseTypeName(e.entity_type_name);
+            });
+
+            // 构建节点和边
+            const nodes = [];
+            const links = [];
+            const addedEntities = new Set();
+            const usedCategories = new Set();
+
+            // 添加所有实体节点
+            relations.forEach(rel => {
+                // 添加源节点
+                if (!addedEntities.has(rel.entity1)) {
+                    const typeName = entityTypeMap[rel.entity1] || '其他实体';
+                    usedCategories.add(typeName);
+                    nodes.push({
+                        name: rel.entity1,
+                        category: typeName,
+                        symbolSize: 40
+                    });
+                    addedEntities.add(rel.entity1);
+                }
+                // 添加目标节点
+                if (!addedEntities.has(rel.entity2)) {
+                    const typeName = entityTypeMap[rel.entity2] || '其他实体';
+                    usedCategories.add(typeName);
+                    nodes.push({
+                        name: rel.entity2,
+                        category: typeName,
+                        symbolSize: 30
+                    });
+                    addedEntities.add(rel.entity2);
+                }
+                // 添加边（关系类型作为value）
+                links.push({
+                    source: rel.entity1,
+                    target: rel.entity2,
+                    value: rel.relation
+                });
+            });
+
+            // 构建categories数组 - 与主页一致
+            const categories = Array.from(usedCategories).map(name => ({
+                name,
+                itemStyle: { color: typeColors[name] || '#64748b' }
+            }));
+
+            const option = {
+                tooltip: {
+                    trigger: 'item',
+                    formatter: (params) => {
+                        if (params.dataType === 'edge') {
+                            return `${params.data.source} → ${params.data.value} → ${params.data.target}`;
+                        }
+                        return `${params.data.name} (${params.data.category || '实体'})`;
+                    }
+                },
+                legend: {
+                    data: categories.map(c => c.name),
+                    textStyle: { color: '#94a3b8' },
+                    top: 'top',
+                    type: 'scroll'
+                },
+                series: [{
+                    type: 'graph',
+                    layout: 'force',
+                    data: nodes,
+                    links: links,
+                    categories: categories,
+                    roam: true,
+                    label: { show: true, color: '#f1f5f9', fontSize: 12 },
+                    force: { repulsion: 200, edgeLength: 80 },
+                    lineStyle: { color: '#475569', curveness: 0.3, width: 2 },
+                    emphasis: { focus: 'adjacency', lineStyle: { width: 4 } }
+                }],
+                color: categories.map(c => c.itemStyle.color)
+            };
+
+            kgGraphInstance.setOption(option);
+
+            // 点击节点深入查询
+            kgGraphInstance.on('click', (params) => {
+                if (params.dataType === 'node') {
+                    deepQueryEntity(params.data.name);
+                }
+            });
+        }
+
+        // 关系路径图谱（用于关系查询）
+        function initRelationPathGraph(data) {
+            const chartDom = document.getElementById('kgGraph');
+            if (kgGraphInstance) {
+                kgGraphInstance.dispose();
+            }
+            kgGraphInstance = echarts.init(chartDom);
+            kgGraphInstance.resize();
+
+            const nodes = [];
+            const links = [];
+            const addedNodes = new Set();
+
+            data.paths.forEach(path => {
+                for (let i = 0; i < path.length; i += 2) {
+                    if (!addedNodes.has(path[i])) {
+                        nodes.push({
+                            name: path[i],
+                            symbolSize: i === 0 || i === path.length - 1 ? 40 : 30,
+                            itemStyle: { color: i === 0 ? '#14b8a6' : (i === path.length - 1 ? '#f97316' : '#64748b') }
+                        });
+                        addedNodes.add(path[i]);
+                    }
+                    if (i + 2 < path.length) {
+                        links.push({
+                            source: path[i],
+                            target: path[i + 2],
+                            value: path[i + 1]
+                        });
+                    }
+                }
+            });
+
+            const option = {
+                tooltip: {
+                    trigger: 'item',
+                    formatter: (params) => {
+                        if (params.dataType === 'edge') {
+                            return `${params.data.source} → ${params.data.value} → ${params.data.target}`;
+                        }
+                        return params.data.name;
+                    }
+                },
+                series: [{
+                    type: 'graph',
+                    layout: 'force',
+                    data: nodes,
+                    links: links,
+                    roam: true,
+                    label: { show: true, color: '#f1f5f9', fontSize: 12 },
+                    force: { repulsion: 200, edgeLength: 100 },
+                    lineStyle: { color: '#0d9488', curveness: 0.3, width: 2 }
+                }]
+            };
+
+            kgGraphInstance.setOption(option);
+
+            // 点击节点深入查询
+            kgGraphInstance.on('click', (params) => {
+                if (params.dataType === 'node') {
+                    deepQueryEntity(params.data.name);
+                }
+            });
+        }
+
+        // 渲染可点击实体列表
+        function renderKgEntityList(entities) {
+            const container = document.getElementById('kgEntityList');
+            container.innerHTML = '';
+
+            if (entities.length === 0) {
+                container.innerHTML = '<p style="color: var(--text-muted);">暂无实体</p>';
+                return;
+            }
+
+            // 英文枚举名到中文类型名称的映射
+            const enumToChinese = {
+                'DISEASE': '疾病',
+                'SYMPTOM': '症状',
+                'DRUG': '药物',
+                'FOOD': '食物',
+                'NUTRIENT': '营养素',
+                'EXERCISE': '运动',
+                'BODY_PART': '人体部位',
+                'TREATMENT': '治疗方法',
+                'MEDICAL_TEST': '医学检查',
+                'DIET_TYPE': '饮食类型',
+                'FITNESS_LEVEL': '运动水平',
+                'HABIT': '生活习惯',
+                'RISK_FACTOR': '危险因素',
+                'HEALTH_GOAL': '健康目标',
+                'HEALTH_TERM': '健康术语',
+                'OTHER': '其他实体'
+            };
+
+            // 类型图标映射（使用中文类型名）
+            const typeIcons = {
+                '疾病': 'bi-virus',
+                '症状': 'bi-thermometer',
+                '药物': 'bi-capsule',
+                '食物': 'bi-apple',
+                '营养素': 'bi-droplet',
+                '运动': 'bi-bicycle',
+                '人体部位': 'bi-heart',
+                '治疗方法': 'bi-firstaid',
+                '医学检查': 'bi-activity',
+                '其他实体': 'bi-tag'
+            };
+
+            // 类型CSS类名映射（使用中文类型名）
+            const typeClasses = {
+                '疾病': 'disease',
+                '症状': 'symptom',
+                '药物': 'drug',
+                '食物': 'food',
+                '营养素': 'nutrient',
+                '运动': 'exercise',
+                '人体部位': 'disease',
+                '治疗方法': 'drug',
+                '医学检查': 'drug',
+                '其他实体': ''
+            };
+
+            entities.forEach(entity => {
+                // 将英文枚举名转换为中文
+                const chineseType = enumToChinese[entity.entity_type_name] || entity.entity_type_name || '其他实体';
+                const icon = typeIcons[chineseType] || 'bi-tag';
+                const typeClass = typeClasses[chineseType] || '';
+
+                const item = document.createElement('div');
+                item.className = 'kg-entity-item';
+                item.innerHTML = `
+                    <i class="bi ${icon}"></i>
+                    <span style="font-weight: 500;">${entity.entity_name}</span>
+                    <span class="entity-type-badge entity-type ${typeClass}">${chineseType}</span>
+                `;
+                item.onclick = () => deepQueryEntity(entity.entity_name);
+                container.appendChild(item);
+            });
+        }
+
+        // 渲染关系表格
+        function renderKgRelationTable(relations) {
+            const tbody = document.getElementById('kgRelationTableBody');
+            tbody.innerHTML = '';
+
+            if (!relations || relations.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3" style="color: var(--text-muted);">暂无关系数据</td></tr>';
+                return;
+            }
+
+            relations.forEach(rel => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><span class="kg-entity-link" onclick="deepQueryEntity('${rel.entity1}')">${rel.entity1}</span></td>
+                    <td>${rel.relation}</td>
+                    <td><span class="kg-entity-link" onclick="deepQueryEntity('${rel.entity2}')">${rel.entity2}</span></td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // 深入查询实体（点击实体后触发）
+        function deepQueryEntity(entityName) {
+            // 切换到实体查询Tab
+            switchKgTab('entity');
+            // 填充实体名称
+            document.getElementById('kgEntityInput').value = entityName;
+            // 执行查询
+            queryEntity();
+        }
+
+        // 清除图谱和结果
+        function clearGraph() {
+            if (kgGraphInstance) {
+                kgGraphInstance.dispose();
+                kgGraphInstance = null;
+            }
+            document.getElementById('kgResultsSection').style.display = 'none';
+            document.getElementById('kgNerResultCard').style.display = 'none';
+            document.getElementById('kgRelationTableCard').style.display = 'none';
+            document.getElementById('kgEntityList').innerHTML = '';
+            document.getElementById('kgRelationTableBody').innerHTML = '';
+
+            // 清除输入框
+            document.getElementById('kgSmartInput').value = '';
+            document.getElementById('kgEntityInput').value = '';
+            document.getElementById('kgRelationEntity1').value = '';
+            document.getElementById('kgRelationEntity2').value = '';
+        }
+
+        // 导出图谱为PNG
+        function exportGraph() {
+            if (!kgGraphInstance) {
+                alert('暂无图谱数据');
+                return;
+            }
+            const url = kgGraphInstance.getDataURL({
+                type: 'png',
+                pixelRatio: 2,
+                backgroundColor: '#1e293b'
+            });
+            const link = document.createElement('a');
+            link.download = '知识图谱.png';
+            link.href = url;
+            link.click();
+        }
+
+        // Disease Graph Functions
+        let currentDisease = null;
+        let diseaseGraphInstance = null;
+
+        function loadDiseases() {
+            fetch(`${API_BASE}/kg/diseases`)
+                .then(r => r.json())
+                .then(data => {
+                    const container = document.getElementById('diseaseSelector');
+                    container.innerHTML = '';
+                    data.diseases.forEach(disease => {
+                        const card = document.createElement('div');
+                        card.className = 'disease-card';
+                        card.innerHTML = `
+                            <i class="bi bi-virus2"></i>
+                            <span>${disease}</span>
+                        `;
+                        card.onclick = () => selectDisease(disease, card);
+                        container.appendChild(card);
+                    });
+                });
+        }
+
+        function selectDisease(diseaseName, cardElement) {
+            // Update selection state
+            document.querySelectorAll('.disease-card').forEach(c => c.classList.remove('selected'));
+            cardElement.classList.add('selected');
+            currentDisease = diseaseName;
+
+            // Load disease graph
+            loadDiseaseGraph(diseaseName);
+        }
+
+        function loadDiseaseGraph(diseaseName) {
+            fetch(`${API_BASE}/kg/disease/${encodeURIComponent(diseaseName)}/graph`)
+                .then(r => r.json())
+                .then(data => {
+                    document.getElementById('diseaseContent').style.display = 'grid';
+                    document.getElementById('selectedDiseaseName').textContent = data.disease;
+                    initDiseaseGraph(data);
+                    renderDiseaseDetails(data.details);
+                });
+        }
+
+        function initDiseaseGraph(data) {
+            const chartDom = document.getElementById('diseaseGraph');
+            if (diseaseGraphInstance) {
+                diseaseGraphInstance.dispose();
+            }
+            diseaseGraphInstance = echarts.init(chartDom);
+
+            // Category colors matching the plan
+            const categoryColors = ['#ef4444', '#f97316', '#8b5cf6', '#3b82f6', '#ec4899', '#eab308', '#22c55e', '#06b6d4', '#94a3b8'];
+            const categoryNames = ['疾病', '症状', '风险因素', '治疗', '药物', '身体部位', '饮食', '运动', '其他'];
+
+            const option = {
+                tooltip: {
+                    trigger: 'item',
+                    formatter: function(params) {
+                        if (params.dataType === 'node') {
+                            return `${params.name}<br/>类型: ${categoryNames[params.data.category || 0]}`;
+                        } else {
+                            return `${params.data.source} → ${params.data.relation} → ${params.data.target}`;
+                        }
+                    }
+                },
+                legend: {
+                    show: true,
+                    orient: 'vertical',
+                    right: 10,
+                    top: 10,
+                    textStyle: { color: '#94a3b8' },
+                    data: categoryNames.slice(0, data.nodes.reduce((max, n) => Math.max(max, n.category || 0), 0) + 1)
+                },
+                series: [{
+                    type: 'graph',
+                    layout: 'force',
+                    data: data.nodes.map(n => ({
+                        name: n.name,
+                        category: n.category,
+                        symbolSize: n.symbolSize || 40,
+                        itemStyle: {
+                            color: categoryColors[n.category] || categoryColors[9]
+                        }
+                    })),
+                    links: data.links.map(l => ({
+                        source: l.source,
+                        target: l.target,
+                        value: l.relation,
+                        lineStyle: {
+                            color: '#14b8a6',
+                            curveness: 0.2,
+                            width: 2
+                        },
+                        label: {
+                            show: true,
+                            formatter: l.relation,
+                            fontSize: 11,
+                            color: '#94a3b8'
+                        }
+                    })),
+                    roam: true,
+                    draggable: true,
+                    label: {
+                        show: true,
+                        position: 'right',
+                        color: '#f1f5f9',
+                        fontSize: 12
+                    },
+                    force: {
+                        repulsion: 200,
+                        edgeLength: 120,
+                        gravity: 0.1
+                    },
+                    emphasis: {
+                        focus: 'adjacency',
+                        lineStyle: {
+                            width: 4
+                        }
+                    },
+                    categories: categoryNames.map((name, i) => ({
+                        name: name,
+                        itemStyle: { color: categoryColors[i] }
+                    }))
+                }]
+            };
+
+            diseaseGraphInstance.setOption(option);
+
+            // Click event to show node details
+            diseaseGraphInstance.on('click', function(params) {
+                if (params.dataType === 'node') {
+                    showNodeInfo(params.name);
+                }
+            });
+        }
+
+        function renderDiseaseDetails(details) {
+            // Symptoms
+            const symptomsList = document.getElementById('symptomsList');
+            symptomsList.innerHTML = details.symptoms.length > 0
+                ? details.symptoms.map(s => `<li>${s}</li>`).join('')
+                : '<li class="detail-list empty">暂无数据</li>';
+
+            // Risk factors
+            const riskList = document.getElementById('riskList');
+            riskList.innerHTML = details.risk_factors.length > 0
+                ? details.risk_factors.map(r => `<li>${r}</li>`).join('')
+                : '<li class="detail-list empty">暂无数据</li>';
+
+            // Treatments
+            const treatmentList = document.getElementById('treatmentList');
+            treatmentList.innerHTML = details.treatments.length > 0
+                ? details.treatments.map(t => `<li>${t}</li>`).join('')
+                : '<li class="detail-list empty">暂无数据</li>';
+
+            // Drugs
+            const drugsList = document.getElementById('drugsList');
+            drugsList.innerHTML = details.drugs.length > 0
+                ? details.drugs.map(d => `<li>${d}</li>`).join('')
+                : '<li class="detail-list empty">暂无数据</li>';
+
+            // Diets
+            const dietsList = document.getElementById('dietsList');
+            dietsList.innerHTML = details.diets.length > 0
+                ? details.diets.map(d => `<li>${d}</li>`).join('')
+                : '<li class="detail-list empty">暂无数据</li>';
+
+            // Affected parts
+            const partsList = document.getElementById('partsList');
+            partsList.innerHTML = details.affected_parts.length > 0
+                ? details.affected_parts.map(p => `<li>${p}</li>`).join('')
+                : '<li class="detail-list empty">暂无数据</li>';
+
+            // Show/hide sections based on data
+            document.getElementById('symptomsSection').style.display = details.symptoms.length > 0 ? 'block' : 'none';
+            document.getElementById('riskSection').style.display = details.risk_factors.length > 0 ? 'block' : 'none';
+            document.getElementById('treatmentSection').style.display = details.treatments.length > 0 ? 'block' : 'none';
+            document.getElementById('drugsSection').style.display = details.drugs.length > 0 ? 'block' : 'none';
+            document.getElementById('dietsSection').style.display = details.diets.length > 0 ? 'block' : 'none';
+            document.getElementById('partsSection').style.display = details.affected_parts.length > 0 ? 'block' : 'none';
+        }
+
+        function showNodeInfo(nodeName) {
+            // Fetch entity details and show in a tooltip or alert
+            fetch(`${API_BASE}/kg/entity/${encodeURIComponent(nodeName)}`)
+                .then(r => r.json())
+                .then(data => {
+                    if (data.entity) {
+                        const attrs = data.entity.attributes || {};
+                        let attrText = '';
+                        for (const [key, value] of Object.entries(attrs)) {
+                            attrText += `${key}: ${value}\n`;
+                        }
+                        if (attrText) {
+                            alert(`${nodeName}\n类型: ${data.entity.entity_type_name}\n\n${attrText}`);
+                        }
+                    }
+                });
+        }
+
+        // Chat Functions
+        let currentGraphData = null;
+
+        function quickAsk(question) {
+            document.getElementById('chatInput').value = question;
+            sendChat();
+        }
+
+        function sendChat() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            if (!message) return;
+
+            // 隐藏图谱区域
+            document.getElementById('chatGraphCard').style.display = 'none';
+            currentGraphData = null;
+
+            addChatMessage('user', message);
+            input.value = '';
+
+            // SSE流式接收
+            const eventSource = new EventSource(`${API_BASE}/chat/stream?q=${encodeURIComponent(message)}`);
+            let fullContent = '';
+            const assistantMsgId = 'msg-' + Date.now();
+            addChatMessageWithId('assistant', '', assistantMsgId);
+
+            eventSource.addEventListener('message', function(event) {
+                fullContent += event.data;
+                updateChatMessage(assistantMsgId, fullContent);
+            });
+
+            eventSource.addEventListener('graph_data', function(event) {
+                try {
+                    currentGraphData = JSON.parse(event.data);
+                    if (currentGraphData.relations && currentGraphData.relations.length > 0) {
+                        showChatGraph(currentGraphData);
+                    }
+                } catch (e) {
+                    console.error('图谱数据解析失败:', e);
+                }
+            });
+
+            eventSource.addEventListener('done', function() {
+                eventSource.close();
+            });
+
+            eventSource.onerror = function() {
+                updateChatMessage(assistantMsgId, fullContent || '抱歉，我暂时无法回答这个问题。');
+                eventSource.close();
+            };
+        }
+
+        function addChatMessage(role, content) {
+            const container = document.getElementById('chatMessages');
+            const icon = role === 'user' ? 'bi-person' : 'bi-robot';
+            container.innerHTML += `
+                <div class="chat-message ${role}">
+                    <div class="chat-avatar"><i class="bi ${icon}"></i></div>
+                    <div class="chat-content">${content}</div>
+                </div>
+            `;
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function addChatMessageWithId(role, content, id) {
+            const container = document.getElementById('chatMessages');
+            const icon = role === 'user' ? 'bi-person' : 'bi-robot';
+            container.innerHTML += `
+                <div class="chat-message ${role}" id="${id}">
+                    <div class="chat-avatar"><i class="bi ${icon}"></i></div>
+                    <div class="chat-content">${content}</div>
+                </div>
+            `;
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function updateChatMessage(id, content) {
+            const msgEl = document.getElementById(id);
+            if (msgEl) {
+                msgEl.querySelector('.chat-content').innerHTML = content;
+                document.getElementById('chatMessages').scrollTop = document.getElementById('chatMessages').scrollHeight;
+            }
+        }
+
+        function showChatGraph(data) {
+            const graphCard = document.getElementById('chatGraphCard');
+            graphCard.style.display = 'block';
+            initChatGraph(data);
+        }
+
+        function initChatGraph(data) {
+            const chartDom = document.getElementById('chatGraph');
+            const chart = echarts.init(chartDom);
+            chart.resize();
+
+            const nodes = [];
+            const links = [];
+
+            data.relations.forEach(rel => {
+                if (!nodes.find(n => n.name === rel.entity1)) {
+                    nodes.push({ name: rel.entity1, symbolSize: 35 });
+                }
+                if (!nodes.find(n => n.name === rel.entity2)) {
+                    nodes.push({ name: rel.entity2, symbolSize: 25 });
+                }
+                links.push({ source: rel.entity1, target: rel.entity2, value: rel.relation });
+            });
+
+            chart.setOption({
+                tooltip: { trigger: 'item' },
+                series: [{
+                    type: 'graph',
+                    layout: 'force',
+                    data: nodes,
+                    links: links,
+                    roam: true,
+                    label: { show: true, color: '#f1f5f9' },
+                    force: { repulsion: 150, edgeLength: 80 },
+                    lineStyle: { color: '#14b8a6', curveness: 0.2 }
+                }]
+            });
+        }
+
+        function toggleGraphVisibility() {
+            const graphCard = document.getElementById('chatGraphCard');
+            graphCard.style.display = graphCard.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function clearChat() {
+            document.getElementById('chatMessages').innerHTML = `
+                <div class="chat-message">
+                    <div class="chat-avatar"><i class="bi bi-robot"></i></div>
+                    <div class="chat-content">您好！我是健康智能助手，可以帮助您进行健康数据管理、饮食分析、运动推荐等。请问有什么可以帮您的？</div>
+                </div>
+            `;
+            document.getElementById('chatGraphCard').style.display = 'none';
+            currentGraphData = null;
+        }
+
+        // Load Users
+        function loadUsers() {
+            fetch(`${API_BASE}/users`)
+                .then(r => r.json())
+                .then(data => {
+                    const tbody = document.getElementById('userTableBody');
+                    tbody.innerHTML = '';
+                    Object.entries(data.users || {}).forEach(([id, user]) => {
+                        const basic = user.basic_info || {};
+                        const bmi = basic.weight / (basic.height / 100) ** 2;
+                        tbody.innerHTML += `
+                            <tr>
+                                <td>${id}</td>
+                                <td>${basic.name || '未命名'}</td>
+                                <td>${basic.gender || '-'} / ${basic.age || '-'}岁</td>
+                                <td>${basic.height || '-'}cm / ${basic.weight || '-'}kg</td>
+                                <td>${bmi.toFixed(1)}</td>
+                                <td>
+                                    <button class="btn btn-outline btn-sm" onclick="viewUser('${id}')">
+                                        <i class="bi bi-eye"></i> 查看
+                                    </button>
+                                    <button class="btn btn-outline btn-sm" style="margin-left: 8px; color: var(--danger);" onclick="deleteUser('${id}', '${basic.name || '未命名'}')">
+                                        <i class="bi bi-trash"></i> 删除
+                                    </button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                });
+        }
+
+        // User Creation Functions
+        function showCreateUser() {
+            document.getElementById('createUserModal').style.display = 'flex';
+            document.getElementById('userName').focus();
+        }
+
+        function hideCreateUserModal() {
+            document.getElementById('createUserModal').style.display = 'none';
+            document.getElementById('userName').value = '';
+        }
+
+        async function createUser() {
+            const name = document.getElementById('userName').value.trim();
+            const gender = document.getElementById('userGender').value;
+            const age = parseInt(document.getElementById('userAge').value) || 25;
+            const height = parseFloat(document.getElementById('userHeight').value) || 170;
+            const weight = parseFloat(document.getElementById('userWeight').value) || 65;
+
+            if (!name) {
+                showToast('请输入姓名', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/users`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name: name,
+                        gender: gender,
+                        age: age,
+                        height: height,
+                        weight: weight
+                    })
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.user_id) {
+                    showToast('用户创建成功', 'success');
+                    hideCreateUserModal();
+                    loadUsers();
+                } else {
+                    showToast(result.detail || '创建失败', 'error');
+                }
+            } catch (e) {
+                showToast('创建失败: ' + e.message, 'error');
+            }
+        }
+
+        function viewUser(userId) {
+            fetch(`${API_BASE}/users/${userId}`)
+                .then(r => r.json())
+                .then(data => {
+                    if (data.user) {
+                        const basic = data.user.basic_info || {};
+                        alert(`用户详情\nID: ${userId}\n姓名: ${basic.name || '未命名'}\n性别: ${basic.gender || '-'}\n年龄: ${basic.age || '-'}岁\n身高: ${basic.height || '-'}cm\n体重: ${basic.weight || '-'}kg`);
+                    }
+                })
+                .catch(() => showToast('获取用户信息失败', 'error'));
+        }
+
+        async function deleteUser(userId, userName) {
+            if (!confirm(`确定删除用户 "${userName}" (ID: ${userId})？\n此操作不可恢复。`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/users/${userId}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    showToast('用户已删除', 'success');
+                    loadUsers();
+                    // 同时刷新数据分析页面的统计
+                    if (document.getElementById('page-analysis').classList.contains('active')) {
+                        loadAnalysisStats();
+                    }
+                } else {
+                    const result = await response.json();
+                    showToast(result.detail || '删除失败', 'error');
+                }
+            } catch (e) {
+                showToast('删除失败: ' + e.message, 'error');
+            }
+        }
+
+        // Analysis Page Functions
+        function loadAnalysisStats() {
+            // 加载基础统计
+            fetch(`${API_BASE}/dashboard/stats`)
+                .then(r => r.json())
+                .then(data => {
+                    document.getElementById('analysisUserCount').textContent = data.user_count || 0;
+                    document.getElementById('analysisHealthRecords').textContent = data.health_record_count || 0;
+                    document.getElementById('analysisChatCount').textContent = data.chat_message_count || 0;
+                    document.getElementById('analysisToolCalls').textContent = data.knowledge_doc_count || 0;
+
+                    // Render analysis chart
+                    renderAnalysisChart(data);
+                })
+                .catch(e => {
+                    console.error('加载分析统计失败:', e);
+                    document.getElementById('analysisUserCount').textContent = '--';
+                    document.getElementById('analysisHealthRecords').textContent = '--';
+                    document.getElementById('analysisChatCount').textContent = '--';
+                    document.getElementById('analysisToolCalls').textContent = '--';
+                });
+
+            // 加载用户群体分布数据
+            fetch(`${API_BASE}/dashboard/user-demographics`)
+                .then(r => r.json())
+                .then(data => {
+                    renderBmiDistributionChart(data.bmi_distribution);
+                    renderAgeDistributionChart(data.age_distribution);
+                    renderGenderDistributionChart(data.gender_distribution);
+                    renderActivityDistributionChart(data.activity_distribution);
+                })
+                .catch(e => {
+                    console.error('加载用户群体分布失败:', e);
+                });
+        }
+
+        // BMI分布饼图
+        function renderBmiDistributionChart(data) {
+            const chartDom = document.getElementById('bmiDistributionChart');
+            chartInstances.bmiChart = echarts.init(chartDom);
+            chartInstances.bmiChart.setOption({
+                tooltip: { trigger: 'item', formatter: '{b}: {c}人 ({d}%)' },
+                series: [{
+                    type: 'pie',
+                    radius: ['40%', '70%'],
+                    data: Object.entries(data).map(([name, value]) => ({
+                        name, value,
+                        itemStyle: {
+                            color: name === '偏瘦' ? '#f97316' :
+                                   name === '正常' ? '#22c55e' :
+                                   name === '超重' ? '#eab308' : '#ef4444'
+                        }
+                    }))
+                }]
+            });
+        }
+
+        // 年龄分布柱状图
+        function renderAgeDistributionChart(data) {
+            const chartDom = document.getElementById('ageDistributionChart');
+            chartInstances.ageChart = echarts.init(chartDom);
+            chartInstances.ageChart.setOption({
+                tooltip: { trigger: 'axis' },
+                xAxis: { type: 'category', data: Object.keys(data), axisLabel: { color: '#94a3b8' } },
+                yAxis: { type: 'value', axisLabel: { color: '#94a3b8' } },
+                series: [{
+                    type: 'bar',
+                    data: Object.values(data),
+                    itemStyle: { color: '#14b8a6' }
+                }]
+            });
+        }
+
+        // 性别分布饼图
+        function renderGenderDistributionChart(data) {
+            const chartDom = document.getElementById('genderDistributionChart');
+            chartInstances.genderChart = echarts.init(chartDom);
+            chartInstances.genderChart.setOption({
+                tooltip: { trigger: 'item', formatter: '{b}: {c}人 ({d}%)' },
+                series: [{
+                    type: 'pie',
+                    radius: '60%',
+                    data: [
+                        { name: '男', value: data['男'] || 0, itemStyle: { color: '#3b82f6' } },
+                        { name: '女', value: data['女'] || 0, itemStyle: { color: '#ec4899' } }
+                    ]
+                }]
+            });
+        }
+
+        // 活动水平分布饼图
+        function renderActivityDistributionChart(data) {
+            const chartDom = document.getElementById('activityDistributionChart');
+            chartInstances.activityChart = echarts.init(chartDom);
+            const colors = ['#0ea5e9', '#14b8a6', '#22c55e', '#8b5cf6'];
+            chartInstances.activityChart.setOption({
+                tooltip: { trigger: 'item', formatter: '{b}: {c}人 ({d}%)' },
+                series: [{
+                    type: 'pie',
+                    radius: '60%',
+                    data: Object.entries(data).map(([name, value], i) => ({
+                        name, value, itemStyle: { color: colors[i % colors.length] }
+                    }))
+                }]
+            });
+        }
+
+        function renderAnalysisChart(data) {
+            const chartDom = document.getElementById('analysisChart');
+            chartInstances.analysisChart = echarts.init(chartDom);
+            const option = {
+                tooltip: { trigger: 'axis' },
+                legend: {
+                    data: ['数量'],
+                    textStyle: { color: '#94a3b8' }
+                },
+                xAxis: {
+                    type: 'category',
+                    data: ['用户', '健康记录', '对话消息', 'KG实体', 'KG关系', '知识文档'],
+                    axisLabel: { color: '#94a3b8' }
+                },
+                yAxis: {
+                    type: 'value',
+                    axisLabel: { color: '#94a3b8' }
+                },
+                series: [{
+                    name: '数量',
+                    type: 'bar',
+                    data: [
+                        data.user_count || 0,
+                        data.health_record_count || 0,
+                        data.chat_message_count || 0,
+                        data.kg_entity_count || 0,
+                        data.kg_relation_count || 0,
+                        data.knowledge_doc_count || 0
+                    ],
+                    itemStyle: {
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                            { offset: 0, color: '#14b8a6' },
+                            { offset: 1, color: '#0d9488' }
+                        ])
+                    }
+                }],
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true
+                }
+            };
+            chartInstances.analysisChart.setOption(option);
+        }
+
+        // Health Tools
+        function calculateBMI() {
+            const height = parseFloat(document.getElementById('bmiHeight').value);
+            const weight = parseFloat(document.getElementById('bmiWeight').value);
+            if (!height || !weight) return;
+
+            fetch(`${API_BASE}/health/bmi?height=${height}&weight=${weight}`)
+                .then(r => r.json())
+                .then(data => {
+                    document.getElementById('bmiResult').innerHTML = `
+                        <div style="background: var(--bg-darker); padding: 16px; border-radius: 8px;">
+                            <p style="font-size: 24px; color: var(--primary-light); font-weight: 600;">BMI: ${data.bmi}</p>
+                            <p style="color: var(--text-secondary);">分类: ${data.category}</p>
+                            <p style="color: var(--text-muted);">理想体重范围: ${data.ideal_weight_min} - ${data.ideal_weight_max} kg</p>
+                        </div>
+                    `;
+                });
+        }
+
+        function calculateCalorie() {
+            const gender = document.getElementById('calorieGender').value;
+            const age = parseInt(document.getElementById('calorieAge').value);
+            const height = parseFloat(document.getElementById('calorieHeight').value);
+            const weight = parseFloat(document.getElementById('calorieWeight').value);
+            const activity = document.getElementById('calorieActivity').value;
+
+            if (!age || !height || !weight) return;
+
+            fetch(`${API_BASE}/health/daily-calorie?gender=${gender}&age=${age}&height=${height}&weight=${weight}&activity_level=${activity}`)
+                .then(r => r.json())
+                .then(data => {
+                    document.getElementById('calorieResult').innerHTML = `
+                        <div style="background: var(--bg-darker); padding: 16px; border-radius: 8px;">
+                            <p style="font-size: 20px; color: var(--primary-light); font-weight: 600;">每日热量需求</p>
+                            <p style="color: var(--text-secondary);">BMR: ${data.bmr} kcal</p>
+                            <p style="color: var(--text-secondary);">TDEE: ${data.tdee} kcal</p>
+                            <p style="color: var(--text-muted);">减脂: ${data.lose_weight} kcal | 维持: ${data.maintain} kcal | 增肌: ${data.gain_muscle} kcal</p>
+                        </div>
+                    `;
+                });
+        }
+
+        function assessSleep() {
+            const hours = parseFloat(document.getElementById('sleepHours').value);
+            const quality = parseInt(document.getElementById('sleepQuality').value);
+            if (!hours || !quality) return;
+
+            fetch(`${API_BASE}/chat/stream?q=评估我的睡眠质量，睡眠${hours}小时，质量评分${quality}`)
+                .then(response => {
+                    const reader = response.body.getReader();
+                    let result = '';
+                    reader.read().then(({ done, value }) => {
+                        if (!done) {
+                            result += new TextDecoder().decode(value);
+                            document.getElementById('sleepResult').innerHTML = `
+                                <div style="background: var(--bg-darker); padding: 16px; border-radius: 8px; white-space: pre-wrap;">${result}</div>
+                            `;
+                        }
+                    });
+                });
+        }
+
+        // Initialize
+        // 存储图表实例以便resize
+        const chartInstances = {};
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadOverview();
+            loadDiseases();
+
+            // 添加resize监听
+            window.addEventListener('resize', () => {
+                Object.values(chartInstances).forEach(chart => {
+                    if (chart) chart.resize();
+                });
+            });
+
+            // Handle Enter Key - 添加事件监听
+            document.getElementById('chatInput').addEventListener('keypress', e => {
+                if (e.key === 'Enter') sendChat();
+            });
+            document.getElementById('entitySearchInput').addEventListener('keypress', e => {
+                if (e.key === 'Enter') searchEntity();
+            });
+
+            // Upload Area Events
+            const uploadArea = document.getElementById('uploadArea');
+            const fileInput = document.getElementById('fileInput');
+            if (uploadArea && fileInput) {
+                uploadArea.addEventListener('click', () => fileInput.click());
+                uploadArea.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    uploadArea.classList.add('dragover');
+                });
+                uploadArea.addEventListener('dragleave', () => {
+                    uploadArea.classList.remove('dragover');
+                });
+                uploadArea.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    uploadArea.classList.remove('dragover');
+                    const files = e.dataTransfer.files;
+                    if (files.length > 0) uploadFile(files[0]);
+                });
+            }
+        });
+
+        // ========== Knowledge Management Functions ==========
+
+        let knowledgeCurrentPage = 1;
+        const knowledgePageSize = 10;
+
+        function handleFileSelect(input) {
+            if (input.files.length > 0) {
+                uploadFile(input.files[0]);
+            }
+        }
+
+        async function uploadFile(file) {
+            // Validate file type
+            const allowedTypes = ['txt', 'pdf'];
+            const ext = file.name.split('.').pop().toLowerCase();
+            if (!allowedTypes.includes(ext)) {
+                showToast(`不支持的文件类型: ${ext}`, 'error');
+                return;
+            }
+
+            // Validate file size (10MB)
+            const maxSize = 10 * 1024 * 1024;
+            if (file.size > maxSize) {
+                showToast(`文件大小超过限制: ${(file.size / (1024*1024)).toFixed(2)}MB > 10MB`, 'error');
+                return;
+            }
+
+            // Show progress
+            document.getElementById('uploadProgress').style.display = 'block';
+            document.getElementById('uploadFileName').textContent = file.name;
+            document.getElementById('uploadStatus').textContent = '上传中...';
+            document.getElementById('progressFill').style.width = '30%';
+
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+
+                document.getElementById('progressFill').style.width = '60%';
+
+                const response = await fetch(`${API_BASE}/knowledge/upload`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    document.getElementById('progressFill').style.width = '100%';
+                    document.getElementById('uploadStatus').textContent = '上传成功，正在处理...';
+
+                    // Poll for status
+                    pollDocumentStatus(result.doc_id);
+
+                    showToast('文件上传成功', 'success');
+                } else {
+                    document.getElementById('uploadStatus').textContent = '上传失败';
+                    document.getElementById('progressFill').style.width = '0%';
+                    showToast(result.detail || '上传失败', 'error');
+                }
+            } catch (e) {
+                document.getElementById('uploadStatus').textContent = '上传失败';
+                document.getElementById('progressFill').style.width = '0%';
+                showToast('上传失败: ' + e.message, 'error');
+            }
+
+            // Reset file input
+            fileInput.value = '';
+
+            // Hide progress after delay
+            setTimeout(() => {
+                document.getElementById('uploadProgress').style.display = 'none';
+            }, 3000);
+        }
+
+        async function pollDocumentStatus(docId) {
+            let completed = false;
+            let attempts = 0;
+            const maxAttempts = 30;
+
+            while (!completed && attempts < maxAttempts) {
+                attempts++;
+                await new Promise(resolve => setTimeout(resolve, 1000));
+
+                try {
+                    const response = await fetch(`${API_BASE}/knowledge/status/${docId}`);
+                    const status = await response.json();
+
+                    if (status.status === 'completed') {
+                        completed = true;
+                        showToast(`文档处理完成，生成 ${status.chunk_count} 个chunks`, 'success');
+                        loadKnowledgeDocuments();
+                        loadKnowledgeStats();
+                    } else if (status.status === 'failed') {
+                        completed = true;
+                        showToast(`文档处理失败: ${status.error_message}`, 'error');
+                        loadKnowledgeDocuments();
+                    }
+                } catch (e) {
+                    // Continue polling on error
+                }
+            }
+        }
+
+        async function loadKnowledgeStats() {
+            try {
+                const response = await fetch(`${API_BASE}/knowledge/stats`);
+                const stats = await response.json();
+
+                document.getElementById('knowledgeTotalDocs').textContent = stats.total || 0;
+                document.getElementById('knowledgeCompleted').textContent = stats.completed || 0;
+                document.getElementById('knowledgeTotalEntities').textContent = stats.total_entities || 0;
+                document.getElementById('knowledgeTotalRelations').textContent = stats.total_relations || 0;
+            } catch (e) {
+                console.error('Load knowledge stats error:', e);
+            }
+        }
+
+        async function loadKnowledgeDocuments() {
+            const statusFilter = document.getElementById('statusFilter').value;
+
+            try {
+                const params = new URLSearchParams({
+                    page: knowledgeCurrentPage,
+                    page_size: knowledgePageSize
+                });
+                if (statusFilter) params.append('status', statusFilter);
+
+                const response = await fetch(`${API_BASE}/knowledge/documents?${params}`);
+                const data = await response.json();
+
+                renderKnowledgeTable(data.documents);
+                renderKnowledgePagination(data.total_pages, data.page);
+
+                // Load stats too
+                loadKnowledgeStats();
+            } catch (e) {
+                console.error('Load knowledge documents error:', e);
+                showToast('加载文档列表失败', 'error');
+            }
+        }
+
+        function renderKnowledgeTable(documents) {
+            const tbody = document.getElementById('knowledgeTableBody');
+            tbody.innerHTML = '';
+
+            if (!documents || documents.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: var(--text-muted);">暂无文档</td></tr>';
+                return;
+            }
+
+            documents.forEach(doc => {
+                const tr = document.createElement('tr');
+
+                // Status badge
+                const statusClass = `status-${doc.status}`;
+                const statusIcon = doc.status === 'completed' ? 'check-circle' :
+                                   doc.status === 'processing' ? 'hourglass-split' :
+                                   doc.status === 'pending' ? 'clock' : 'exclamation-circle';
+                const statusText = doc.status === 'completed' ? '已完成' :
+                                   doc.status === 'processing' ? '处理中' :
+                                   doc.status === 'pending' ? '待处理' : '失败';
+
+                // File size
+                const sizeKB = (doc.file_size / 1024).toFixed(1);
+                const sizeDisplay = sizeKB > 1024 ? `${(sizeKB / 1024).toFixed(1)} MB` : `${sizeKB} KB`;
+
+                tr.innerHTML = `
+                    <td>${doc.original_filename}</td>
+                    <td><span class="status-badge ${statusClass}"><i class="bi bi-${statusIcon}"></i> ${statusText}</span></td>
+                    <td>${doc.chunk_count || '--'}</td>
+                    <td>${doc.entity_count || '--'}</td>
+                    <td>${doc.relation_count || '--'}</td>
+                    <td>${sizeDisplay}</td>
+                    <td>${doc.created_at || '--'}</td>
+                    <td>
+                        <button class="btn btn-outline" style="padding: 4px 8px; font-size: 12px;" onclick="deleteDocument('${doc.doc_id}', '${doc.original_filename}')">
+                            <i class="bi bi-trash"></i> 删除
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderKnowledgePagination(totalPages, currentPage) {
+            const container = document.getElementById('knowledgePagination');
+            container.innerHTML = '';
+
+            if (totalPages <= 1) return;
+
+            for (let i = 1; i <= totalPages; i++) {
+                const btn = document.createElement('button');
+                btn.className = i === currentPage ? 'btn btn-primary' : 'btn btn-outline';
+                btn.style.padding = '4px 12px';
+                btn.style.fontSize = '12px';
+                btn.textContent = i;
+                btn.onclick = () => {
+                    knowledgeCurrentPage = i;
+                    loadKnowledgeDocuments();
+                };
+                container.appendChild(btn);
+            }
+        }
+
+        async function deleteDocument(docId, filename) {
+            if (!confirm(`确定删除文档 "${filename}"？\n此操作将同时删除向量库中的相关数据。`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/knowledge/documents/${docId}`, {
+                    method: 'DELETE'
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    showToast('文档已删除', 'success');
+                    loadKnowledgeDocuments();
+                    loadKnowledgeStats();
+                } else {
+                    showToast(result.detail || '删除失败', 'error');
+                }
+            } catch (e) {
+                showToast('删除失败: ' + e.message, 'error');
+            }
+        }
+
+        function showToast(message, type = 'info') {
+            // Create toast container if not exists
+            let container = document.getElementById('toastContainer');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'toastContainer';
+                container.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 9999;';
+                document.body.appendChild(container);
+            }
+
+            const toast = document.createElement('div');
+            const bgColor = type === 'success' ? 'rgba(34, 197, 94, 0.9)' :
+                           type === 'error' ? 'rgba(239, 68, 68, 0.9)' : 'rgba(13, 148, 136, 0.9)';
+            toast.style.cssText = `
+                background: ${bgColor};
+                color: white;
+                padding: 12px 20px;
+                border-radius: 8px;
+                margin-bottom: 8px;
+                animation: fadeInUp 0.3s ease;
+                font-size: 14px;
+            `;
+            toast.textContent = message;
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(-10px)';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
