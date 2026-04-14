@@ -1,11 +1,4 @@
-"""
-Lealone风格 API服务 - 统一的服务入口
 
-设计理念:
-1. 所有功能通过对话入口调用
-2. 服务声明式定义
-3. 自动路由和执行
-"""
 import asyncio
 import io
 import json
@@ -184,16 +177,7 @@ async def get_service_schema():
 
 @app.post("/api/execute")
 async def execute_service(data: ServiceExecute):
-    """
-    执行服务 - Lealone风格统一入口
 
-    示例请求:
-    {
-        "service": "health_service",
-        "method": "calculate_bmi",
-        "params": {"height": 170, "weight": 65}
-    }
-    """
     try:
         result = health_agent.execute_service(data.service, data.method, data.params)
         return {"success": True, "result": result}
