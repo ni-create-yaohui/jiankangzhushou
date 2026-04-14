@@ -1,5 +1,7 @@
-项目结构
+## 项目结构
 
+```
+健康助手/
 ├── api_server.py              # FastAPI 服务入口 (端口7958)
 ├── agent/
 │   ├── core/
@@ -58,20 +60,39 @@
 │   ├── file_hander.py             # 文件处理
 │   ├── path_tool.py               # 路径工具
 │   └── llm_client.py              # LLM客户端
-└── requirements.txt
+├── requirements.txt
+└── README.md
+```
 
+## 快速开始
 
-
-快速开始
-
- 1. 安装依赖
+### 1. 安装依赖
+```bash
 pip install -r requirements.txt
-2. 配置环境变量
+```
+
+### 2. 配置环境变量
+```bash
 # Windows
 set DASHSCOPE_API_KEY=your_api_key
 
 # Linux/Mac
 export DASHSCOPE_API_KEY=your_api_key
-3. 运行应用
-4. 访问
-打开浏览器访问 http://localhost:7958  python api_server.py
+```
+
+### 3. 运行应用
+```bash
+python api_server.py
+```
+
+或使用启动脚本：
+```bash
+# Windows
+start.bat
+
+# Linux/Mac
+./start.sh
+```
+
+### 4. 访问
+打开浏览器访问 http://localhost:7958
