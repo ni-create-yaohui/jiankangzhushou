@@ -1,6 +1,5 @@
 项目结构
 
-健康助手/
 ├── api_server.py              # FastAPI 服务入口 (端口7958)
 ├── agent/
 │   ├── core/
