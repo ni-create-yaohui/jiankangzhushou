@@ -1,0 +1,19 @@
+{
+  "documents": {
+    "doc_a2584ef8b3c2": {
+      "doc_id": "doc_a2584ef8b3c2",
+      "original_filename": "健康指南：常见基础疾病的预防与管理.pdf",
+      "saved_filename": "doc_a2584ef8b3c2_健康指南：常见基础疾病的预防与管理.pdf",
+      "saved_path": "E:\\健康助手\\data\\knowledge\\doc_a2584ef8b3c2_健康指南：常见基础疾病的预防与管理.pdf",
+      "md5_hex": "87fb7b0948715c25624d94ac42951293",
+      "file_size": 199584,
+      "status": "completed",
+      "chunk_count": 10,
+      "entity_count": 102,
+      "relation_count": 174,
+      "created_at": "2026-04-27 10:43:01",
+      "processed_at": "2026-04-27 10:46:51",
+      "error_message": null
+    }
+  }
+}

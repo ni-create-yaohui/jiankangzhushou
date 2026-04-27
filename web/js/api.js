@@ -23,15 +23,20 @@ const api = {
     searchReports: (q) => fetch(`${API_BASE}/reports/search?q=${encodeURIComponent(q)}`).then(r => r.json()),
 
     // 聊天
-    getChatHistory: () => fetch(`${API_BASE}/chat/history`).then(r => r.json()),
-    saveChatHistory: (messages) => fetch(`${API_BASE}/chat/history`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(messages) }).then(r => r.json()),
-    clearChatHistory: () => fetch(`${API_BASE}/chat/history`, { method: 'DELETE' }).then(r => r.json()),
+    getChatHistory: (sid) => fetch(`${API_BASE}/chat/history${sid ? '?session_id=' + encodeURIComponent(sid) : ''}`).then(r => r.json()),
+    saveChatHistory: (messages, sid) => fetch(`${API_BASE}/chat/history${sid ? '?session_id=' + encodeURIComponent(sid) : ''}`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(messages) }).then(r => r.json()),
+    clearChatHistory: (sid) => fetch(`${API_BASE}/chat/history${sid ? '?session_id=' + encodeURIComponent(sid) : ''}`, { method: 'DELETE' }).then(r => r.json()),
 
     // SSE聊天流
-    chatStream: (query) => {
-        const url = `${API_BASE}/chat/stream?q=${encodeURIComponent(query)}`;
+    chatStream: (query, sid) => {
+        const url = `${API_BASE}/chat/stream?q=${encodeURIComponent(query)}${sid ? '&session_id=' + encodeURIComponent(sid) : ''}`;
         return new EventSource(url);
     },
+
+    // 会话管理
+    listSessions: () => fetch(`${API_BASE}/chat/sessions`).then(r => r.json()),
+    createSession: () => fetch(`${API_BASE}/chat/sessions`, { method: 'POST' }).then(r => r.json()),
+    deleteSession: (sid) => fetch(`${API_BASE}/chat/sessions/${encodeURIComponent(sid)}`, { method: 'DELETE' }).then(r => r.json()),
 
     // 天气
     getWeather: (city) => fetch(`${API_BASE}/weather?city=${encodeURIComponent(city)}`).then(r => r.json()),

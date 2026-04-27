@@ -399,16 +399,45 @@ async def clear_chat_history(session_id: Optional[str] = None):
     return {"message": "聊天记录已清空" if success else "清空失败"}
 
 @app.get("/api/v1/chat/stream")
-async def chat_stream(q: str = Query(..., min_length=1)):
-    """SSE流式对话 - 智能路由分发"""
+async def chat_stream(q: str = Query(..., min_length=1), session_id: Optional[str] = Query(None)):
+    """SSE流式对话 - 智能路由分发，支持多轮上下文"""
+    # 从 ChatHistoryService 加载历史
+    history = chat_history_service.load_recent_history(session_id)
+
     def event_generator():
         try:
-            # 使用智能路由器分发请求
-            for event in health_router.route_stream(q):
+            # 使用智能路由器分发请求，透传历史
+            for event in health_router.route_stream(q, history=history):
                 yield event
         except Exception as e:
             yield {"event": "error", "data": str(e)}
     return EventSourceResponse(event_generator())
+
+
+# ========== 会话管理 API ==========
+
+@app.get("/api/v1/chat/sessions")
+async def list_sessions():
+    """列出所有会话"""
+    sessions = chat_history_service.list_sessions()
+    return {"sessions": sessions, "total": len(sessions)}
+
+
+@app.post("/api/v1/chat/sessions")
+async def create_session():
+    """新建会话，生成短 UUID 并预创建空历史文件"""
+    short_id = uuid.uuid4().hex[:8]
+    chat_history_service.save_history([], session_id=short_id)
+    return {"session_id": short_id, "message": "会话创建成功"}
+
+
+@app.delete("/api/v1/chat/sessions/{session_id}")
+async def delete_session(session_id: str):
+    """删除指定会话"""
+    success = chat_history_service.delete_session(session_id)
+    if not success:
+        raise HTTPException(status_code=404, detail=f"会话 {session_id} 不存在或删除失败")
+    return {"message": f"会话 {session_id} 已删除"}
 
 
 @app.get("/api/v1/route/analyze")
@@ -863,7 +892,8 @@ async def upload_document(
         original_filename=file.filename,
         saved_path=str(saved_path),
         md5_hex=md5_hex,
-        file_size=file_size
+        file_size=file_size,
+        doc_id=doc_id
     )
 
     # 添加后台处理任务
@@ -951,8 +981,12 @@ async def get_document_status(doc_id: str):
 
 @app.get("/api/v1/knowledge/stats")
 async def get_knowledge_stats():
-    """获取知识库统计信息"""
+    """获取知识库统计信息（含图谱实时数据）"""
     stats = document_service.get_stats()
+    # 用知识图谱实时数据覆盖/补充实体和关系统计
+    kg_stats = health_kg.get_stats_detailed()
+    stats["total_entities"] = kg_stats["total_entities"]
+    stats["total_relations"] = kg_stats["total_relations"]
     return stats
 
 

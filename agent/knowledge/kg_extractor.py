@@ -208,14 +208,14 @@ class KGExtractor:
 ## 输出格式要求
 请输出JSON格式，包含entities和relations两个数组：
 ```json
-{
+{{
     "entities": [
-        {"name": "实体名称", "entity_type": 类型数字, "entity_type_name": "类型名称", "description": "描述"}
+        {{"name": "实体名称", "entity_type": 类型数字, "entity_type_name": "类型名称", "description": "描述"}}
     ],
     "relations": [
-        {"entity1": "实体1", "relation": "关系名称", "entity2": "实体2"}
+        {{"entity1": "实体1", "relation": "关系名称", "entity2": "实体2"}}
     ]
-}
+}}
 ```
 
 注意：

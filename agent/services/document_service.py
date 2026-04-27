@@ -82,7 +82,8 @@ class DocumentService:
                                 original_filename: str,
                                 saved_path: str,
                                 md5_hex: str,
-                                file_size: int) -> Dict:
+                                file_size: int,
+                                doc_id: str = None) -> Dict:
         """
         创建文档记录
 
@@ -95,7 +96,7 @@ class DocumentService:
         Returns:
             文档记录字典
         """
-        doc_id = self.generate_doc_id()
+        doc_id = doc_id or self.generate_doc_id()
 
         record = {
             "doc_id": doc_id,

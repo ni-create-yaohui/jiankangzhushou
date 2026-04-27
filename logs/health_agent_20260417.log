@@ -1,0 +1,24 @@
+2026-04-17 14:52:32 - health_agent - INFO - [HealthKG] 加载扩展数据: 实体139个, 关系142条
+2026-04-17 14:52:32 - health_agent - INFO - [HealthKG] 知识图谱初始化完成，节点数: 278，边数: 167
+2026-04-17 14:52:32 - health_agent - INFO - [KGQA] 知识图谱问答系统初始化完成
+2026-04-17 14:52:33 - health_agent - INFO - [HealthNER] 使用 jieba 分词器
+2026-04-17 14:52:33 - health_agent - INFO - [HealthNER] 健康NER系统初始化完成
+2026-04-17 14:52:34 - health_agent - INFO - [ServiceRegistry] 注册服务: user_service, 方法数: 6
+2026-04-17 14:52:34 - health_agent - INFO - [ServiceRegistry] 注册服务: health_service, 方法数: 5
+2026-04-17 14:52:34 - health_agent - INFO - [ServiceRegistry] 注册服务: report_service, 方法数: 4
+2026-04-17 14:52:34 - health_agent - INFO - [ServiceRegistry] 注册服务: web_service, 方法数: 4
+2026-04-17 14:52:34 - health_agent - INFO - [ServiceRegistry] 注册服务: chat_service, 方法数: 4
+2026-04-17 14:52:34 - health_agent - INFO - [ServiceRegistry] 注册服务: kg_service, 方法数: 10
+2026-04-17 14:52:34 - health_agent - INFO - [ServiceRegistry] 已注册 6 个服务
+2026-04-17 14:53:29 - health_agent - INFO - [Retriever] 创建retriever: search_type=similarity, kwargs={'k': 5}
+2026-04-17 14:53:29 - health_agent - INFO - [HealthKG] 加载扩展数据: 实体139个, 关系142条
+2026-04-17 14:53:29 - health_agent - INFO - [HealthKG] 知识图谱初始化完成，节点数: 278，边数: 167
+2026-04-17 14:53:29 - health_agent - INFO - [KGQA] 知识图谱问答系统初始化完成
+2026-04-17 14:53:30 - health_agent - INFO - [HealthNER] 使用 jieba 分词器
+2026-04-17 14:53:30 - health_agent - INFO - [HealthNER] 健康NER系统初始化完成
+2026-04-17 14:53:30 - health_agent - INFO - [IntentClassifier] 意图分类器初始化完成
+2026-04-17 14:53:30 - health_agent - INFO - [IntentClassifier] 意图分类器初始化完成
+2026-04-17 14:53:30 - health_agent - INFO - [HealthRouter] 路由器初始化完成
+2026-04-17 14:53:30 - health_agent - INFO - [KGExtractor] 加载配置成功
+2026-04-17 14:53:30 - health_agent - INFO - [KGExtractor] 知识抽取器初始化完成
+2026-04-17 14:53:43 - health_agent - INFO - 未配置备用 API，跳过容错客户端初始化。

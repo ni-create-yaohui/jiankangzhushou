@@ -103,6 +103,82 @@ class ChatHistoryService:
                 "last_updated": None,
             }
 
+    def load_recent_history(
+        self,
+        session_id: Optional[str] = None,
+        max_rounds: int = 10,
+        max_chars_per_msg: int = 1000,
+    ) -> List[Dict]:
+        """加载最近 N 轮对话历史（一轮 = user + assistant），用于注入 LLM 上下文"""
+        messages = self.load_history(session_id)
+        if not messages:
+            return []
+
+        # 保留最后 max_rounds * 2 条消息
+        tail = messages[-(max_rounds * 2):]
+
+        # 每条消息截断
+        result = []
+        for msg in tail:
+            content = msg.get("content", "")
+            if len(content) > max_chars_per_msg:
+                content = content[:max_chars_per_msg] + "..."
+            result.append({"role": msg.get("role", "user"), "content": content})
+
+        return result
+
+    def list_sessions(self) -> List[Dict]:
+        """列出所有会话摘要信息"""
+        sessions = []
+        try:
+            for history_file in self.history_dir.glob("chat_history*.json"):
+                try:
+                    with open(history_file, "r", encoding="utf-8") as f:
+                        data = json.load(f)
+
+                    # 从文件名提取 session_id
+                    filename = history_file.stem  # e.g. chat_history or chat_history_abc123
+                    if filename == "chat_history":
+                        sid = None
+                    else:
+                        sid = filename[len("chat_history_"):]
+
+                    messages = data.get("messages", [])
+                    # 取第一条用户消息作为预览
+                    preview = ""
+                    for m in messages:
+                        if m.get("role") == "user":
+                            preview = m.get("content", "")[:50]
+                            break
+
+                    sessions.append({
+                        "session_id": sid,
+                        "message_count": data.get("message_count", len(messages)),
+                        "last_updated": data.get("last_updated", "未知"),
+                        "preview": preview,
+                    })
+                except (json.JSONDecodeError, OSError):
+                    continue
+        except OSError:
+            pass
+
+        # 按更新时间倒序排列
+        sessions.sort(key=lambda s: s["last_updated"] or "", reverse=True)
+        return sessions
+
+    def delete_session(self, session_id: str) -> bool:
+        """删除指定会话的历史文件"""
+        if not session_id:
+            return False
+        try:
+            history_file = self._history_file(session_id)
+            if history_file.exists():
+                history_file.unlink()
+            return True
+        except OSError as e:
+            logger.error(f"删除会话失败: {e}")
+            return False
+
     def get_all_stats(self) -> Dict:
         """获取所有聊天历史的统计信息"""
         total_messages = 0

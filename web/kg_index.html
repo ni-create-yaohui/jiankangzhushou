@@ -664,6 +664,106 @@
             flex: 1;
         }
 
+        /* Session Sidebar */
+        .chat-layout {
+            display: flex;
+            height: calc(100vh - 200px);
+        }
+
+        .session-sidebar {
+            width: 240px;
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-dark);
+            border-radius: 12px 0 0 12px;
+            flex-shrink: 0;
+        }
+
+        .session-sidebar-header {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .session-sidebar-header span {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-light);
+        }
+
+        .session-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px;
+        }
+
+        .session-item {
+            padding: 10px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 4px;
+            position: relative;
+            transition: background 0.15s;
+        }
+
+        .session-item:hover {
+            background: var(--bg-card);
+        }
+
+        .session-item.active {
+            background: var(--primary-dark);
+        }
+
+        .session-item-preview {
+            font-size: 13px;
+            color: var(--text-light);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            padding-right: 24px;
+        }
+
+        .session-item-meta {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 4px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .session-item .session-delete-btn {
+            position: absolute;
+            top: 50%;
+            right: 8px;
+            transform: translateY(-50%);
+            opacity: 0;
+            background: none;
+            border: none;
+            color: var(--danger);
+            cursor: pointer;
+            font-size: 14px;
+            padding: 4px;
+            transition: opacity 0.15s;
+        }
+
+        .session-item:hover .session-delete-btn {
+            opacity: 1;
+        }
+
+        .chat-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+
+        .chat-main .chat-messages {
+            border-radius: 0 12px 0 0;
+        }
+
         /* Animations */
         @keyframes fadeInUp {
             from {
@@ -1406,22 +1506,35 @@
                     <span class="hot-tag" onclick="quickAsk('失眠怎么治疗')">失眠怎么治疗</span>
                 </div>
 
-                <div class="chat-container">
-                    <div class="chat-messages" id="chatMessages">
-                        <div class="chat-message">
-                            <div class="chat-avatar"><i class="bi bi-robot"></i></div>
-                            <div class="chat-content">
-                                您好！我是健康智能助手，可以帮助您进行健康数据管理、饮食分析、运动推荐等。请问有什么可以帮您的？
+                <div class="chat-layout">
+                    <!-- 会话列表侧边栏 -->
+                    <div class="session-sidebar">
+                        <div class="session-sidebar-header">
+                            <span>会话</span>
+                            <button class="btn btn-outline btn-sm" onclick="createNewSession()" title="新建会话">
+                                <i class="bi bi-plus-lg"></i>
+                            </button>
+                        </div>
+                        <div class="session-list" id="sessionList"></div>
+                    </div>
+                    <!-- 聊天主区域 -->
+                    <div class="chat-main">
+                        <div class="chat-messages" id="chatMessages">
+                            <div class="chat-message">
+                                <div class="chat-avatar"><i class="bi bi-robot"></i></div>
+                                <div class="chat-content">
+                                    您好！我是健康智能助手，可以帮助您进行健康数据管理、饮食分析、运动推荐等。请问有什么可以帮您的？
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="chat-input-area">
-                        <div class="chat-input">
-                            <input type="text" class="form-control" id="chatInput" placeholder="输入您的健康问题...">
+                        <div class="chat-input-area">
+                            <div class="chat-input">
+                                <input type="text" class="form-control" id="chatInput" placeholder="输入您的健康问题...">
+                            </div>
+                            <button class="btn btn-primary" onclick="sendChat()">
+                                <i class="bi bi-send"></i> 发送
+                            </button>
                         </div>
-                        <button class="btn btn-primary" onclick="sendChat()">
-                            <i class="bi bi-send"></i> 发送
-                        </button>
                     </div>
                 </div>
             </div>
@@ -1750,6 +1863,9 @@
 
         // Page Switching
         function switchPage(page) {
+            // 离开文档管理页面时停止自动刷新
+            stopKnowledgeAutoRefresh();
+
             document.querySelectorAll('.page-content').forEach(p => p.classList.remove('active'));
             document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
 
@@ -1776,6 +1892,7 @@
             if (page === 'overview') loadOverview();
             if (page === 'kg-query') { /* 初始化知识图谱查询页面 */ }
             if (page === 'disease') loadDiseases();
+            if (page === 'chat') initSessions();
             if (page === 'users') loadUsers();
             if (page === 'analysis') loadAnalysisStats();
             if (page === 'knowledge') { loadKnowledgeDocuments(); loadKnowledgeStats(); }
@@ -2664,10 +2781,174 @@
 
         // Chat Functions
         let currentGraphData = null;
+        // 历史会话存储
+        let chatHistory = [];
+        // 会话管理
+        let currentSessionId = null;
+        let sessionsList = [];
 
         function quickAsk(question) {
             document.getElementById('chatInput').value = question;
             sendChat();
+        }
+
+        async function initSessions() {
+            try {
+                const resp = await fetch(`${API_BASE}/chat/sessions`);
+                const data = await resp.json();
+                sessionsList = data.sessions || [];
+                if (sessionsList.length === 0) {
+                    // 没有会话，自动创建一个
+                    await createNewSession();
+                } else {
+                    // 选择最近的会话
+                    currentSessionId = sessionsList[0].session_id;
+                    renderSessionList();
+                    loadChatHistory();
+                }
+            } catch (e) {
+                console.error('初始化会话失败:', e);
+                // 回退：不使用 session_id
+                loadChatHistory();
+            }
+        }
+
+        async function createNewSession() {
+            try {
+                const resp = await fetch(`${API_BASE}/chat/sessions`, { method: 'POST' });
+                const data = await resp.json();
+                currentSessionId = data.session_id;
+                chatHistory = [];
+                // 清空聊天区域
+                const container = document.getElementById('chatMessages');
+                container.innerHTML = `
+                    <div class="chat-message">
+                        <div class="chat-avatar"><i class="bi bi-robot"></i></div>
+                        <div class="chat-content">您好！我是健康智能助手，可以帮助您进行健康数据管理、饮食分析、运动推荐等。请问有什么可以帮您的？</div>
+                    </div>
+                `;
+                document.getElementById('chatGraphCard').style.display = 'none';
+                currentGraphData = null;
+                // 刷新会话列表
+                const listResp = await fetch(`${API_BASE}/chat/sessions`);
+                const listData = await listResp.json();
+                sessionsList = listData.sessions || [];
+                renderSessionList();
+            } catch (e) {
+                console.error('创建会话失败:', e);
+                showToast('创建会话失败', 'error');
+            }
+        }
+
+        async function switchSession(sessionId) {
+            if (sessionId === currentSessionId) return;
+            currentSessionId = sessionId;
+            renderSessionList();
+            loadChatHistory();
+        }
+
+        async function deleteSession(sessionId, event) {
+            event.stopPropagation();
+            if (!confirm('确定删除该会话？')) return;
+            try {
+                await fetch(`${API_BASE}/chat/sessions/${encodeURIComponent(sessionId)}`, { method: 'DELETE' });
+                // 刷新会话列表
+                const resp = await fetch(`${API_BASE}/chat/sessions`);
+                const data = await resp.json();
+                sessionsList = data.sessions || [];
+                if (currentSessionId === sessionId) {
+                    // 删除的是当前会话
+                    if (sessionsList.length > 0) {
+                        currentSessionId = sessionsList[0].session_id;
+                        loadChatHistory();
+                    } else {
+                        await createNewSession();
+                    }
+                }
+                renderSessionList();
+            } catch (e) {
+                console.error('删除会话失败:', e);
+                showToast('删除会话失败', 'error');
+            }
+        }
+
+        function renderSessionList() {
+            const listEl = document.getElementById('sessionList');
+            if (!listEl) return;
+            listEl.innerHTML = '';
+            sessionsList.forEach(s => {
+                const sid = s.session_id || '';
+                const isActive = sid === currentSessionId ? 'active' : '';
+                const preview = s.preview || '新会话';
+                const meta = `${s.message_count || 0} 条消息`;
+                const time = s.last_updated || '';
+                listEl.innerHTML += `
+                    <div class="session-item ${isActive}" onclick="switchSession('${sid}')">
+                        <div class="session-item-preview">${preview}</div>
+                        <div class="session-item-meta"><span>${meta}</span><span>${time}</span></div>
+                        <button class="session-delete-btn" onclick="deleteSession('${sid}', event)" title="删除会话">
+                            <i class="bi bi-x-lg"></i>
+                        </button>
+                    </div>
+                `;
+            });
+        }
+
+        function quickAsk(question) {
+            document.getElementById('chatInput').value = question;
+            sendChat();
+        }
+
+        function loadChatHistory() {
+            const sid = currentSessionId;
+            fetch(`${API_BASE}/chat/history${sid ? '?session_id=' + encodeURIComponent(sid) : ''}`)
+                .then(r => r.json())
+                .then(data => {
+                    const messages = data.messages || [];
+                    chatHistory = messages;
+                    const container = document.getElementById('chatMessages');
+                    container.innerHTML = '';
+
+                    if (messages.length === 0) {
+                        // 无历史记录，显示欢迎消息
+                        container.innerHTML = `
+                            <div class="chat-message">
+                                <div class="chat-avatar"><i class="bi bi-robot"></i></div>
+                                <div class="chat-content">您好！我是健康智能助手，可以帮助您进行健康数据管理、饮食分析、运动推荐等。请问有什么可以帮您的？</div>
+                            </div>
+                        `;
+                    } else {
+                        // 渲染历史消息
+                        messages.forEach(msg => {
+                            const icon = msg.role === 'user' ? 'bi-person' : 'bi-robot';
+                            container.innerHTML += `
+                                <div class="chat-message ${msg.role}">
+                                    <div class="chat-avatar"><i class="bi ${icon}"></i></div>
+                                    <div class="chat-content">${msg.content}</div>
+                                </div>
+                            `;
+                        });
+                        container.scrollTop = container.scrollHeight;
+                    }
+                })
+                .catch(() => {
+                    console.error('加载聊天历史失败');
+                });
+        }
+
+        function saveChatHistory() {
+            const sid = currentSessionId;
+            fetch(`${API_BASE}/chat/history${sid ? '?session_id=' + encodeURIComponent(sid) : ''}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(chatHistory)
+            }).then(() => {
+                // 保存成功后刷新会话列表
+                fetch(`${API_BASE}/chat/sessions`).then(r => r.json()).then(data => {
+                    sessionsList = data.sessions || [];
+                    renderSessionList();
+                }).catch(() => {});
+            }).catch(() => console.error('保存聊天历史失败'));
         }
 
         function sendChat() {
@@ -2680,10 +2961,12 @@
             currentGraphData = null;
 
             addChatMessage('user', message);
+            chatHistory.push({ role: 'user', content: message });
             input.value = '';
 
             // SSE流式接收
-            const eventSource = new EventSource(`${API_BASE}/chat/stream?q=${encodeURIComponent(message)}`);
+            const sid = currentSessionId;
+            const eventSource = new EventSource(`${API_BASE}/chat/stream?q=${encodeURIComponent(message)}${sid ? '&session_id=' + encodeURIComponent(sid) : ''}`);
             let fullContent = '';
             const assistantMsgId = 'msg-' + Date.now();
             addChatMessageWithId('assistant', '', assistantMsgId);
@@ -2706,11 +2989,17 @@
 
             eventSource.addEventListener('done', function() {
                 eventSource.close();
+                // 保存助手回复到历史
+                chatHistory.push({ role: 'assistant', content: fullContent });
+                saveChatHistory();
             });
 
             eventSource.onerror = function() {
-                updateChatMessage(assistantMsgId, fullContent || '抱歉，我暂时无法回答这个问题。');
+                const fallbackMsg = fullContent || '抱歉，我暂时无法回答这个问题。';
+                updateChatMessage(assistantMsgId, fallbackMsg);
                 eventSource.close();
+                chatHistory.push({ role: 'assistant', content: fallbackMsg });
+                saveChatHistory();
             };
         }
 
@@ -2791,6 +3080,7 @@
         }
 
         function clearChat() {
+            chatHistory = [];
             document.getElementById('chatMessages').innerHTML = `
                 <div class="chat-message">
                     <div class="chat-avatar"><i class="bi bi-robot"></i></div>
@@ -2799,6 +3089,17 @@
             `;
             document.getElementById('chatGraphCard').style.display = 'none';
             currentGraphData = null;
+
+            // 清除后端历史
+            const sid = currentSessionId;
+            fetch(`${API_BASE}/chat/history${sid ? '?session_id=' + encodeURIComponent(sid) : ''}`, { method: 'DELETE' })
+                .then(() => {
+                    fetch(`${API_BASE}/chat/sessions`).then(r => r.json()).then(data => {
+                        sessionsList = data.sessions || [];
+                        renderSessionList();
+                    }).catch(() => {});
+                })
+                .catch(() => console.error('清除聊天历史失败'));
         }
 
         // Load Users
@@ -3118,20 +3419,32 @@
         function assessSleep() {
             const hours = parseFloat(document.getElementById('sleepHours').value);
             const quality = parseInt(document.getElementById('sleepQuality').value);
+            const resultDiv = document.getElementById('sleepResult');
             if (!hours || !quality) return;
 
-            fetch(`${API_BASE}/chat/stream?q=评估我的睡眠质量，睡眠${hours}小时，质量评分${quality}`)
+            resultDiv.innerHTML = '<div style="color: var(--text-muted);">正在评估中...</div>';
+
+            fetch(`${API_BASE}/chat/stream?q=${encodeURIComponent('评估我的睡眠质量，睡眠' + hours + '小时，质量评分' + quality)}`)
                 .then(response => {
                     const reader = response.body.getReader();
+                    const decoder = new TextDecoder();
                     let result = '';
-                    reader.read().then(({ done, value }) => {
-                        if (!done) {
-                            result += new TextDecoder().decode(value);
-                            document.getElementById('sleepResult').innerHTML = `
-                                <div style="background: var(--bg-darker); padding: 16px; border-radius: 8px; white-space: pre-wrap;">${result}</div>
-                            `;
-                        }
-                    });
+
+                    function readChunk() {
+                        reader.read().then(({ done, value }) => {
+                            if (done) {
+                                resultDiv.innerHTML = `<div style="background: var(--bg-darker); padding: 16px; border-radius: 8px; white-space: pre-wrap;">${result}</div>`;
+                                return;
+                            }
+                            result += decoder.decode(value, { stream: true });
+                            resultDiv.innerHTML = `<div style="background: var(--bg-darker); padding: 16px; border-radius: 8px; white-space: pre-wrap;">${result}</div>`;
+                            readChunk();
+                        });
+                    }
+                    readChunk();
+                })
+                .catch(e => {
+                    resultDiv.innerHTML = `<div style="color: red;">评估失败: ${e.message}</div>`;
                 });
         }
 
@@ -3154,10 +3467,6 @@
             document.getElementById('chatInput').addEventListener('keypress', e => {
                 if (e.key === 'Enter') sendChat();
             });
-            document.getElementById('entitySearchInput').addEventListener('keypress', e => {
-                if (e.key === 'Enter') searchEntity();
-            });
-
             // Upload Area Events
             const uploadArea = document.getElementById('uploadArea');
             const fileInput = document.getElementById('fileInput');
@@ -3183,6 +3492,36 @@
 
         let knowledgeCurrentPage = 1;
         const knowledgePageSize = 10;
+        let knowledgeRefreshTimer = null;
+
+        function startKnowledgeAutoRefresh() {
+            if (knowledgeRefreshTimer) return;
+            knowledgeRefreshTimer = setInterval(async () => {
+                const statusFilter = document.getElementById('statusFilter');
+                if (!statusFilter) { stopKnowledgeAutoRefresh(); return; }
+                // 静默刷新列表和统计
+                try {
+                    const params = new URLSearchParams({ page: knowledgeCurrentPage, page_size: knowledgePageSize });
+                    const sf = statusFilter.value;
+                    if (sf) params.append('status', sf);
+                    const resp = await fetch(`${API_BASE}/knowledge/documents?${params}`);
+                    const data = await resp.json();
+                    renderKnowledgeTable(data.documents);
+                    renderKnowledgePagination(data.total_pages, data.page);
+                    await loadKnowledgeStats();
+                    // 检查是否还有处理中的文档，没有则停止自动刷新
+                    const hasProcessing = (data.documents || []).some(d => d.status === 'processing' || d.status === 'pending');
+                    if (!hasProcessing) stopKnowledgeAutoRefresh();
+                } catch (e) { /* ignore */ }
+            }, 2000);
+        }
+
+        function stopKnowledgeAutoRefresh() {
+            if (knowledgeRefreshTimer) {
+                clearInterval(knowledgeRefreshTimer);
+                knowledgeRefreshTimer = null;
+            }
+        }
 
         function handleFileSelect(input) {
             if (input.files.length > 0) {
@@ -3245,7 +3584,7 @@
             }
 
             // Reset file input
-            fileInput.value = '';
+            document.getElementById('fileInput').value = '';
 
             // Hide progress after delay
             setTimeout(() => {
@@ -3264,20 +3603,30 @@
 
                 try {
                     const response = await fetch(`${API_BASE}/knowledge/status/${docId}`);
+
+                    if (!response.ok) {
+                        completed = true;
+                        showToast(`文档状态查询失败 (${response.status})`, 'error');
+                        loadKnowledgeDocuments();
+                        loadKnowledgeStats();
+                        break;
+                    }
+
                     const status = await response.json();
+
+                    // 每次轮询都刷新文档列表和统计，实时更新状态/chunk数/实体数/关系数
+                    loadKnowledgeDocuments();
+                    loadKnowledgeStats();
 
                     if (status.status === 'completed') {
                         completed = true;
                         showToast(`文档处理完成，生成 ${status.chunk_count} 个chunks`, 'success');
-                        loadKnowledgeDocuments();
-                        loadKnowledgeStats();
                     } else if (status.status === 'failed') {
                         completed = true;
                         showToast(`文档处理失败: ${status.error_message}`, 'error');
-                        loadKnowledgeDocuments();
                     }
                 } catch (e) {
-                    // Continue polling on error
+                    console.error('Poll status error:', e);
                 }
             }
         }
@@ -3287,10 +3636,10 @@
                 const response = await fetch(`${API_BASE}/knowledge/stats`);
                 const stats = await response.json();
 
-                document.getElementById('knowledgeTotalDocs').textContent = stats.total || 0;
-                document.getElementById('knowledgeCompleted').textContent = stats.completed || 0;
-                document.getElementById('knowledgeTotalEntities').textContent = stats.total_entities || 0;
-                document.getElementById('knowledgeTotalRelations').textContent = stats.total_relations || 0;
+                document.getElementById('knowledgeTotalDocs').textContent = stats.total != null ? stats.total : 0;
+                document.getElementById('knowledgeCompleted').textContent = stats.completed != null ? stats.completed : 0;
+                document.getElementById('knowledgeTotalEntities').textContent = stats.total_entities != null ? stats.total_entities : 0;
+                document.getElementById('knowledgeTotalRelations').textContent = stats.total_relations != null ? stats.total_relations : 0;
             } catch (e) {
                 console.error('Load knowledge stats error:', e);
             }
@@ -3314,6 +3663,11 @@
 
                 // Load stats too
                 loadKnowledgeStats();
+
+                // 有处理中/待处理的文档时启动自动刷新
+                const docs = data.documents || [];
+                const hasProcessing = docs.some(d => d.status === 'processing' || d.status === 'pending');
+                if (hasProcessing) startKnowledgeAutoRefresh();
             } catch (e) {
                 console.error('Load knowledge documents error:', e);
                 showToast('加载文档列表失败', 'error');
@@ -3348,9 +3702,9 @@
                 tr.innerHTML = `
                     <td>${doc.original_filename}</td>
                     <td><span class="status-badge ${statusClass}"><i class="bi bi-${statusIcon}"></i> ${statusText}</span></td>
-                    <td>${doc.chunk_count || '--'}</td>
-                    <td>${doc.entity_count || '--'}</td>
-                    <td>${doc.relation_count || '--'}</td>
+                    <td>${doc.chunk_count != null ? doc.chunk_count : '--'}</td>
+                    <td>${doc.entity_count != null ? doc.entity_count : '--'}</td>
+                    <td>${doc.relation_count != null ? doc.relation_count : '--'}</td>
                     <td>${sizeDisplay}</td>
                     <td>${doc.created_at || '--'}</td>
                     <td>

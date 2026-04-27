@@ -656,3 +656,74 @@
 2026-04-14 16:31:31 - health_agent - INFO - 用户数据已保存
 2026-04-14 16:31:43 - health_agent - INFO - 用户数据已保存
 2026-04-14 16:31:43 - health_agent - INFO - 创建用户成功: U004 - 神乐
+2026-04-14 19:29:42 - health_agent - INFO - [HealthKG] 加载扩展数据: 实体139个, 关系142条
+2026-04-14 19:29:42 - health_agent - INFO - [HealthKG] 知识图谱初始化完成，节点数: 278，边数: 167
+2026-04-14 19:29:42 - health_agent - INFO - [KGQA] 知识图谱问答系统初始化完成
+2026-04-14 19:29:42 - health_agent - INFO - [HealthNER] 使用 jieba 分词器
+2026-04-14 19:29:42 - health_agent - INFO - [HealthNER] 健康NER系统初始化完成
+2026-04-14 19:29:43 - health_agent - INFO - [ServiceRegistry] 注册服务: user_service, 方法数: 6
+2026-04-14 19:29:43 - health_agent - INFO - [ServiceRegistry] 注册服务: health_service, 方法数: 5
+2026-04-14 19:29:43 - health_agent - INFO - [ServiceRegistry] 注册服务: report_service, 方法数: 4
+2026-04-14 19:29:43 - health_agent - INFO - [ServiceRegistry] 注册服务: web_service, 方法数: 4
+2026-04-14 19:29:43 - health_agent - INFO - [ServiceRegistry] 注册服务: chat_service, 方法数: 4
+2026-04-14 19:29:43 - health_agent - INFO - [ServiceRegistry] 注册服务: kg_service, 方法数: 10
+2026-04-14 19:29:43 - health_agent - INFO - [ServiceRegistry] 已注册 6 个服务
+2026-04-14 19:29:45 - health_agent - INFO - 未配置备用 API，跳过容错客户端初始化。
+2026-04-14 19:29:48 - health_agent - INFO - [ServiceRegistry] 注册服务: user_service, 方法数: 6
+2026-04-14 19:29:48 - health_agent - INFO - [ServiceRegistry] 注册服务: health_service, 方法数: 5
+2026-04-14 19:29:48 - health_agent - INFO - [ServiceRegistry] 注册服务: report_service, 方法数: 4
+2026-04-14 19:29:48 - health_agent - INFO - [ServiceRegistry] 注册服务: web_service, 方法数: 4
+2026-04-14 19:29:48 - health_agent - INFO - [ServiceRegistry] 注册服务: chat_service, 方法数: 4
+2026-04-14 19:29:48 - health_agent - INFO - [ServiceRegistry] 注册服务: kg_service, 方法数: 10
+2026-04-14 19:29:48 - health_agent - INFO - [ServiceRegistry] 已注册 6 个服务
+2026-04-14 19:29:54 - health_agent - INFO - [Retriever] 创建retriever: search_type=similarity, kwargs={'k': 5}
+2026-04-14 19:29:54 - health_agent - INFO - [HealthKG] 加载扩展数据: 实体139个, 关系142条
+2026-04-14 19:29:54 - health_agent - INFO - [HealthKG] 知识图谱初始化完成，节点数: 278，边数: 167
+2026-04-14 19:29:54 - health_agent - INFO - [KGQA] 知识图谱问答系统初始化完成
+2026-04-14 19:29:55 - health_agent - INFO - [HealthNER] 使用 jieba 分词器
+2026-04-14 19:29:55 - health_agent - INFO - [HealthNER] 健康NER系统初始化完成
+2026-04-14 19:29:55 - health_agent - INFO - [IntentClassifier] 意图分类器初始化完成
+2026-04-14 19:29:55 - health_agent - INFO - [IntentClassifier] 意图分类器初始化完成
+2026-04-14 19:29:55 - health_agent - INFO - [HealthRouter] 路由器初始化完成
+2026-04-14 19:29:55 - health_agent - INFO - [KGExtractor] 加载配置成功
+2026-04-14 19:29:55 - health_agent - INFO - [KGExtractor] 知识抽取器初始化完成
+2026-04-14 19:29:58 - health_agent - INFO - [Retriever] 创建retriever: search_type=similarity, kwargs={'k': 5}
+2026-04-14 19:29:59 - health_agent - INFO - [HealthKG] 加载扩展数据: 实体139个, 关系142条
+2026-04-14 19:29:59 - health_agent - INFO - [HealthKG] 知识图谱初始化完成，节点数: 278，边数: 167
+2026-04-14 19:29:59 - health_agent - INFO - [KGQA] 知识图谱问答系统初始化完成
+2026-04-14 19:29:59 - health_agent - INFO - [HealthNER] 使用 jieba 分词器
+2026-04-14 19:29:59 - health_agent - INFO - [HealthNER] 健康NER系统初始化完成
+2026-04-14 19:29:59 - health_agent - INFO - [IntentClassifier] 意图分类器初始化完成
+2026-04-14 19:29:59 - health_agent - INFO - [IntentClassifier] 意图分类器初始化完成
+2026-04-14 19:29:59 - health_agent - INFO - [HealthRouter] 路由器初始化完成
+2026-04-14 19:29:59 - health_agent - INFO - [KGExtractor] 加载配置成功
+2026-04-14 19:29:59 - health_agent - INFO - [KGExtractor] 知识抽取器初始化完成
+2026-04-14 19:30:03 - health_agent - INFO - [ServiceRegistry] 注册服务: user_service, 方法数: 6
+2026-04-14 19:30:03 - health_agent - INFO - [ServiceRegistry] 注册服务: health_service, 方法数: 5
+2026-04-14 19:30:03 - health_agent - INFO - [ServiceRegistry] 注册服务: report_service, 方法数: 4
+2026-04-14 19:30:03 - health_agent - INFO - [ServiceRegistry] 注册服务: web_service, 方法数: 4
+2026-04-14 19:30:03 - health_agent - INFO - [ServiceRegistry] 注册服务: chat_service, 方法数: 4
+2026-04-14 19:30:03 - health_agent - INFO - [ServiceRegistry] 注册服务: kg_service, 方法数: 10
+2026-04-14 19:30:03 - health_agent - INFO - [ServiceRegistry] 已注册 6 个服务
+2026-04-14 19:30:13 - health_agent - INFO - [Retriever] 创建retriever: search_type=similarity, kwargs={'k': 5}
+2026-04-14 19:30:13 - health_agent - INFO - [HealthKG] 加载扩展数据: 实体139个, 关系142条
+2026-04-14 19:30:13 - health_agent - INFO - [HealthKG] 知识图谱初始化完成，节点数: 278，边数: 167
+2026-04-14 19:30:13 - health_agent - INFO - [KGQA] 知识图谱问答系统初始化完成
+2026-04-14 19:30:14 - health_agent - INFO - [HealthNER] 使用 jieba 分词器
+2026-04-14 19:30:14 - health_agent - INFO - [HealthNER] 健康NER系统初始化完成
+2026-04-14 19:30:14 - health_agent - INFO - [IntentClassifier] 意图分类器初始化完成
+2026-04-14 19:30:14 - health_agent - INFO - [IntentClassifier] 意图分类器初始化完成
+2026-04-14 19:30:14 - health_agent - INFO - [HealthRouter] 路由器初始化完成
+2026-04-14 19:30:14 - health_agent - INFO - [KGExtractor] 加载配置成功
+2026-04-14 19:30:14 - health_agent - INFO - [KGExtractor] 知识抽取器初始化完成
+2026-04-14 19:31:17 - health_agent - INFO - [HealthRouter] 意图分类: faq, 置信度: 0.85
+2026-04-14 19:31:17 - health_agent - INFO - [KGQA] 收到问题: 糖尿病吃什么好
+2026-04-14 19:31:17 - health_agent - INFO - [KGQA] 问题类型: food_disease_good, 答案: 对 '糖尿病' 有益：低糖饮食, 低糖饮食
+2026-04-14 19:31:17 - health_agent - INFO - [Retriever] 创建retriever: search_type=similarity, kwargs={'k': 5}
+2026-04-14 19:31:17 - health_agent - INFO - [RAG] 检索到 5 个相关文档片段
+2026-04-14 19:31:39 - health_agent - INFO - [HealthRouter] 意图分类: agent, 置信度: 0.9
+2026-04-14 19:31:39 - health_agent - INFO - [KGQA] 收到问题: 评估我的睡眠质量，睡眠7小时，质量评分7
+2026-04-14 19:31:39 - health_agent - INFO - [HealthAgent] 收到查询: 评估我的睡眠质量，睡眠7小时，质量评分7...
+2026-04-14 19:31:39 - health_agent - INFO - [log_before_model]即将调用模型，带有1条消息。
+2026-04-14 22:00:28 - health_agent - INFO - 未配置备用 API，跳过容错客户端初始化。
+2026-04-14 22:00:50 - health_agent - INFO - 未配置备用 API，跳过容错客户端初始化。

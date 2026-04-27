@@ -92,20 +92,24 @@ class HealthAgent:
             logger.error(f"[HealthAgent] 工具调用失败: {e}")
             return f"工具调用失败: {str(e)}"
 
-    def chat(self, query: str, context: Dict = None) -> Generator[str, None, None]:
+    def chat(self, query: str, context: Dict = None, history: List[Dict] = None) -> Generator[str, None, None]:
         """
         Args:
             query: 用户输入
             context: 可选上下文信息
+            history: 对话历史（可选），格式为 [{"role": "user/assistant", "content": "..."}]
         Yields:
             流式输出的文本块
         """
         logger.info(f"[HealthAgent] 收到查询: {query[:50]}...")
 
         # 构建输入
-        messages = [{"role": "user", "content": query}]
+        messages = []
         if context:
-            messages.insert(0, {"role": "system", "content": self._build_system_prompt(context)})
+            messages.append({"role": "system", "content": self._build_system_prompt(context)})
+        if history:
+            messages.extend(history)
+        messages.append({"role": "user", "content": query})
 
         # 调用模型
         try:

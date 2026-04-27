@@ -1841,6 +1841,924 @@
       "entity_type_name": "BODY_PART",
       "attributes": {},
       "synonyms": []
+    },
+    {
+      "name": "长期精神紧张",
+      "entity_type": 13,
+      "entity_type_name": "RISK_FACTOR",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "保持健康体重",
+      "entity_type": 14,
+      "entity_type_name": "HEALTH_GOAL",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "规律运动",
+      "entity_type": 10,
+      "entity_type_name": "EXERCISE",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "限制酒精摄入",
+      "entity_type": 12,
+      "entity_type_name": "HABIT",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "按医嘱服药",
+      "entity_type": 5,
+      "entity_type_name": "TREATMENT",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "家庭血压监测",
+      "entity_type": 6,
+      "entity_type_name": "MEDICAL_TEST",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "避免情绪激动",
+      "entity_type": 12,
+      "entity_type_name": "HABIT",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "定期复查",
+      "entity_type": 6,
+      "entity_type_name": "MEDICAL_TEST",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "1 型糖尿病",
+      "entity_type": 3,
+      "entity_type_name": "DISEASE",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "2 型糖尿病",
+      "entity_type": 3,
+      "entity_type_name": "DISEASE",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "妊娠糖尿病",
+      "entity_type": 3,
+      "entity_type_name": "DISEASE",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "多饮",
+      "entity_type": 2,
+      "entity_type_name": "SYMPTOM",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "多食",
+      "entity_type": 2,
+      "entity_type_name": "SYMPTOM",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "多尿",
+      "entity_type": 2,
+      "entity_type_name": "SYMPTOM",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "体重减少",
+      "entity_type": 2,
+      "entity_type_name": "SYMPTOM",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "控制体重",
+      "entity_type": 14,
+      "entity_type_name": "HEALTH_GOAL",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "避免肥胖",
+      "entity_type": 13,
+      "entity_type_name": "RISK_FACTOR",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "控制碳水化合物摄入",
+      "entity_type": 9,
+      "entity_type_name": "DIET_TYPE",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "定期检测血糖",
+      "entity_type": 6,
+      "entity_type_name": "MEDICAL_TEST",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "避免吸烟",
+      "entity_type": 12,
+      "entity_type_name": "HABIT",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "饮食控制",
+      "entity_type": 5,
+      "entity_type_name": "TREATMENT",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "药物治疗",
+      "entity_type": 5,
+      "entity_type_name": "TREATMENT",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "血糖监测",
+      "entity_type": 6,
+      "entity_type_name": "MEDICAL_TEST",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "并发症筛查",
+      "entity_type": 6,
+      "entity_type_name": "MEDICAL_TEST",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "高脂血症",
+      "entity_type": 3,
+      "entity_type_name": "DISEASE",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "总胆固醇",
+      "entity_type": 15,
+      "entity_type_name": "HEALTH_TERM",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "甘油三酯",
+      "entity_type": 15,
+      "entity_type_name": "HEALTH_TERM",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "低密度脂蛋白",
+      "entity_type": 15,
+      "entity_type_name": "HEALTH_TERM",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "高密度脂蛋白",
+      "entity_type": 15,
+      "entity_type_name": "HEALTH_TERM",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "口服药",
+      "entity_type": 4,
+      "entity_type_name": "DRUG",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "动脉粥样硬化",
+      "entity_type": 3,
+      "entity_type_name": "DISEASE",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "脑卒中",
+      "entity_type": 3,
+      "entity_type_name": "DISEASE",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "胰腺炎",
+      "entity_type": 3,
+      "entity_type_name": "DISEASE",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "心绞痛",
+      "entity_type": 3,
+      "entity_type_name": "DISEASE",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "心肌梗死",
+      "entity_type": 3,
+      "entity_type_name": "DISEASE",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "无症状心肌缺血",
+      "entity_type": 3,
+      "entity_type_name": "DISEASE",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "缺血性脑卒中",
+      "entity_type": 3,
+      "entity_type_name": "DISEASE",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "出血性脑卒中",
+      "entity_type": 3,
+      "entity_type_name": "DISEASE",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "慢性肾脏病",
+      "entity_type": 3,
+      "entity_type_name": "DISEASE",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "胸骨后压榨性疼痛",
+      "entity_type": 2,
+      "entity_type_name": "SYMPTOM",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "疼痛向左肩、左臂放射",
+      "entity_type": 2,
+      "entity_type_name": "SYMPTOM",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "出汗",
+      "entity_type": 2,
+      "entity_type_name": "SYMPTOM",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "呼吸困难",
+      "entity_type": 2,
+      "entity_type_name": "SYMPTOM",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "面部不对称，口角歪斜",
+      "entity_type": 2,
+      "entity_type_name": "SYMPTOM",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "手臂无力，无法抬起",
+      "entity_type": 2,
+      "entity_type_name": "SYMPTOM",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "言语不清，表达困难",
+      "entity_type": 2,
+      "entity_type_name": "SYMPTOM",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "家族史",
+      "entity_type": 13,
+      "entity_type_name": "RISK_FACTOR",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "戒烟限酒",
+      "entity_type": 12,
+      "entity_type_name": "HABIT",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "健康饮食",
+      "entity_type": 9,
+      "entity_type_name": "DIET_TYPE",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "管理房颤",
+      "entity_type": 5,
+      "entity_type_name": "TREATMENT",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "减少饱和脂肪酸摄入",
+      "entity_type": 9,
+      "entity_type_name": "DIET_TYPE",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "增加膳食纤维",
+      "entity_type": 7,
+      "entity_type_name": "FOOD",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "管理压力",
+      "entity_type": 5,
+      "entity_type_name": "TREATMENT",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "高甘油三酯血症",
+      "entity_type": 3,
+      "entity_type_name": "DISEASE",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "滤过率",
+      "entity_type": 15,
+      "entity_type_name": "HEALTH_TERM",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "泡沫尿",
+      "entity_type": 2,
+      "entity_type_name": "SYMPTOM",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "夜尿增多",
+      "entity_type": 2,
+      "entity_type_name": "SYMPTOM",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "眼睑或下肢水肿",
+      "entity_type": 2,
+      "entity_type_name": "SYMPTOM",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "血压升高",
+      "entity_type": 2,
+      "entity_type_name": "SYMPTOM",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "管理血糖",
+      "entity_type": 5,
+      "entity_type_name": "TREATMENT",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "低盐低蛋白饮食",
+      "entity_type": 9,
+      "entity_type_name": "DIET_TYPE",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "肾毒性药物",
+      "entity_type": 4,
+      "entity_type_name": "DRUG",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "肾功能",
+      "entity_type": 15,
+      "entity_type_name": "HEALTH_TERM",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "血压测量",
+      "entity_type": 6,
+      "entity_type_name": "MEDICAL_TEST",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "血脂四项",
+      "entity_type": 6,
+      "entity_type_name": "MEDICAL_TEST",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "空腹血糖",
+      "entity_type": 6,
+      "entity_type_name": "MEDICAL_TEST",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "肝肾功能",
+      "entity_type": 6,
+      "entity_type_name": "MEDICAL_TEST",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "血常规",
+      "entity_type": 6,
+      "entity_type_name": "MEDICAL_TEST",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "尿常规",
+      "entity_type": 6,
+      "entity_type_name": "MEDICAL_TEST",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "心电图",
+      "entity_type": 6,
+      "entity_type_name": "MEDICAL_TEST",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "腹部 B超",
+      "entity_type": 6,
+      "entity_type_name": "MEDICAL_TEST",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "心血管疾病",
+      "entity_type": 3,
+      "entity_type_name": "DISEASE",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "肠癌",
+      "entity_type": 3,
+      "entity_type_name": "DISEASE",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "乳腺癌",
+      "entity_type": 3,
+      "entity_type_name": "DISEASE",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "前列腺癌",
+      "entity_type": 3,
+      "entity_type_name": "DISEASE",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "心肺复苏",
+      "entity_type": 5,
+      "entity_type_name": "TREATMENT",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "胸外按压",
+      "entity_type": 5,
+      "entity_type_name": "TREATMENT",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "人工呼吸",
+      "entity_type": 5,
+      "entity_type_name": "TREATMENT",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "安静休息",
+      "entity_type": 12,
+      "entity_type_name": "HABIT",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "糖化血红蛋白",
+      "entity_type": 15,
+      "entity_type_name": "HEALTH_TERM",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "心梗",
+      "entity_type": 3,
+      "entity_type_name": "DISEASE",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "硝酸甘油",
+      "entity_type": 4,
+      "entity_type_name": "DRUG",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "平卧",
+      "entity_type": 12,
+      "entity_type_name": "HABIT",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "嚼服",
+      "entity_type": 12,
+      "entity_type_name": "HABIT",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "舌下含服",
+      "entity_type": 12,
+      "entity_type_name": "HABIT",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "FAST症状",
+      "entity_type": 2,
+      "entity_type_name": "SYMPTOM",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "血压",
+      "entity_type": 15,
+      "entity_type_name": "HEALTH_TERM",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "血糖",
+      "entity_type": 15,
+      "entity_type_name": "HEALTH_TERM",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "血脂",
+      "entity_type": 15,
+      "entity_type_name": "HEALTH_TERM",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "LDL-C",
+      "entity_type": 15,
+      "entity_type_name": "HEALTH_TERM",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "BMI",
+      "entity_type": 15,
+      "entity_type_name": "HEALTH_TERM",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "腰围",
+      "entity_type": 15,
+      "entity_type_name": "HEALTH_TERM",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "家族病史",
+      "entity_type": 12,
+      "entity_type_name": "HABIT",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "既往病史",
+      "entity_type": 12,
+      "entity_type_name": "HABIT",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "过敏史",
+      "entity_type": 12,
+      "entity_type_name": "HABIT",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "生活习惯",
+      "entity_type": 12,
+      "entity_type_name": "HABIT",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "体重",
+      "entity_type": 15,
+      "entity_type_name": "HEALTH_TERM",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "体检结果",
+      "entity_type": 6,
+      "entity_type_name": "MEDICAL_TEST",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "用药情况",
+      "entity_type": 4,
+      "entity_type_name": "DRUG",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "高危人群",
+      "entity_type": 16,
+      "entity_type_name": "OTHER",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "健康",
+      "entity_type": 14,
+      "entity_type_name": "HEALTH_GOAL",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
+    },
+    {
+      "name": "基础疾病",
+      "entity_type": 3,
+      "entity_type_name": "DISEASE",
+      "attributes": {
+        "source_doc_id": "doc_a2584ef8b3c2"
+      },
+      "synonyms": []
     }
   ],
   "edges": [
@@ -1876,6 +2794,21 @@
     },
     {
       "source": "高血压",
+      "relation": "风险因素",
+      "target": "冠心病"
+    },
+    {
+      "source": "高血压",
+      "relation": "风险因素",
+      "target": "脑卒中"
+    },
+    {
+      "source": "高血压",
+      "relation": "风险因素",
+      "target": "心血管疾病"
+    },
+    {
+      "source": "高血压",
       "relation": "治疗方式",
       "target": "降压药"
     },
@@ -1893,6 +2826,21 @@
       "source": "高血压",
       "relation": "影响",
       "target": "血管"
+    },
+    {
+      "source": "高血压",
+      "relation": "由...导致",
+      "target": "久坐"
+    },
+    {
+      "source": "高血压",
+      "relation": "由...导致",
+      "target": "睡眠"
+    },
+    {
+      "source": "高血压",
+      "relation": "诊断方式",
+      "target": "血压测量"
     },
     {
       "source": "糖尿病",
@@ -1913,6 +2861,16 @@
       "source": "糖尿病",
       "relation": "风险因素",
       "target": "缺乏运动"
+    },
+    {
+      "source": "糖尿病",
+      "relation": "风险因素",
+      "target": "冠心病"
+    },
+    {
+      "source": "糖尿病",
+      "relation": "风险因素",
+      "target": "心血管疾病"
     },
     {
       "source": "糖尿病",
@@ -2070,9 +3028,29 @@
       "target": "饮食不规律"
     },
     {
+      "source": "肥胖",
+      "relation": "风险因素",
+      "target": "高血压"
+    },
+    {
+      "source": "肥胖",
+      "relation": "风险因素",
+      "target": "糖尿病"
+    },
+    {
+      "source": "肥胖",
+      "relation": "风险因素",
+      "target": "冠心病"
+    },
+    {
       "source": "降压药",
       "relation": "药物用途",
       "target": "高血压"
+    },
+    {
+      "source": "胰岛素",
+      "relation": "药物用途",
+      "target": "糖尿病"
     },
     {
       "source": "胰岛素",
@@ -2088,6 +3066,11 @@
       "source": "阿司匹林",
       "relation": "药物用途",
       "target": "感冒"
+    },
+    {
+      "source": "阿司匹林",
+      "relation": "药物用途",
+      "target": "心梗"
     },
     {
       "source": "维生素",
@@ -2160,6 +3143,11 @@
       "target": "高血压"
     },
     {
+      "source": "低盐饮食",
+      "relation": "预防",
+      "target": "高血压"
+    },
+    {
       "source": "低糖饮食",
       "relation": "有益于",
       "target": "糖尿病"
@@ -2167,6 +3155,11 @@
     {
       "source": "高盐饮食",
       "relation": "不利于",
+      "target": "高血压"
+    },
+    {
+      "source": "高盐饮食",
+      "relation": "风险因素",
       "target": "高血压"
     },
     {
@@ -2215,6 +3208,11 @@
       "target": "骨质疏松"
     },
     {
+      "source": "力量训练",
+      "relation": "改善",
+      "target": "肌肉"
+    },
+    {
       "source": "瑜伽",
       "relation": "适合",
       "target": "减压放松"
@@ -2238,6 +3236,16 @@
       "source": "快走",
       "relation": "适合",
       "target": "保持健康"
+    },
+    {
+      "source": "快走",
+      "relation": "适合",
+      "target": "高血压"
+    },
+    {
+      "source": "快走",
+      "relation": "帮助改善",
+      "target": "高血压"
     },
     {
       "source": "冥想",
@@ -2295,6 +3303,16 @@
       "target": "冠心病"
     },
     {
+      "source": "缺乏运动",
+      "relation": "风险因素",
+      "target": "高血压"
+    },
+    {
+      "source": "缺乏运动",
+      "relation": "风险因素",
+      "target": "冠心病"
+    },
+    {
       "source": "规律作息",
       "relation": "改善",
       "target": "睡眠"
@@ -2308,6 +3326,11 @@
       "source": "规律作息",
       "relation": "预防",
       "target": "高血压"
+    },
+    {
+      "source": "吸烟",
+      "relation": "风险因素",
+      "target": "冠心病"
     },
     {
       "source": "吸烟",
@@ -2765,6 +3788,16 @@
       "target": "腰椎"
     },
     {
+      "source": "久坐",
+      "relation": "风险因素",
+      "target": "高血压"
+    },
+    {
+      "source": "久坐",
+      "relation": "加重",
+      "target": "高血压"
+    },
+    {
       "source": "羽毛球",
       "relation": "适合",
       "target": "减脂瘦身"
@@ -2850,6 +3883,21 @@
       "target": "糖尿病"
     },
     {
+      "source": "均衡饮食",
+      "relation": "预防",
+      "target": "高血压"
+    },
+    {
+      "source": "均衡饮食",
+      "relation": "预防",
+      "target": "糖尿病"
+    },
+    {
+      "source": "均衡饮食",
+      "relation": "帮助改善",
+      "target": "高血压"
+    },
+    {
       "source": "定时进餐",
       "relation": "改善",
       "target": "胃炎"
@@ -2918,43 +3966,526 @@
       "source": "阿尔茨海默病",
       "relation": "影响",
       "target": "大脑"
+    },
+    {
+      "source": "睡眠",
+      "relation": "预防",
+      "target": "高血压"
+    },
+    {
+      "source": "睡眠",
+      "relation": "帮助改善",
+      "target": "高血压"
+    },
+    {
+      "source": "蛋白质",
+      "relation": "有益于",
+      "target": "肌肉"
+    },
+    {
+      "source": "长期精神紧张",
+      "relation": "风险因素",
+      "target": "高血压"
+    },
+    {
+      "source": "保持健康体重",
+      "relation": "预防",
+      "target": "高血压"
+    },
+    {
+      "source": "规律运动",
+      "relation": "预防",
+      "target": "高血压"
+    },
+    {
+      "source": "规律运动",
+      "relation": "预防",
+      "target": "糖尿病"
+    },
+    {
+      "source": "规律运动",
+      "relation": "预防",
+      "target": "高脂血症"
+    },
+    {
+      "source": "规律运动",
+      "relation": "预防",
+      "target": "脑卒中"
+    },
+    {
+      "source": "规律运动",
+      "relation": "预防",
+      "target": "冠心病"
+    },
+    {
+      "source": "规律运动",
+      "relation": "改善",
+      "target": "高甘油三酯血症"
+    },
+    {
+      "source": "限制酒精摄入",
+      "relation": "预防",
+      "target": "高血压"
+    },
+    {
+      "source": "按医嘱服药",
+      "relation": "治疗",
+      "target": "高血压"
+    },
+    {
+      "source": "家庭血压监测",
+      "relation": "诊断方式",
+      "target": "高血压"
+    },
+    {
+      "source": "家庭血压监测",
+      "relation": "治疗方式",
+      "target": "高血压"
+    },
+    {
+      "source": "避免情绪激动",
+      "relation": "预防",
+      "target": "高血压"
+    },
+    {
+      "source": "定期复查",
+      "relation": "诊断方式",
+      "target": "高血压"
+    },
+    {
+      "source": "多饮",
+      "relation": "具有症状",
+      "target": "糖尿病"
+    },
+    {
+      "source": "多食",
+      "relation": "具有症状",
+      "target": "糖尿病"
+    },
+    {
+      "source": "多尿",
+      "relation": "具有症状",
+      "target": "糖尿病"
+    },
+    {
+      "source": "体重减少",
+      "relation": "具有症状",
+      "target": "糖尿病"
+    },
+    {
+      "source": "控制体重",
+      "relation": "预防",
+      "target": "糖尿病"
+    },
+    {
+      "source": "控制体重",
+      "relation": "预防",
+      "target": "脑卒中"
+    },
+    {
+      "source": "避免肥胖",
+      "relation": "预防",
+      "target": "糖尿病"
+    },
+    {
+      "source": "控制碳水化合物摄入",
+      "relation": "预防",
+      "target": "糖尿病"
+    },
+    {
+      "source": "定期检测血糖",
+      "relation": "诊断方式",
+      "target": "糖尿病"
+    },
+    {
+      "source": "避免吸烟",
+      "relation": "预防",
+      "target": "糖尿病"
+    },
+    {
+      "source": "饮食控制",
+      "relation": "治疗",
+      "target": "糖尿病"
+    },
+    {
+      "source": "药物治疗",
+      "relation": "治疗",
+      "target": "糖尿病"
+    },
+    {
+      "source": "药物治疗",
+      "relation": "改善",
+      "target": "高甘油三酯血症"
+    },
+    {
+      "source": "血糖监测",
+      "relation": "诊断方式",
+      "target": "糖尿病"
+    },
+    {
+      "source": "血糖监测",
+      "relation": "治疗方式",
+      "target": "糖尿病"
+    },
+    {
+      "source": "并发症筛查",
+      "relation": "诊断方式",
+      "target": "糖尿病"
+    },
+    {
+      "source": "口服药",
+      "relation": "药物用途",
+      "target": "糖尿病"
+    },
+    {
+      "source": "总胆固醇",
+      "relation": "是",
+      "target": "高脂血症"
+    },
+    {
+      "source": "甘油三酯",
+      "relation": "是",
+      "target": "高脂血症"
+    },
+    {
+      "source": "低密度脂蛋白",
+      "relation": "是",
+      "target": "高脂血症"
+    },
+    {
+      "source": "高密度脂蛋白",
+      "relation": "是",
+      "target": "高脂血症"
+    },
+    {
+      "source": "高甘油三酯血症",
+      "relation": "导致",
+      "target": "胰腺炎"
+    },
+    {
+      "source": "高甘油三酯血症",
+      "relation": "导致",
+      "target": "动脉粥样硬化"
+    },
+    {
+      "source": "高甘油三酯血症",
+      "relation": "是",
+      "target": "高血脂"
+    },
+    {
+      "source": "动脉粥样硬化",
+      "relation": "导致",
+      "target": "冠心病"
+    },
+    {
+      "source": "动脉粥样硬化",
+      "relation": "导致",
+      "target": "脑卒中"
+    },
+    {
+      "source": "高血脂",
+      "relation": "风险因素",
+      "target": "冠心病"
+    },
+    {
+      "source": "高血脂",
+      "relation": "是",
+      "target": "高甘油三酯血症"
+    },
+    {
+      "source": "家族史",
+      "relation": "风险因素",
+      "target": "冠心病"
+    },
+    {
+      "source": "管理房颤",
+      "relation": "预防",
+      "target": "脑卒中"
+    },
+    {
+      "source": "控制血压",
+      "relation": "预防",
+      "target": "脑卒中"
+    },
+    {
+      "source": "控制血压",
+      "relation": "保护",
+      "target": "肾脏"
+    },
+    {
+      "source": "戒烟限酒",
+      "relation": "预防",
+      "target": "脑卒中"
+    },
+    {
+      "source": "戒烟限酒",
+      "relation": "改善",
+      "target": "高甘油三酯血症"
+    },
+    {
+      "source": "健康饮食",
+      "relation": "预防",
+      "target": "脑卒中"
+    },
+    {
+      "source": "健康饮食",
+      "relation": "预防",
+      "target": "冠心病"
+    },
+    {
+      "source": "减少饱和脂肪酸摄入",
+      "relation": "改善",
+      "target": "高甘油三酯血症"
+    },
+    {
+      "source": "增加膳食纤维",
+      "relation": "改善",
+      "target": "高甘油三酯血症"
+    },
+    {
+      "source": "管理压力",
+      "relation": "预防",
+      "target": "冠心病"
+    },
+    {
+      "source": "胸骨后压榨性疼痛",
+      "relation": "具有症状",
+      "target": "冠心病"
+    },
+    {
+      "source": "疼痛向左肩、左臂放射",
+      "relation": "具有症状",
+      "target": "冠心病"
+    },
+    {
+      "source": "出汗",
+      "relation": "具有症状",
+      "target": "冠心病"
+    },
+    {
+      "source": "恶心",
+      "relation": "具有症状",
+      "target": "冠心病"
+    },
+    {
+      "source": "呼吸困难",
+      "relation": "具有症状",
+      "target": "冠心病"
+    },
+    {
+      "source": "面部不对称，口角歪斜",
+      "relation": "具有症状",
+      "target": "脑卒中"
+    },
+    {
+      "source": "手臂无力，无法抬起",
+      "relation": "具有症状",
+      "target": "脑卒中"
+    },
+    {
+      "source": "言语不清，表达困难",
+      "relation": "具有症状",
+      "target": "脑卒中"
+    },
+    {
+      "source": "血压测量",
+      "relation": "诊断方式",
+      "target": "高血压"
+    },
+    {
+      "source": "空腹血糖",
+      "relation": "诊断方式",
+      "target": "糖尿病"
+    },
+    {
+      "source": "糖化血红蛋白",
+      "relation": "诊断方式",
+      "target": "糖尿病"
+    },
+    {
+      "source": "管理血糖",
+      "relation": "保护",
+      "target": "肾脏"
+    },
+    {
+      "source": "低盐低蛋白饮食",
+      "relation": "有益于",
+      "target": "肾脏"
+    },
+    {
+      "source": "肾毒性药物",
+      "relation": "不利于",
+      "target": "肾脏"
+    },
+    {
+      "source": "硝酸甘油",
+      "relation": "药物用途",
+      "target": "心梗"
+    },
+    {
+      "source": "平卧",
+      "relation": "帮助改善",
+      "target": "心梗"
+    },
+    {
+      "source": "嚼服",
+      "relation": "RECOMMENDED_FOR",
+      "target": "阿司匹林"
+    },
+    {
+      "source": "舌下含服",
+      "relation": "RECOMMENDED_FOR",
+      "target": "硝酸甘油"
+    },
+    {
+      "source": "脑卒中",
+      "relation": "具有症状",
+      "target": "FAST症状"
+    },
+    {
+      "source": "脑卒中",
+      "relation": "预防",
+      "target": "健康"
+    },
+    {
+      "source": "FAST症状",
+      "relation": "诊断方式",
+      "target": "脑卒中"
+    },
+    {
+      "source": "血压",
+      "relation": "帮助改善",
+      "target": "脑卒中"
+    },
+    {
+      "source": "血糖",
+      "relation": "帮助改善",
+      "target": "脑卒中"
+    },
+    {
+      "source": "血脂",
+      "relation": "帮助改善",
+      "target": "脑卒中"
+    },
+    {
+      "source": "LDL-C",
+      "relation": "帮助改善",
+      "target": "脑卒中"
+    },
+    {
+      "source": "LDL-C",
+      "relation": "是",
+      "target": "血脂"
+    },
+    {
+      "source": "BMI",
+      "relation": "帮助改善",
+      "target": "脑卒中"
+    },
+    {
+      "source": "腰围",
+      "relation": "帮助改善",
+      "target": "脑卒中"
+    },
+    {
+      "source": "家族病史",
+      "relation": "风险因素",
+      "target": "脑卒中"
+    },
+    {
+      "source": "既往病史",
+      "relation": "风险因素",
+      "target": "脑卒中"
+    },
+    {
+      "source": "生活习惯",
+      "relation": "风险因素",
+      "target": "脑卒中"
+    },
+    {
+      "source": "基础疾病",
+      "relation": "风险因素",
+      "target": "脑卒中"
+    },
+    {
+      "source": "基础疾病",
+      "relation": "由...导致",
+      "target": "生活习惯"
+    },
+    {
+      "source": "基础疾病",
+      "relation": "由...导致",
+      "target": "家族病史"
+    },
+    {
+      "source": "基础疾病",
+      "relation": "由...导致",
+      "target": "既往病史"
+    },
+    {
+      "source": "健康",
+      "relation": "预防",
+      "target": "脑卒中"
+    },
+    {
+      "source": "健康",
+      "relation": "预防",
+      "target": "基础疾病"
+    },
+    {
+      "source": "体检结果",
+      "relation": "诊断方式",
+      "target": "基础疾病"
+    },
+    {
+      "source": "用药情况",
+      "relation": "治疗方式",
+      "target": "基础疾病"
     }
   ],
   "schema": {
-    "nodes": 230,
-    "edges": 167,
+    "nodes": 332,
+    "edges": 259,
     "entity_types": {
-      "SYMPTOM": 34,
-      "DISEASE": 34,
-      "BODY_PART": 12,
-      "DRUG": 31,
-      "FOOD": 34,
-      "NUTRIENT": 21,
-      "EXERCISE": 26,
-      "RISK_FACTOR": 8,
-      "HEALTH_GOAL": 12,
-      "DIET_TYPE": 4,
-      "TREATMENT": 2,
-      "HABIT": 11,
-      "HEALTH_TERM": 1
+      "症状": 50,
+      "疾病": 54,
+      "人体部位": 12,
+      "药物": 35,
+      "食物": 35,
+      "营养素": 21,
+      "运动": 27,
+      "危险因素": 11,
+      "健康目标": 15,
+      "饮食类型": 8,
+      "治疗方法": 11,
+      "生活习惯": 23,
+      "健康术语": 15,
+      "医学检查": 14,
+      "其他实体": 1
     },
     "relation_types": {
-      "具有症状": 38,
-      "风险因素": 21,
-      "治疗方式": 23,
+      "具有症状": 51,
+      "风险因素": 41,
+      "治疗方式": 26,
       "影响": 15,
-      "药物用途": 15,
+      "由...导致": 5,
+      "诊断方式": 11,
+      "药物用途": 19,
       "含有": 14,
       "富含": 13,
-      "有益于": 20,
-      "预防": 13,
-      "不利于": 4,
-      "适合": 17,
-      "帮助改善": 6,
-      "导致": 2,
-      "加重": 1,
-      "改善": 13
+      "有益于": 22,
+      "预防": 39,
+      "不利于": 5,
+      "适合": 18,
+      "帮助改善": 16,
+      "改善": 19,
+      "导致": 6,
+      "加重": 2,
+      "治疗": 3,
+      "是": 7,
+      "保护": 2,
+      "RECOMMENDED_FOR": 2
     }
   },
-  "saved_at": "2026-04-13 18:46:20"
+  "saved_at": "2026-04-27 10:46:51"
 }
