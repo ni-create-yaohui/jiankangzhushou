@@ -1,0 +1,440 @@
+/* ========================================
+   聊天组件 - 现代玻璃态设计
+   ======================================== */
+
+/* ========== 浮动聊天按钮 ========== */
+#chatFab {
+    position: fixed;
+    bottom: var(--spacing-xl);
+    right: var(--spacing-xl);
+    width: 60px;
+    height: 60px;
+    border-radius: var(--radius-xl);
+    background: var(--gradient-accent);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    cursor: pointer;
+    box-shadow: 0 8px 30px var(--color-primary-glow);
+    z-index: 1000;
+    transition: all var(--transition-normal);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+#chatFab:hover {
+    transform: scale(1.08) translateY(-4px);
+    box-shadow: 0 12px 40px rgba(102, 126, 234, 0.5);
+}
+
+#chatFab::before {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: var(--radius-xl);
+    background: var(--gradient-accent);
+    opacity: 0;
+    z-index: -1;
+    transition: opacity var(--transition-fast);
+    filter: blur(8px);
+}
+
+#chatFab:hover::before {
+    opacity: 0.5;
+}
+
+/* ========== 聊天窗口 ========== */
+#chatWidget {
+    position: fixed;
+    bottom: calc(var(--spacing-xl) + 70px);
+    right: var(--spacing-xl);
+    width: 420px;
+    height: 580px;
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-xl);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(102, 126, 234, 0.1);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: chatEnter 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes chatEnter {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* ========== 聊天头部 ========== */
+#chatWidgetHeader {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.3) 0%, rgba(118, 75, 162, 0.2) 100%);
+    border-bottom: 1px solid var(--glass-border);
+    padding: var(--spacing-md) var(--spacing-lg);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.chat-header-title {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-text);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.chat-header-status {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    font-size: 0.75rem;
+    color: var(--color-success);
+    margin-left: var(--spacing-sm);
+}
+
+.chat-header-dot {
+    width: 6px;
+    height: 6px;
+    background: var(--color-success);
+    border-radius: 50%;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+#chatWidgetControls {
+    display: flex;
+    gap: var(--spacing-sm);
+}
+
+#chatWidgetControls button {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-sm);
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-fast);
+}
+
+#chatWidgetControls button:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: var(--color-text);
+}
+
+/* ========== 聊天主体 ========== */
+#chatWidgetBody {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--spacing-lg);
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+.chat-messages::-webkit-scrollbar {
+    width: 6px;
+}
+
+.chat-messages::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.chat-messages::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
+}
+
+/* ========== 欢迎消息 ========== */
+.welcome-message {
+    text-align: center;
+    padding: var(--spacing-xxl) var(--spacing-lg);
+    animation: fadeInUp 0.5s ease-out;
+}
+
+.welcome-icon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto var(--spacing-lg);
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.15) 100%);
+    border-radius: var(--radius-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    border: 1px solid rgba(102, 126, 234, 0.3);
+}
+
+.welcome-message h2 {
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--color-text);
+    margin-bottom: var(--spacing-sm);
+}
+
+.welcome-message p {
+    font-size: 0.85rem;
+    color: var(--color-text-secondary);
+    line-height: 1.6;
+}
+
+/* ========== 消息气泡 ========== */
+.chat-msg {
+    margin-bottom: var(--spacing-md);
+    display: flex;
+    gap: var(--spacing-sm);
+    animation: msgEnter 0.3s ease-out;
+}
+
+@keyframes msgEnter {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.chat-msg.user {
+    flex-direction: row-reverse;
+}
+
+.chat-msg-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.chat-msg.user .chat-msg-avatar {
+    background: linear-gradient(135deg, rgba(96, 165, 250, 0.3) 0%, rgba(96, 165, 250, 0.15) 100%);
+}
+
+.chat-msg.assistant .chat-msg-avatar {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.3) 0%, rgba(118, 75, 162, 0.2) 100%);
+}
+
+.chat-msg-bubble {
+    max-width: 80%;
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-radius: var(--radius-lg);
+    font-size: 0.9rem;
+    line-height: 1.7;
+    word-break: break-word;
+}
+
+.chat-msg.user .chat-msg-bubble {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.4) 0%, rgba(118, 75, 162, 0.35) 100%);
+    color: white;
+    border-bottom-right-radius: var(--radius-sm);
+}
+
+.chat-msg.assistant .chat-msg-bubble {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--color-text);
+    border-bottom-left-radius: var(--radius-sm);
+}
+
+/* 消息中的代码块 */
+.chat-msg-bubble pre {
+    background: rgba(0, 0, 0, 0.3);
+    padding: var(--spacing-md);
+    border-radius: var(--radius-sm);
+    overflow-x: auto;
+    font-size: 0.82rem;
+    font-family: var(--font-mono);
+    margin: var(--spacing-sm) 0;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.chat-msg-bubble code {
+    background: rgba(0, 0, 0, 0.2);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: var(--font-mono);
+    font-size: 0.85em;
+}
+
+/* 工具调用显示 */
+.tool-call-info {
+    background: rgba(102, 126, 234, 0.1);
+    border: 1px solid rgba(102, 126, 234, 0.2);
+    border-radius: var(--radius-sm);
+    padding: var(--spacing-sm) var(--spacing-md);
+    margin: var(--spacing-sm) 0;
+    font-size: 0.8rem;
+    color: var(--color-primary);
+}
+
+/* ========== 输入区域 ========== */
+.chat-input-area {
+    display: flex;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-top: 1px solid var(--glass-border);
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.chat-input {
+    flex: 1;
+    padding: var(--spacing-md) var(--spacing-lg);
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
+    font-size: 0.9rem;
+    font-family: var(--font-body);
+    color: var(--color-text);
+    resize: none;
+    outline: none;
+    transition: all var(--transition-fast);
+    min-height: 44px;
+    max-height: 120px;
+}
+
+.chat-input:focus {
+    border-color: var(--color-primary);
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+}
+
+.chat-input::placeholder {
+    color: var(--color-text-muted);
+}
+
+.chat-send-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius-md);
+    background: var(--gradient-accent);
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-fast);
+    box-shadow: 0 4px 15px var(--color-primary-glow);
+}
+
+.chat-send-btn:hover:not(:disabled) {
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px var(--color-primary-glow);
+}
+
+.chat-send-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ========== 打字指示器 ========== */
+.typing-indicator {
+    display: flex;
+    gap: 4px;
+    padding: var(--spacing-sm) 0;
+}
+
+.typing-indicator span {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    animation: typingBounce 1.4s ease-in-out infinite;
+}
+
+.typing-indicator span:nth-child(2) { animation-delay: 0.15s; }
+.typing-indicator span:nth-child(3) { animation-delay: 0.3s; }
+
+@keyframes typingBounce {
+    0%, 60%, 100% {
+        transform: translateY(0);
+        opacity: 0.5;
+    }
+    30% {
+        transform: translateY(-8px);
+        opacity: 1;
+    }
+}
+
+/* ========== 思考过程显示 ========== */
+.thinking-process {
+    background: rgba(102, 126, 234, 0.08);
+    border: 1px solid rgba(102, 126, 234, 0.15);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-md);
+    margin-bottom: var(--spacing-sm);
+    font-size: 0.82rem;
+    color: var(--color-text-secondary);
+}
+
+.thinking-header {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    font-weight: 500;
+    margin-bottom: var(--spacing-sm);
+    color: var(--color-primary);
+}
+
+.thinking-content {
+    white-space: pre-wrap;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    opacity: 0.8;
+}
+
+/* ========== 快捷建议 ========== */
+.quick-suggestions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm) var(--spacing-lg);
+    background: rgba(255, 255, 255, 0.02);
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.quick-suggestion-btn {
+    padding: var(--spacing-xs) var(--spacing-md);
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-sm);
+    font-size: 0.8rem;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.quick-suggestion-btn:hover {
+    background: rgba(102, 126, 234, 0.15);
+    border-color: var(--color-primary);
+    color: var(--color-text);
+}

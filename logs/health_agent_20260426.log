@@ -1,0 +1,201 @@
+2026-04-26 23:12:25 - health_agent - INFO - [HealthKG] 加载扩展数据: 实体139个, 关系142条
+2026-04-26 23:12:25 - health_agent - INFO - [HealthKG] 知识图谱初始化完成，节点数: 278，边数: 167
+2026-04-26 23:12:25 - health_agent - INFO - [KGQA] 知识图谱问答系统初始化完成
+2026-04-26 23:12:26 - health_agent - INFO - [HealthNER] 使用 jieba 分词器
+2026-04-26 23:12:26 - health_agent - INFO - [HealthNER] 健康NER系统初始化完成
+2026-04-26 23:12:27 - health_agent - INFO - [ServiceRegistry] 注册服务: user_service, 方法数: 6
+2026-04-26 23:12:27 - health_agent - INFO - [ServiceRegistry] 注册服务: health_service, 方法数: 5
+2026-04-26 23:12:27 - health_agent - INFO - [ServiceRegistry] 注册服务: report_service, 方法数: 4
+2026-04-26 23:12:27 - health_agent - INFO - [ServiceRegistry] 注册服务: web_service, 方法数: 4
+2026-04-26 23:12:27 - health_agent - INFO - [ServiceRegistry] 注册服务: chat_service, 方法数: 4
+2026-04-26 23:12:27 - health_agent - INFO - [ServiceRegistry] 注册服务: kg_service, 方法数: 10
+2026-04-26 23:12:27 - health_agent - INFO - [ServiceRegistry] 已注册 6 个服务
+2026-04-26 23:13:09 - health_agent - INFO - [Retriever] 创建retriever: search_type=similarity, kwargs={'k': 5}
+2026-04-26 23:13:09 - health_agent - INFO - [HealthKG] 加载扩展数据: 实体139个, 关系142条
+2026-04-26 23:13:09 - health_agent - INFO - [HealthKG] 知识图谱初始化完成，节点数: 278，边数: 167
+2026-04-26 23:13:09 - health_agent - INFO - [KGQA] 知识图谱问答系统初始化完成
+2026-04-26 23:13:09 - health_agent - INFO - [HealthNER] 使用 jieba 分词器
+2026-04-26 23:13:09 - health_agent - INFO - [HealthNER] 健康NER系统初始化完成
+2026-04-26 23:13:09 - health_agent - INFO - [IntentClassifier] 意图分类器初始化完成
+2026-04-26 23:13:09 - health_agent - INFO - [IntentClassifier] 意图分类器初始化完成
+2026-04-26 23:13:09 - health_agent - INFO - [HealthRouter] 路由器初始化完成
+2026-04-26 23:13:09 - health_agent - INFO - [KGExtractor] 加载配置成功
+2026-04-26 23:13:09 - health_agent - INFO - [KGExtractor] 知识抽取器初始化完成
+2026-04-26 23:13:34 - health_agent - INFO - [HealthRouter] 意图分类: agent, 置信度: 0.9
+2026-04-26 23:13:34 - health_agent - INFO - [KGQA] 收到问题: 评估我的睡眠质量，睡眠7小时，质量评分7
+2026-04-26 23:13:34 - health_agent - INFO - [HealthAgent] 收到查询: 评估我的睡眠质量，睡眠7小时，质量评分7...
+2026-04-26 23:13:34 - health_agent - INFO - [log_before_model]即将调用模型，带有1条消息。
+2026-04-26 23:19:15 - health_agent - INFO - [DocumentService] 创建文档记录: doc_459696b5eee0, 文件: Python基础语法.txt
+2026-04-26 23:19:15 - health_agent - WARNING - [DocumentService] 文档不存在: doc_70c2b64c2579
+2026-04-26 23:19:16 - health_agent - ERROR - [KGExtractor] LLM抽取失败: Invalid format specifier
+Traceback (most recent call last):
+  File "E:\健康助手\agent\knowledge\kg_extractor.py", line 160, in _extract_with_llm
+    prompt = self._build_extraction_prompt(text, known_entities)
+  File "E:\健康助手\agent\knowledge\kg_extractor.py", line 195, in _build_extraction_prompt
+    prompt = f"""请从以下健康领域文本中抽取实体和关系。请以JSON格式输出。
+ValueError: Invalid format specifier
+2026-04-26 23:19:16 - health_agent - INFO - [KGExtractor] 抽取完成: 实体0个, 关系0个
+2026-04-26 23:19:16 - health_agent - ERROR - [KGExtractor] LLM抽取失败: Invalid format specifier
+Traceback (most recent call last):
+  File "E:\健康助手\agent\knowledge\kg_extractor.py", line 160, in _extract_with_llm
+    prompt = self._build_extraction_prompt(text, known_entities)
+  File "E:\健康助手\agent\knowledge\kg_extractor.py", line 195, in _build_extraction_prompt
+    prompt = f"""请从以下健康领域文本中抽取实体和关系。请以JSON格式输出。
+ValueError: Invalid format specifier
+2026-04-26 23:19:16 - health_agent - INFO - [KGExtractor] 抽取完成: 实体0个, 关系0个
+2026-04-26 23:19:16 - health_agent - ERROR - [KGExtractor] LLM抽取失败: Invalid format specifier
+Traceback (most recent call last):
+  File "E:\健康助手\agent\knowledge\kg_extractor.py", line 160, in _extract_with_llm
+    prompt = self._build_extraction_prompt(text, known_entities)
+  File "E:\健康助手\agent\knowledge\kg_extractor.py", line 195, in _build_extraction_prompt
+    prompt = f"""请从以下健康领域文本中抽取实体和关系。请以JSON格式输出。
+ValueError: Invalid format specifier
+2026-04-26 23:19:16 - health_agent - INFO - [KGExtractor] 抽取完成: 实体0个, 关系0个
+2026-04-26 23:19:16 - health_agent - ERROR - [KGExtractor] LLM抽取失败: Invalid format specifier
+Traceback (most recent call last):
+  File "E:\健康助手\agent\knowledge\kg_extractor.py", line 160, in _extract_with_llm
+    prompt = self._build_extraction_prompt(text, known_entities)
+  File "E:\健康助手\agent\knowledge\kg_extractor.py", line 195, in _build_extraction_prompt
+    prompt = f"""请从以下健康领域文本中抽取实体和关系。请以JSON格式输出。
+ValueError: Invalid format specifier
+2026-04-26 23:19:16 - health_agent - INFO - [KGExtractor] 抽取完成: 实体0个, 关系0个
+2026-04-26 23:19:16 - health_agent - ERROR - [KGExtractor] LLM抽取失败: Invalid format specifier
+Traceback (most recent call last):
+  File "E:\健康助手\agent\knowledge\kg_extractor.py", line 160, in _extract_with_llm
+    prompt = self._build_extraction_prompt(text, known_entities)
+  File "E:\健康助手\agent\knowledge\kg_extractor.py", line 195, in _build_extraction_prompt
+    prompt = f"""请从以下健康领域文本中抽取实体和关系。请以JSON格式输出。
+ValueError: Invalid format specifier
+2026-04-26 23:19:16 - health_agent - INFO - [KGExtractor] 抽取完成: 实体0个, 关系0个
+2026-04-26 23:19:16 - health_agent - ERROR - [KGExtractor] LLM抽取失败: Invalid format specifier
+Traceback (most recent call last):
+  File "E:\健康助手\agent\knowledge\kg_extractor.py", line 160, in _extract_with_llm
+    prompt = self._build_extraction_prompt(text, known_entities)
+  File "E:\健康助手\agent\knowledge\kg_extractor.py", line 195, in _build_extraction_prompt
+    prompt = f"""请从以下健康领域文本中抽取实体和关系。请以JSON格式输出。
+ValueError: Invalid format specifier
+2026-04-26 23:19:16 - health_agent - INFO - [KGExtractor] 抽取完成: 实体0个, 关系0个
+2026-04-26 23:19:16 - health_agent - ERROR - [KGExtractor] LLM抽取失败: Invalid format specifier
+Traceback (most recent call last):
+  File "E:\健康助手\agent\knowledge\kg_extractor.py", line 160, in _extract_with_llm
+    prompt = self._build_extraction_prompt(text, known_entities)
+  File "E:\健康助手\agent\knowledge\kg_extractor.py", line 195, in _build_extraction_prompt
+    prompt = f"""请从以下健康领域文本中抽取实体和关系。请以JSON格式输出。
+ValueError: Invalid format specifier
+2026-04-26 23:19:16 - health_agent - INFO - [KGExtractor] 抽取完成: 实体0个, 关系0个
+2026-04-26 23:19:16 - health_agent - ERROR - [KGExtractor] LLM抽取失败: Invalid format specifier
+Traceback (most recent call last):
+  File "E:\健康助手\agent\knowledge\kg_extractor.py", line 160, in _extract_with_llm
+    prompt = self._build_extraction_prompt(text, known_entities)
+  File "E:\健康助手\agent\knowledge\kg_extractor.py", line 195, in _build_extraction_prompt
+    prompt = f"""请从以下健康领域文本中抽取实体和关系。请以JSON格式输出。
+ValueError: Invalid format specifier
+2026-04-26 23:19:16 - health_agent - INFO - [KGExtractor] 抽取完成: 实体0个, 关系0个
+2026-04-26 23:19:16 - health_agent - ERROR - [KGExtractor] LLM抽取失败: Invalid format specifier
+Traceback (most recent call last):
+  File "E:\健康助手\agent\knowledge\kg_extractor.py", line 160, in _extract_with_llm
+    prompt = self._build_extraction_prompt(text, known_entities)
+  File "E:\健康助手\agent\knowledge\kg_extractor.py", line 195, in _build_extraction_prompt
+    prompt = f"""请从以下健康领域文本中抽取实体和关系。请以JSON格式输出。
+ValueError: Invalid format specifier
+2026-04-26 23:19:16 - health_agent - INFO - [KGExtractor] 抽取完成: 实体0个, 关系0个
+2026-04-26 23:19:16 - health_agent - ERROR - [KGExtractor] LLM抽取失败: Invalid format specifier
+Traceback (most recent call last):
+  File "E:\健康助手\agent\knowledge\kg_extractor.py", line 160, in _extract_with_llm
+    prompt = self._build_extraction_prompt(text, known_entities)
+  File "E:\健康助手\agent\knowledge\kg_extractor.py", line 195, in _build_extraction_prompt
+    prompt = f"""请从以下健康领域文本中抽取实体和关系。请以JSON格式输出。
+ValueError: Invalid format specifier
+2026-04-26 23:19:16 - health_agent - INFO - [KGExtractor] 抽取完成: 实体0个, 关系0个
+2026-04-26 23:19:16 - health_agent - INFO - [文档处理] 抽取结果: 0个chunks有实体/关系
+2026-04-26 23:19:22 - health_agent - INFO - [加载文档KG]E:\健康助手\data\knowledge\doc_70c2b64c2579_Python基础语法.txt加载成功, chunk数量: 97, KG实体: 0
+2026-04-26 23:19:22 - health_agent - INFO - [HealthKG] 知识图谱持久化成功: E:\健康助手\data/knowledge/kg_data.json
+2026-04-26 23:19:22 - health_agent - WARNING - [DocumentService] 文档不存在: doc_70c2b64c2579
+2026-04-26 23:19:36 - health_agent - INFO - [HealthRouter] 意图分类: agent, 置信度: 0.9
+2026-04-26 23:19:36 - health_agent - INFO - [KGQA] 收到问题: 评估我的睡眠质量，睡眠7小时，质量评分7
+2026-04-26 23:19:36 - health_agent - INFO - [HealthAgent] 收到查询: 评估我的睡眠质量，睡眠7小时，质量评分7...
+2026-04-26 23:19:36 - health_agent - INFO - [log_before_model]即将调用模型，带有1条消息。
+2026-04-26 23:21:16 - health_agent - INFO - [删除文档]doc_id=doc_459696b5eee0 没有找到对应的chunks
+2026-04-26 23:21:16 - health_agent - INFO - [DocumentService] 删除文件: E:\健康助手\data\knowledge\doc_70c2b64c2579_Python基础语法.txt
+2026-04-26 23:21:16 - health_agent - INFO - [DocumentService] 从md5.text删除MD5: 92016c63da4b068ec33a9e7c6b2ec086
+2026-04-26 23:21:16 - health_agent - INFO - [DocumentService] 删除文档记录: doc_459696b5eee0
+2026-04-26 23:38:19 - health_agent - INFO - 未配置备用 API，跳过容错客户端初始化。
+2026-04-26 23:38:21 - health_agent - INFO - [ServiceRegistry] 注册服务: user_service, 方法数: 6
+2026-04-26 23:38:21 - health_agent - INFO - [ServiceRegistry] 注册服务: health_service, 方法数: 5
+2026-04-26 23:38:21 - health_agent - INFO - [ServiceRegistry] 注册服务: report_service, 方法数: 4
+2026-04-26 23:38:21 - health_agent - INFO - [ServiceRegistry] 注册服务: web_service, 方法数: 4
+2026-04-26 23:38:21 - health_agent - INFO - [ServiceRegistry] 注册服务: chat_service, 方法数: 4
+2026-04-26 23:38:21 - health_agent - INFO - [ServiceRegistry] 注册服务: kg_service, 方法数: 10
+2026-04-26 23:38:21 - health_agent - INFO - [ServiceRegistry] 已注册 6 个服务
+2026-04-26 23:38:30 - health_agent - INFO - [Retriever] 创建retriever: search_type=similarity, kwargs={'k': 5}
+2026-04-26 23:38:30 - health_agent - INFO - [HealthKG] 加载扩展数据: 实体139个, 关系142条
+2026-04-26 23:38:30 - health_agent - INFO - [HealthKG] 知识图谱初始化完成，节点数: 278，边数: 167
+2026-04-26 23:38:30 - health_agent - INFO - [KGQA] 知识图谱问答系统初始化完成
+2026-04-26 23:38:30 - health_agent - INFO - [HealthNER] 使用 jieba 分词器
+2026-04-26 23:38:30 - health_agent - INFO - [HealthNER] 健康NER系统初始化完成
+2026-04-26 23:38:30 - health_agent - INFO - [IntentClassifier] 意图分类器初始化完成
+2026-04-26 23:38:30 - health_agent - INFO - [IntentClassifier] 意图分类器初始化完成
+2026-04-26 23:38:30 - health_agent - INFO - [HealthRouter] 路由器初始化完成
+2026-04-26 23:38:30 - health_agent - INFO - [KGExtractor] 加载配置成功
+2026-04-26 23:38:30 - health_agent - INFO - [KGExtractor] 知识抽取器初始化完成
+2026-04-26 23:38:33 - health_agent - INFO - [ServiceRegistry] 注册服务: user_service, 方法数: 6
+2026-04-26 23:38:33 - health_agent - INFO - [ServiceRegistry] 注册服务: health_service, 方法数: 5
+2026-04-26 23:38:33 - health_agent - INFO - [ServiceRegistry] 注册服务: report_service, 方法数: 4
+2026-04-26 23:38:33 - health_agent - INFO - [ServiceRegistry] 注册服务: web_service, 方法数: 4
+2026-04-26 23:38:33 - health_agent - INFO - [ServiceRegistry] 注册服务: chat_service, 方法数: 4
+2026-04-26 23:38:33 - health_agent - INFO - [ServiceRegistry] 注册服务: kg_service, 方法数: 10
+2026-04-26 23:38:33 - health_agent - INFO - [ServiceRegistry] 已注册 6 个服务
+2026-04-26 23:38:41 - health_agent - INFO - [Retriever] 创建retriever: search_type=similarity, kwargs={'k': 5}
+2026-04-26 23:38:41 - health_agent - INFO - [HealthKG] 加载扩展数据: 实体139个, 关系142条
+2026-04-26 23:38:41 - health_agent - INFO - [HealthKG] 知识图谱初始化完成，节点数: 278，边数: 167
+2026-04-26 23:38:41 - health_agent - INFO - [KGQA] 知识图谱问答系统初始化完成
+2026-04-26 23:38:41 - health_agent - INFO - [HealthNER] 使用 jieba 分词器
+2026-04-26 23:38:41 - health_agent - INFO - [HealthNER] 健康NER系统初始化完成
+2026-04-26 23:38:41 - health_agent - INFO - [IntentClassifier] 意图分类器初始化完成
+2026-04-26 23:38:41 - health_agent - INFO - [IntentClassifier] 意图分类器初始化完成
+2026-04-26 23:38:41 - health_agent - INFO - [HealthRouter] 路由器初始化完成
+2026-04-26 23:38:41 - health_agent - INFO - [KGExtractor] 加载配置成功
+2026-04-26 23:38:41 - health_agent - INFO - [KGExtractor] 知识抽取器初始化完成
+2026-04-26 23:40:42 - health_agent - INFO - 未配置备用 API，跳过容错客户端初始化。
+2026-04-26 23:40:44 - health_agent - INFO - [ServiceRegistry] 注册服务: user_service, 方法数: 6
+2026-04-26 23:40:44 - health_agent - INFO - [ServiceRegistry] 注册服务: health_service, 方法数: 5
+2026-04-26 23:40:44 - health_agent - INFO - [ServiceRegistry] 注册服务: report_service, 方法数: 4
+2026-04-26 23:40:44 - health_agent - INFO - [ServiceRegistry] 注册服务: web_service, 方法数: 4
+2026-04-26 23:40:44 - health_agent - INFO - [ServiceRegistry] 注册服务: chat_service, 方法数: 4
+2026-04-26 23:40:44 - health_agent - INFO - [ServiceRegistry] 注册服务: kg_service, 方法数: 10
+2026-04-26 23:40:44 - health_agent - INFO - [ServiceRegistry] 已注册 6 个服务
+2026-04-26 23:40:54 - health_agent - INFO - [Retriever] 创建retriever: search_type=similarity, kwargs={'k': 5}
+2026-04-26 23:40:54 - health_agent - INFO - [HealthKG] 加载扩展数据: 实体139个, 关系142条
+2026-04-26 23:40:54 - health_agent - INFO - [HealthKG] 知识图谱初始化完成，节点数: 278，边数: 167
+2026-04-26 23:40:54 - health_agent - INFO - [KGQA] 知识图谱问答系统初始化完成
+2026-04-26 23:40:54 - health_agent - INFO - [HealthNER] 使用 jieba 分词器
+2026-04-26 23:40:54 - health_agent - INFO - [HealthNER] 健康NER系统初始化完成
+2026-04-26 23:40:54 - health_agent - INFO - [IntentClassifier] 意图分类器初始化完成
+2026-04-26 23:40:57 - health_agent - INFO - [ServiceRegistry] 注册服务: user_service, 方法数: 6
+2026-04-26 23:40:57 - health_agent - INFO - [ServiceRegistry] 注册服务: health_service, 方法数: 5
+2026-04-26 23:40:57 - health_agent - INFO - [ServiceRegistry] 注册服务: report_service, 方法数: 4
+2026-04-26 23:40:57 - health_agent - INFO - [ServiceRegistry] 注册服务: web_service, 方法数: 4
+2026-04-26 23:40:57 - health_agent - INFO - [ServiceRegistry] 注册服务: chat_service, 方法数: 4
+2026-04-26 23:40:57 - health_agent - INFO - [ServiceRegistry] 注册服务: kg_service, 方法数: 10
+2026-04-26 23:40:57 - health_agent - INFO - [ServiceRegistry] 已注册 6 个服务
+2026-04-26 23:41:05 - health_agent - INFO - [Retriever] 创建retriever: search_type=similarity, kwargs={'k': 5}
+2026-04-26 23:41:05 - health_agent - INFO - [HealthKG] 加载扩展数据: 实体139个, 关系142条
+2026-04-26 23:41:05 - health_agent - INFO - [HealthKG] 知识图谱初始化完成，节点数: 278，边数: 167
+2026-04-26 23:41:05 - health_agent - INFO - [KGQA] 知识图谱问答系统初始化完成
+2026-04-26 23:41:06 - health_agent - INFO - [HealthNER] 使用 jieba 分词器
+2026-04-26 23:41:06 - health_agent - INFO - [HealthNER] 健康NER系统初始化完成
+2026-04-26 23:41:06 - health_agent - INFO - [IntentClassifier] 意图分类器初始化完成
+2026-04-26 23:41:09 - health_agent - INFO - [ServiceRegistry] 注册服务: user_service, 方法数: 6
+2026-04-26 23:41:09 - health_agent - INFO - [ServiceRegistry] 注册服务: health_service, 方法数: 5
+2026-04-26 23:41:09 - health_agent - INFO - [ServiceRegistry] 注册服务: report_service, 方法数: 4
+2026-04-26 23:41:09 - health_agent - INFO - [ServiceRegistry] 注册服务: web_service, 方法数: 4
+2026-04-26 23:41:09 - health_agent - INFO - [ServiceRegistry] 注册服务: chat_service, 方法数: 4
+2026-04-26 23:41:09 - health_agent - INFO - [ServiceRegistry] 注册服务: kg_service, 方法数: 10
+2026-04-26 23:41:09 - health_agent - INFO - [ServiceRegistry] 已注册 6 个服务
+2026-04-26 23:41:15 - health_agent - INFO - [Retriever] 创建retriever: search_type=similarity, kwargs={'k': 5}
+2026-04-26 23:41:15 - health_agent - INFO - [HealthKG] 加载扩展数据: 实体139个, 关系142条
+2026-04-26 23:41:15 - health_agent - INFO - [HealthKG] 知识图谱初始化完成，节点数: 278，边数: 167
+2026-04-26 23:41:15 - health_agent - INFO - [KGQA] 知识图谱问答系统初始化完成
+2026-04-26 23:41:16 - health_agent - INFO - [HealthNER] 使用 jieba 分词器
+2026-04-26 23:41:16 - health_agent - INFO - [HealthNER] 健康NER系统初始化完成
+2026-04-26 23:41:16 - health_agent - INFO - [IntentClassifier] 意图分类器初始化完成

@@ -1,0 +1,31 @@
+# 知识图谱配置文件
+
+kg_extraction:
+  # 是否启用LLM抽取
+  enable_llm_extraction: true
+  # 最小chunk长度（字符数），低于此长度不进行抽取
+  min_chunk_length: 50
+  # 每个文档最多抽取的chunk数量
+  max_chunks_to_extract: 10
+  # 实体置信度阈值（低于此阈值可能被过滤）
+  entity_confidence_threshold: 0.7
+  # 关系置信度阈值
+  relation_confidence_threshold: 0.7
+
+kg_storage:
+  # 是否启用持久化
+  enable_persistence: true
+  # 持久化文件路径
+  persistence_file: data/knowledge/kg_data.json
+  # 自动保存间隔（秒）
+  auto_save_interval: 300
+  # 是否在服务启动时自动加载
+  auto_load_on_startup: true
+
+kg_sync:
+  # 是否同步NER词典
+  sync_ner_dictionary: true
+  # 是否在向量存储中添加图谱元数据
+  add_kg_metadata: true
+  # 是否在文档删除时清理图谱数据
+  clean_on_doc_delete: false

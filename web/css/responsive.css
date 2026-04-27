@@ -1,0 +1,364 @@
+/* ========================================
+   响应式样式 - 玻璃态设计适配
+   ======================================== */
+
+/* ========== 大屏幕调整 ========== */
+@media (min-width: 1400px) {
+    .app-content {
+        max-width: 1600px;
+    }
+
+    .dashboard-stats {
+        grid-template-columns: repeat(6, 1fr);
+    }
+
+    .dashboard-functions {
+        grid-template-columns: repeat(8, 1fr);
+    }
+}
+
+/* ========== 平板设备 ========== */
+@media (max-width: 1024px) {
+    .app-sidebar {
+        width: var(--sidebar-collapsed);
+    }
+
+    .sidebar-brand-text,
+    .nav-label,
+    .nav-section-title,
+    .sidebar-status .status-text {
+        display: none;
+    }
+
+    .sidebar-brand {
+        justify-content: center;
+        padding: var(--spacing-lg) var(--spacing-sm);
+    }
+
+    .nav-item {
+        justify-content: center;
+        padding: var(--spacing-md) var(--spacing-sm);
+        margin: var(--spacing-xs) var(--spacing-xs);
+    }
+
+    .nav-section {
+        padding: var(--spacing-sm) var(--spacing-xs);
+    }
+
+    .sidebar-footer {
+        padding: var(--spacing-md) var(--spacing-sm);
+        justify-content: center;
+    }
+
+    .sidebar-status {
+        justify-content: center;
+    }
+
+    .app-main {
+        margin-left: var(--sidebar-collapsed);
+    }
+
+    .app-content {
+        padding: var(--spacing-lg);
+    }
+
+    .dashboard-stats {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .dashboard-functions {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+/* ========== 移动设备 ========== */
+@media (max-width: 768px) {
+    .app-sidebar {
+        position: fixed;
+        bottom: 0;
+        top: auto;
+        left: 0;
+        right: 0;
+        width: 100%;
+        height: auto;
+        flex-direction: row;
+        border-right: none;
+        border-top: 1px solid var(--glass-border);
+        background: rgba(26, 26, 46, 0.95);
+        padding: var(--spacing-sm) 0;
+        z-index: 100;
+    }
+
+    .sidebar-brand,
+    .sidebar-footer {
+        display: none;
+    }
+
+    .sidebar-nav {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-around;
+        padding: 0;
+        overflow-x: auto;
+        gap: var(--spacing-xs);
+    }
+
+    .nav-section {
+        display: contents;
+    }
+
+    .nav-section-title {
+        display: none;
+    }
+
+    .nav-item {
+        flex-direction: column;
+        padding: var(--spacing-sm) var(--spacing-md);
+        margin: 0;
+        border-radius: var(--radius-sm);
+        min-width: 60px;
+    }
+
+    .nav-item::after {
+        display: none;
+    }
+
+    .nav-icon {
+        font-size: 1.2rem;
+    }
+
+    .nav-label {
+        display: block;
+        font-size: 0.7rem;
+    }
+
+    .app-main {
+        margin-left: 0;
+        margin-bottom: 70px;
+    }
+
+    .app-content {
+        padding: var(--spacing-md);
+    }
+
+    .page-header h1 {
+        font-size: 1.3rem;
+    }
+
+    .dashboard-header {
+        padding: var(--spacing-lg);
+    }
+
+    .dashboard-title {
+        font-size: 1.8rem;
+    }
+
+    .dashboard-stats {
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--spacing-sm);
+    }
+
+    .dash-stat-card {
+        padding: var(--spacing-md);
+    }
+
+    .dash-stat-value {
+        font-size: 1.5rem;
+    }
+
+    .dashboard-functions {
+        grid-template-columns: repeat(4, 1fr);
+        gap: var(--spacing-sm);
+    }
+
+    .dash-func-card {
+        padding: var(--spacing-md);
+    }
+
+    .dash-func-icon {
+        font-size: 1.8rem;
+    }
+
+    .dash-func-label {
+        font-size: 0.75rem;
+    }
+
+    .tab-bar {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+    }
+
+    .tab-bar::-webkit-scrollbar {
+        display: none;
+    }
+
+    .tab-item {
+        padding: var(--spacing-sm) var(--spacing-md);
+        font-size: 0.8rem;
+        white-space: nowrap;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .form-actions {
+        flex-direction: column;
+    }
+
+    .btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    #chatWidget {
+        width: calc(100vw - 24px);
+        height: calc(100vh - 120px);
+        right: 12px;
+        bottom: calc(12px + 70px);
+        border-radius: var(--radius-lg);
+    }
+
+    .chat-input-area {
+        padding: var(--spacing-sm);
+    }
+
+    .user-card {
+        grid-template-columns: auto 1fr;
+        padding: var(--spacing-md);
+    }
+
+    .user-stats {
+        grid-column: 1 / -1;
+        justify-content: space-around;
+        padding-top: var(--spacing-sm);
+        border-top: 1px solid var(--glass-border);
+        margin-top: var(--spacing-sm);
+    }
+
+    .calorie-card {
+        grid-template-columns: 1fr;
+    }
+
+    .dashboard-footer {
+        padding: var(--spacing-md);
+        gap: var(--spacing-md);
+        font-size: 0.75rem;
+    }
+
+    .glass-card,
+    .chart-container,
+    .table-wrapper {
+        border-radius: var(--radius-md);
+    }
+}
+
+/* ========== 小型手机 ========== */
+@media (max-width: 480px) {
+    .dashboard-stats {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .dashboard-functions {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .nav-item {
+        min-width: 50px;
+        padding: var(--spacing-xs) var(--spacing-sm);
+    }
+
+    .nav-icon {
+        font-size: 1rem;
+    }
+
+    .nav-label {
+        font-size: 0.65rem;
+    }
+
+    .app-main {
+        margin-bottom: 60px;
+    }
+
+    .stat-value,
+    .dash-stat-value {
+        font-size: 1.3rem;
+    }
+
+    .bmi-value {
+        font-size: 2.5rem;
+    }
+
+    .sleep-score {
+        font-size: 3rem;
+    }
+
+    .calorie-item .value {
+        font-size: 1.4rem;
+    }
+}
+
+/* ========== 横屏手机 ========== */
+@media (max-width: 768px) and (orientation: landscape) {
+    .app-sidebar {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: auto;
+        width: var(--sidebar-collapsed);
+        height: 100vh;
+        flex-direction: column;
+        border-right: 1px solid var(--glass-border);
+        border-top: none;
+        padding: 0;
+    }
+
+    .sidebar-nav {
+        flex-direction: column;
+        justify-content: flex-start;
+    }
+
+    .nav-item {
+        flex-direction: column;
+        min-width: auto;
+    }
+
+    .app-main {
+        margin-left: var(--sidebar-collapsed);
+        margin-bottom: 0;
+    }
+
+    #chatWidget {
+        height: 80vh;
+    }
+}
+
+/* ========== 打印样式 ========== */
+@media print {
+    .app-sidebar,
+    #chatFab,
+    #chatWidget {
+        display: none !important;
+    }
+
+    .app-main {
+        margin-left: 0;
+    }
+
+    body {
+        background: white;
+        color: black;
+    }
+
+    .glass-card,
+    .stat-card,
+    .dash-stat-card,
+    .dash-func-card {
+        background: white;
+        border: 1px solid #ddd;
+        backdrop-filter: none;
+    }
+}

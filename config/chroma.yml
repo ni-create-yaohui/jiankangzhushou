@@ -1,0 +1,28 @@
+collection_name: health_agent
+persist_directory: chroma_db
+data_path: data/knowledge
+md5_hex_store: md5.text
+allow_knowledge_file_type: ["txt","pdf"]
+
+# 文档上传限制
+max_file_size_mb: 10
+max_files_per_upload: 5
+
+# 文本分片配置
+chunk_size: 300
+chunk_overlap: 30
+separators: ["\n\n","\n",".","!","?",",","", "。"," ","","，"]
+
+# 检索配置
+retriever:
+  # 基础检索参数
+  k: 5                    # 返回文档数量
+  score_threshold: 0.3    # 相似度阈值（低于此值的结果将被过滤）
+
+  # MMR检索参数（可选，用于提高多样性）
+  use_mmr: false          # 是否使用MMR检索
+  fetch_k: 20             # MMR候选文档数量
+  lambda_mult: 0.5        # MMR多样性参数（0-1，越大越强调相关性，越小越强调多样性）
+
+  # 搜索类型
+  search_type: "similarity"  # 可选: similarity, similarity_score_threshold, mmr

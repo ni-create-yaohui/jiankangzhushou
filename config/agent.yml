@@ -1,0 +1,2 @@
+health_data_path: data/health_data/users.json
+weather_cache_path: data/weather_cache.json

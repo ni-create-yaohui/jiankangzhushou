@@ -1,0 +1,8 @@
+2026-04-10 22:48:55 - health_agent - INFO - 用户数据已保存
+2026-04-10 22:48:55 - health_agent - INFO - 创建用户数据文件: E:\健康助手\data\health_data\users.json
+2026-04-10 23:02:55 - health_agent - INFO - 未配置备用 API，跳过容错客户端初始化。
+2026-04-10 23:08:26 - health_agent - INFO - [加载知识库]E:\健康助手\data/knowledge\chronic_disease.txt内容加载成功
+2026-04-10 23:08:27 - health_agent - INFO - [加载知识库]E:\健康助手\data/knowledge\exercise_guide.txt内容加载成功
+2026-04-10 23:08:28 - health_agent - INFO - [加载知识库]E:\健康助手\data/knowledge\health_guide.txt内容加载成功
+2026-04-10 23:08:29 - health_agent - INFO - [加载知识库]E:\健康助手\data/knowledge\mental_health.txt内容加载成功
+2026-04-10 23:12:19 - health_agent - INFO - 未配置备用 API，跳过容错客户端初始化。

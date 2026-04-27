@@ -1,0 +1,73 @@
+# 智能路由配置
+router:
+  # 模式匹配优先级
+  priority:
+    - agent_patterns    # Agent模式优先
+    - agent_keywords    # Agent关键词
+    - faq_patterns      # FAQ模式
+    - faq_keywords      # FAQ关键词
+    - default           # 默认Agent
+
+  # 置信度阈值
+  thresholds:
+    high_confidence: 0.8   # 高置信度，直接路由
+    low_confidence: 0.5    # 低置信度，默认Agent
+
+  # FAQ路由配置
+  faq:
+    enable_kg: true        # 启用知识图谱查询
+    enable_rag: true       # 启用RAG查询
+    fallback_on_error: true # RAG失败时使用KG答案
+
+  # Agent路由配置
+  agent:
+    enable_kg_data: true   # 发送KG数据给前端
+    stream_enabled: true   # 启用流式输出
+    tool_calling: true     # 启用工具调用
+
+# FAQ问答模式（正则表达式）
+faq_patterns:
+  - "(.+)有什么症状"
+  - "(.+)的症状"
+  - "(.+)怎么治疗"
+  - "(.+)治疗方法"
+  - "(.+)有什么营养"
+  - "(.+)的好处"
+  - "如何预防(.+)"
+  - "(.+)是什么"
+  - "(.+)的副作用"
+  - "什么食物.*含有(.+)"
+
+# FAQ关键词
+faq_keywords:
+  - 症状
+  - 治疗
+  - 营养
+  - 好处
+  - 预防
+  - 是什么
+  - 副作用
+  - 功效
+
+# Agent关键词（需要工具调用）
+agent_keywords:
+  - 计算
+  - 创建
+  - 添加
+  - 删除
+  - 更新
+  - 查询我的
+  - 帮我
+  - 分析
+  - 制定
+  - 生成
+
+# Agent模式（明确需要工具调用）
+agent_patterns:
+  - "计算.*BMI"
+  - "每日.*热量"
+  - "创建.*用户"
+  - "添加.*记录"
+  - "帮我.*"
+  - "生成.*报告"
+  - "制定.*计划"
