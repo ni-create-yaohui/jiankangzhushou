@@ -188,7 +188,7 @@ bash start.sh
 | 健康 | `/api/v1/health/*` | BMI 计算、每日热量 |
 | 报告 | `/api/v1/reports/*` | 健康报告生成与管理 |
 | 仪表盘 | `/api/v1/dashboard/*` | 统计数据 |
-| 服务调用 | `/api/execute` | Lealone 风格统一调用接口 |
+| 服务调用 | `/api/execute` | 统一调用接口 |
 
 ## 配置说明
 
