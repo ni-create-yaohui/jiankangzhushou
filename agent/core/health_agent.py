@@ -17,11 +17,27 @@ class AgentConfig:
     stream: bool = True
 
 
+def _message_fingerprint(msg) -> str:
+    """生成消息指纹用于去重
+
+    使用 type + content 前100字符组合，
+    比 id() 更可靠（id() 在对象重建时会变化）。
+    """
+    msg_type = type(msg).__name__
+    content = getattr(msg, 'content', '') or ''
+    # AIMessage 的 tool_calls 也会影响唯一性
+    tool_calls = getattr(msg, 'tool_calls', None)
+    tc_key = str([(tc.get('name', ''), tc.get('args', {})) for tc in tool_calls]) if tool_calls else ''
+    return f"{msg_type}:{content[:100]}:{tc_key}"
+
+
 class HealthAgent:
 
     def __init__(self, config: AgentConfig = None):
         self.config = config or AgentConfig()
         self.model = chat_model
+        self._agent = None          # 缓存的基础 agent 实例
+        self._last_prompt_key = None # 上次使用的 state_modifier 标识
         self._init_tools()
 
     def _init_tools(self):
@@ -79,9 +95,7 @@ class HealthAgent:
         try:
             # LangChain tool 需要使用 invoke 方法
             if hasattr(tool_func, 'invoke'):
-                # 构建输入参数
                 if args and len(args) == 1:
-                    # 单参数工具
                     return tool_func.invoke(args[0])
                 elif kwargs:
                     return tool_func.invoke(kwargs)
@@ -92,35 +106,8 @@ class HealthAgent:
             logger.error(f"[HealthAgent] 工具调用失败: {e}")
             return f"工具调用失败: {str(e)}"
 
-    def chat(self, query: str, context: Dict = None, history: List[Dict] = None) -> Generator[str, None, None]:
-        """
-        Args:
-            query: 用户输入
-            context: 可选上下文信息
-            history: 对话历史（可选），格式为 [{"role": "user/assistant", "content": "..."}]
-        Yields:
-            流式输出的文本块
-        """
-        logger.info(f"[HealthAgent] 收到查询: {query[:50]}...")
-
-        # 构建输入
-        messages = []
-        if context:
-            messages.append({"role": "system", "content": self._build_system_prompt(context)})
-        if history:
-            messages.extend(history)
-        messages.append({"role": "user", "content": query})
-
-        # 调用模型
-        try:
-            for chunk in self._stream_chat(messages):
-                yield chunk
-        except Exception as e:
-            logger.error(f"[HealthAgent] 对话失败: {e}")
-            yield f"对话出错: {str(e)}"
-
-    def _stream_chat(self, messages: List[Dict]) -> Generator[str, None, None]:
-        from langchain.agents import create_agent
+    def _get_tools(self) -> list:
+        """获取工具列表（延迟加载）"""
         from agent.tools.health_tools import (
             rag_summarize, calculate_bmi, calculate_daily_calorie,
             analyze_diet, recommend_exercise, assess_sleep,
@@ -132,59 +119,138 @@ class HealthAgent:
             get_weather, get_weather_by_ip, web_search,
             get_user_location, fetch_webpage, get_current_datetime
         )
-        # 知识图谱工具
         from agent.tools.kg_tools import (
             kg_query, kg_disease_symptoms, kg_disease_treatment,
             kg_disease_risk_factors, kg_food_nutrients, kg_nutrient_foods,
             kg_exercise_for_goal, kg_recognize_entities, kg_schema,
             kg_entity_relation
         )
-        from agent.tools.middleware import monitor_tool, log_before_model
-        from project.prompt_loader import load_system_prompts
-
-        tools = [
-            # RAG和健康分析工具
+        return [
             rag_summarize, calculate_bmi, calculate_daily_calorie,
             analyze_diet, recommend_exercise, assess_sleep,
-            # 用户数据工具
             get_user_health_data, list_all_users, create_user,
             get_user_info, add_health_record,
-            # 健康报告工具
             list_health_reports, get_health_report, search_health_reports,
-            # 网络工具
             get_weather, get_weather_by_ip, web_search,
             get_user_location, fetch_webpage, get_current_datetime,
-            # 知识图谱工具
             kg_query, kg_disease_symptoms, kg_disease_treatment,
             kg_disease_risk_factors, kg_food_nutrients, kg_nutrient_foods,
             kg_exercise_for_goal, kg_recognize_entities, kg_schema,
             kg_entity_relation,
         ]
 
-        agent = create_agent(
+    def _get_or_create_agent(self, system_prompt: str):
+        """获取或创建 ReAct agent（带缓存）
+
+        只有当 system_prompt 变化时才重建 agent，
+        避免每次对话都重新编译 StateGraph。
+        """
+        prompt_key = hash(system_prompt)
+
+        if self._agent is not None and self._last_prompt_key == prompt_key:
+            return self._agent
+
+        from langgraph.prebuilt import create_react_agent
+
+        agent = create_react_agent(
             model=self.model,
-            system_prompt=load_system_prompts(),
-            tools=tools,
-            middleware=[monitor_tool, log_before_model],
+            tools=self._get_tools(),
+            prompt=system_prompt,
         )
 
-        input_dict = {"messages": messages}
-        for chunk in agent.stream(input_dict, stream_mode="values", context={"report": False}):
-            latest_message = chunk["messages"][-1]
-            if latest_message.content:
-                yield latest_message.content.strip() + "\n"
+        self._agent = agent
+        self._last_prompt_key = prompt_key
+        logger.info(f"[HealthAgent] ReAct agent 已{'重建' if prompt_key != self._last_prompt_key else '创建'}")
+        return agent
 
-    def _build_system_prompt(self, context: Dict) -> str:
-        """构建系统提示"""
-        base = "你是健康智能助手，帮助用户管理健康数据和获取健康建议。"
+    def chat(self, query: str, context: Dict = None, history: List[Dict] = None, dynamic_context: Dict = None) -> Generator[str, None, None]:
+        """
+        ReAct 对话入口
+
+        Args:
+            query: 用户输入
+            context: 可选上下文信息（如 user_id, user_info）
+            history: 对话历史（可选），格式为 [{"role": "user/assistant", "content": "..."}]
+            dynamic_context: 动态提示词上下文（由 DynamicPromptBuilder 构建）
+        Yields:
+            流式输出的文本块
+        """
+        logger.info(f"[HealthAgent] 收到查询: {query[:50]}...")
+
+        # 构建输入消息（不包含 system，由 state_modifier 注入）
+        messages = []
+
+        # context 信息注入到首条 HumanMessage 前缀（替代原有 _build_system_prompt）
+        if context:
+            context_hint = self._format_context_hint(context)
+            if context_hint:
+                query = context_hint + "\n\n" + query
+
+        if history:
+            for msg in history:
+                if msg.get("role") != "system":
+                    messages.append(msg)
+        messages.append({"role": "user", "content": query})
+
+        # 调用模型
+        try:
+            for chunk in self._stream_chat(messages, dynamic_context=dynamic_context):
+                yield chunk
+        except Exception as e:
+            logger.error(f"[HealthAgent] 对话失败: {e}")
+            yield f"对话出错: {str(e)}"
+
+    def _format_context_hint(self, context: Dict) -> str:
+        """将 context 信息格式化为提示文本"""
+        parts = []
         if context.get("user_id"):
-            base += f"\n当前用户ID: {context['user_id']}"
+            parts.append(f"当前用户ID: {context['user_id']}")
         if context.get("user_info"):
-            base += f"\n用户信息: {json.dumps(context['user_info'], ensure_ascii=False)}"
-        return base
+            parts.append(f"用户信息: {json.dumps(context['user_info'], ensure_ascii=False)}")
+        return "\n".join(parts) if parts else ""
+
+    def _stream_chat(self, messages: List[Dict], dynamic_context: Dict = None) -> Generator[str, None, None]:
+        """ReAct 流式推理
+
+        使用 langgraph.prebuilt.create_react_agent 创建 ReAct agent，
+        通过 state_modifier 注入动态系统提示词，
+        流式输出中只传递最终回答（过滤中间工具调用）。
+        """
+        from langchain_core.messages import AIMessage
+        from agent.tools.middleware import resolve_dynamic_prompt, log_react_step
+
+        # 1. 解析动态系统提示词
+        system_prompt = resolve_dynamic_prompt(dynamic_context)
+        logger.info(f"[HealthAgent] ReAct agent 启动, 系统提示词长度: {len(system_prompt)}")
+
+        # 2. 获取或创建 agent（带缓存）
+        agent = self._get_or_create_agent(system_prompt)
+
+        # 3. 流式执行，记录推理步骤，只输出最终回答
+        input_dict = {"messages": messages}
+        seen_fingerprints = set()
+
+        for state in agent.stream(input_dict, stream_mode="values"):
+            msgs = state.get("messages", [])
+            if not msgs:
+                continue
+
+            latest = msgs[-1]
+            fp = _message_fingerprint(latest)
+
+            if fp in seen_fingerprints:
+                continue
+            seen_fingerprints.add(fp)
+
+            # 记录推理步骤日志
+            log_react_step(latest)
+
+            # 只输出最终 AI 回答：有内容且无 tool_calls 的 AIMessage
+            if isinstance(latest, AIMessage):
+                if latest.content and not getattr(latest, 'tool_calls', None):
+                    yield latest.content.strip() + "\n"
 
     def execute_service(self, service_name: str, method_name: str, params: Dict) -> Any:
-
         return service_registry.execute(service_name, method_name, **params)
 
     def get_service_schema(self) -> Dict:

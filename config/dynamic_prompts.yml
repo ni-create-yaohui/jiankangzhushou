@@ -1,0 +1,53 @@
+denoiser:
+  enabled: true
+  max_repeat_chars: 2
+  strip_noise_punctuation: true
+  fullwidth_to_halfwidth: true
+
+cqr:
+  enabled: true
+  max_history_turns: 3
+  max_chars_per_msg: 100
+  timeout: 5
+  max_rewrite_tokens: 150
+
+prompt_rules:
+  - name: health_report_dialogue
+    prompt_file: prompts/health_report_dialogue.md
+    priority: 0
+    patterns: ["生成.*体检报告", "做个体检", "健康评估.*报告", "全面.*健康.*分析", "帮我.*体检", "体检.*分析"]
+    keywords: [体检报告, 健康报告, 全面体检, 健康评估]
+    min_keyword_match: 1
+
+  - name: nutrition_analyst
+    prompt_file: prompts/nutrition_analyst.md
+    priority: 1
+    patterns: ["分析.*饮食", "营养.*评估", "膳食.*搭配", "每天.*吃", "食谱"]
+    keywords: [饮食, 营养, 食物, 餐, 蛋白质, 维生素, 碳水]
+    min_keyword_match: 2
+
+  - name: exercise_coach
+    prompt_file: prompts/exercise_coach.md
+    priority: 2
+    patterns: ["推荐.*运动", "运动.*方案", "减脂.*运动", "增肌.*训练", "健身.*计划"]
+    keywords: [运动, 跑步, 健身, 锻炼, 减脂, 增肌, 训练]
+    min_keyword_match: 2
+
+  - name: health_diagnostician
+    prompt_file: prompts/health_diagnostician.md
+    priority: 3
+    patterns: ["分析.*健康数据", "评估.*健康", "分析.*体检数据", "血压.*分析"]
+    keywords: [血压, 心率, 诊断, 健康评估, 血糖, 体检数据]
+    min_keyword_match: 2
+
+  - name: kg_health_expert
+    prompt_file: prompts/kg_health_expert.md
+    priority: 4
+    patterns: ["(.+)有什么症状", "(.+)怎么治疗", "(.+)有什么营养", "(.+)的副作用"]
+    keywords: [症状, 治疗, 预防, 副作用, 功效]
+    min_keyword_match: 1
+
+dynamic_context:
+  enabled: true
+  max_history_rounds: 3
+  max_history_chars: 500

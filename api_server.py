@@ -401,13 +401,18 @@ async def clear_chat_history(session_id: Optional[str] = None):
 @app.get("/api/v1/chat/stream")
 async def chat_stream(q: str = Query(..., min_length=1), session_id: Optional[str] = Query(None)):
     """SSE流式对话 - 智能路由分发，支持多轮上下文"""
+    # 输入去噪
+    from agent.preprocessing.input_denoiser import input_denoiser
+    original_query = q
+    denoised_query = input_denoiser.denoise(q) if input_denoiser else q.strip()
+
     # 从 ChatHistoryService 加载历史
     history = chat_history_service.load_recent_history(session_id)
 
     def event_generator():
         try:
-            # 使用智能路由器分发请求，透传历史
-            for event in health_router.route_stream(q, history=history):
+            # 使用智能路由器分发请求，透传历史和原始输入
+            for event in health_router.route_stream(denoised_query, history=history, original_query=original_query):
                 yield event
         except Exception as e:
             yield {"event": "error", "data": str(e)}

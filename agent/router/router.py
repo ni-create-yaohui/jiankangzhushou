@@ -12,12 +12,38 @@
 import json
 from typing import Dict, Generator, List, Optional
 from project.logger_handler import logger
+from project.config_hander import dynamic_prompts_conf
 
 from agent.router.intent_classifier import IntentClassifier, intent_classifier
 from agent.core.health_agent import HealthAgent, health_agent
 from agent.knowledge.kg_qa import KGQA, kg_qa
 from rag.rag_service import RagSummarizeService
 from rag.kg_enhanced_rag import KGEnhancedRAG
+
+# 动态提示词预处理组件
+from agent.preprocessing.input_denoiser import input_denoiser, init_denoiser
+from agent.preprocessing.prompt_matcher import prompt_matcher, init_prompt_matcher
+from agent.preprocessing.dynamic_prompt_builder import dynamic_prompt_builder, init_dynamic_prompt_builder
+from agent.preprocessing.query_rewriter import query_rewriter, init_query_rewriter
+
+# 初始化预处理组件
+def _init_preprocessing():
+    cfg = dynamic_prompts_conf or {}
+    denoiser_cfg = cfg.get("denoiser", {})
+    if denoiser_cfg.get("enabled", True):
+        init_denoiser(denoiser_cfg)
+    rules = cfg.get("prompt_rules", [])
+    if rules:
+        init_prompt_matcher(rules)
+    ctx_cfg = cfg.get("dynamic_context", {})
+    if ctx_cfg.get("enabled", True):
+        init_dynamic_prompt_builder(ctx_cfg)
+    # CQR 查询改写器
+    cqr_cfg = cfg.get("cqr", {})
+    if cqr_cfg.get("enabled", True):
+        init_query_rewriter(cqr_cfg)
+
+_init_preprocessing()
 
 
 class HealthRouter:
@@ -49,45 +75,51 @@ class HealthRouter:
             self._kg_enhanced_rag = KGEnhancedRAG()
         return self._kg_enhanced_rag
 
-    def route(self, query: str, history: Optional[List[Dict]] = None) -> Dict:
+    def route(self, query: str, history: Optional[List[Dict]] = None, original_query: str = None) -> Dict:
         """
         路由请求（非流式）
 
         Args:
-            query: 用户输入
+            query: 用户输入（已去噪）
             history: 对话历史（可选）
+            original_query: 原始用户输入（去噪前）
 
         Returns:
             包含回答和元数据的字典
         """
-        # 1. 意图分类
+        # 1. 意图分类 — 用原始去噪文本
         intent_result = self.intent_classifier.classify(query)
         logger.info(f"[HealthRouter] 意图分类: {intent_result.intent}, 置信度: {intent_result.confidence}")
 
         # 2. 路由执行
         if intent_result.intent == "faq":
+            # FAQ路径：不进行CQR改写
             return self._route_faq(query, intent_result, history=history)
         else:
-            return self._route_agent(query, intent_result, history=history)
+            # Agent路径：CQR改写 → 用改写文本做 prompt匹配和 agent执行
+            rewritten_query = self._rewrite_query(query, history)
+            dynamic_context = self._build_dynamic_context(rewritten_query, original_query, history)
+            return self._route_agent(rewritten_query, intent_result, history=history, dynamic_context=dynamic_context)
 
-    def route_stream(self, query: str, history: Optional[List[Dict]] = None) -> Generator[Dict, None, None]:
+    def route_stream(self, query: str, history: Optional[List[Dict]] = None, original_query: str = None) -> Generator[Dict, None, None]:
         """
         路由请求（流式输出）
 
         Args:
-            query: 用户输入
+            query: 用户输入（已去噪）
             history: 对话历史（可选）
+            original_query: 原始用户输入（去噪前）
 
         Yields:
             流式事件字典 {"event": "xxx", "data": "xxx"}
         """
-        # 1. 意图分类
+        # 1. 意图分类 — 用原始去噪文本
         intent_result = self.intent_classifier.classify(query)
         logger.info(f"[HealthRouter] 意图分类: {intent_result.intent}, 置信度: {intent_result.confidence}")
 
         # 2. 路由执行
         if intent_result.intent == "faq":
-            # FAQ: 先发送意图信息，然后发送KG数据和RAG回答
+            # FAQ路径：不进行CQR改写
             yield {"event": "intent", "data": json.dumps({
                 "intent": intent_result.intent,
                 "confidence": intent_result.confidence,
@@ -126,12 +158,15 @@ class HealthRouter:
             yield {"event": "done", "data": ""}
 
         else:
-            # Agent: 调用 health_agent，支持工具调用（不发送 intent/graph_data，只输出结果）
-            logger.info(f"[HealthRouter] Agent路径，跳过KG查询，直接调用health_agent")
+            # Agent路径：CQR改写 → 用改写文本做 prompt匹配和 agent执行
+            rewritten_query = self._rewrite_query(query, history)
+            dynamic_context = self._build_dynamic_context(rewritten_query, original_query, history)
 
-            # 流式输出 Agent 对话
+            logger.info(f"[HealthRouter] Agent路径 (query={query[:30]}, rewritten={rewritten_query[:30]})")
+
+            # 流式输出 Agent 对话（用改写文本）
             try:
-                for chunk in self.health_agent.chat(query, history=history):
+                for chunk in self.health_agent.chat(rewritten_query, history=history, dynamic_context=dynamic_context):
                     yield {"event": "message", "data": chunk}
             except Exception as e:
                 logger.error(f"[HealthRouter] Agent对话失败: {e}")
@@ -169,7 +204,7 @@ class HealthRouter:
 
         return result
 
-    def _route_agent(self, query: str, intent_result, history: Optional[List[Dict]] = None) -> Dict:
+    def _route_agent(self, query: str, intent_result, history: Optional[List[Dict]] = None, dynamic_context: Dict = None) -> Dict:
         """Agent路由 - 支持复杂任务"""
         result = {
             "intent": intent_result.intent,
@@ -186,10 +221,10 @@ class HealthRouter:
             "confidence": kg_result.get("confidence", 0)
         }
 
-        # Agent对话
+        # Agent对话（透传 dynamic_context）
         answer_parts = []
         try:
-            for chunk in self.health_agent.chat(query, history=history):
+            for chunk in self.health_agent.chat(query, history=history, dynamic_context=dynamic_context):
                 answer_parts.append(chunk)
             result["answer"] = "".join(answer_parts)
         except Exception as e:
@@ -198,6 +233,38 @@ class HealthRouter:
             result["error"] = str(e)
 
         return result
+
+    def _build_dynamic_context(self, query: str, original_query: str = None, history: Optional[List[Dict]] = None) -> Dict:
+        """构建动态提示词上下文
+
+        流程: prompt_matcher.match → dynamic_prompt_builder.build
+        """
+        if not prompt_matcher:
+            return {}
+
+        try:
+            match_result = prompt_matcher.match(query)
+            context = dynamic_prompt_builder.build(
+                query=query,
+                original_query=original_query or query,
+                prompt_match_result=match_result,
+                history=history,
+            )
+            return context
+        except Exception as e:
+            logger.error(f"[HealthRouter] 构建动态上下文失败: {e}")
+            return {}
+
+    def _rewrite_query(self, query: str, history: Optional[List[Dict]] = None) -> str:
+        """CQR改写（仅Agent路径、有历史、且启用时）
+
+        所有降级场景均返回原始 query，不中断流程。
+        """
+        if not query_rewriter or not query_rewriter.is_enabled():
+            return query
+        if not history or len(history) < 2:
+            return query
+        return query_rewriter.rewrite(query, history)
 
     def analyze(self, query: str) -> Dict:
         """
