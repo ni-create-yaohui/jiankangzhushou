@@ -30,14 +30,12 @@
 | **LLM** | 通义千问 Qwen-Plus (DashScope) + DeepSeek 备用 |
 | **Embedding** | DashScope text-embedding-v4 |
 | **向量数据库** | ChromaDB |
-<<<<<<< HEAD
 | **知识图谱** | Neo4j (Bolt 协议) |
 | **关系数据库** | SQLAlchemy 2.0 + SQLite |
 | **NER** | LLM 实体抽取 + 预定义实体词典 |
 | **文档解析** | PyPDF |
 | **流式输出** | SSE-Starlette |
 | **前端** | 原生 HTML/CSS/JS + ECharts 5.5 |
-=======
 | **知识图谱** | 自研内存图 + JSON 持久化 |
 | **NER** | thulac / jieba |
 | **文档解析** | PyPDF |
@@ -64,7 +62,7 @@
                     │                                   │
                     ▼                                   ▼
           ChromaDB 向量检索              ReAct Agent (LangGraph)
-<<<<<<< HEAD
+
                     │                          │   14 个 @tool   │
                     ▼                          ▼                 ▼
           Reranker 重排序           ┌─────────────────────────┐
@@ -75,7 +73,6 @@
                     ▼                          │
                SSE 流式响应 ◄──────────────────┘
                (token级 + thinking事件)
-=======
                     │                              │    │    │
                     ▼                           Tool1 Tool2 Tool3
           LLM 融合生成                           │    │    │
@@ -104,19 +101,15 @@ pip install -r requirements.txt
 ```bash
 # 复制配置模板
 cp .env.example .env
-
-<<<<<<< HEAD
 # 编辑 .env 填入配置
 # DASHSCOPE_API_KEY=sk-your-api-key          # 必填
 # DATABASE_URL=sqlite:///data/health_assistant.db  # 默认即可
 # NEO4J_URI=bolt://localhost:7687            # 可选
 # NEO4J_USER=neo4j                           # 可选
 # NEO4J_PASSWORD=password                    # 可选
-=======
 # 编辑 .env 填入 API Key
 # DASHSCOPE_API_KEY=sk-your-api-key
->>>>>>> cbe303e31321a3b2dfaadb40d8891e80f475700b
-```
+
 
 或直接设置环境变量：
 
