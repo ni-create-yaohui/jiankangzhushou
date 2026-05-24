@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 """
+[DEPRECATED] 此客户端已被 LangChain with_fallbacks 机制替代（见 model/factory.py）。
+保留此文件供参考，新代码请勿使用。
+---
 LLM 容错客户端 - 支持主备 API 自动切换、网络错误重试、内容过滤回退
 参考 data_analysis_agent 的 fallback_openai_client.py 设计
 """

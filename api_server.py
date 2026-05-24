@@ -17,12 +17,13 @@ import requests
 PROJECT_ROOT = Path(__file__).parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from fastapi import FastAPI, HTTPException, Query, UploadFile, File, BackgroundTasks
+from fastapi import FastAPI, HTTPException, Query, UploadFile, File, BackgroundTasks, Depends
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from sse_starlette.sse import EventSourceResponse
+from sqlalchemy.orm import Session
 
 # Lealone风格核心组件
 from agent.core.service_registry import service_registry
@@ -37,7 +38,6 @@ from agent.services.chat_history_service import chat_history_service
 from agent.services.document_service import document_service
 from rag.vector_store import VectorStoreService
 from agent.tools.health_enums import (
-    Gender, ActivityLevel, HealthGoal, FitnessLevel,
     get_genders, get_activity_levels, get_health_goals,
     get_fitness_levels, get_exercise_types, get_diet_types
 )
@@ -46,6 +46,8 @@ from project.config_hander import chroma_conf
 from project.file_hander import get_file_md5_hex
 from project.path_tool import get_abs_path
 from project.logger_handler import logger
+from agent.database.db_config import init_db, check_db_connection, get_db
+from agent.database.neo4j_config import neo4j_conn
 
 _building_lock = threading.Lock()
 
@@ -59,44 +61,30 @@ async def lifespan(app: FastAPI):
     print("  零代码对话式健康管理")
     print("=" * 60)
 
+    # 初始化数据库
+    init_db()
+    print("[DB] 数据库初始化完成")
+
+    # 验证 Neo4j 连接（非阻塞，失败仅警告）
+    try:
+        neo4j_conn.verify_connectivity()
+        print("[Neo4j] 连接验证成功")
+    except Exception as e:
+        print(f"[Neo4j] 连接验证失败（图谱功能不可用）: {e}")
+
     # 注册服务处理器
     _register_service_handlers()
 
     yield
 
     # 清理
-    from model.factory import get_fallback_client
-    client = get_fallback_client()
-    if client is not None:
-        await client.close()
+    neo4j_conn.close()
     print("健康智能助手已停止")
 
 
 def _register_service_handlers():
     """注册服务处理器到服务注册中心"""
-    # 用户服务处理器
-    service_registry.register_handler("user_service", "create",
-        lambda **kw: user_service.create_user(**kw))
-    service_registry.register_handler("user_service", "get",
-        lambda uid: user_service.get_user(uid))
-    service_registry.register_handler("user_service", "list",
-        lambda: user_service.list_users())
-    service_registry.register_handler("user_service", "update",
-        lambda uid, **kw: user_service.update_user(uid, **kw))
-    service_registry.register_handler("user_service", "delete",
-        lambda uid: user_service.delete_user(uid))
-    service_registry.register_handler("user_service", "add_record",
-        lambda uid, **kw: user_service.add_health_record(uid, **kw))
-
-    # 报告服务处理器
-    service_registry.register_handler("report_service", "list",
-        lambda: health_report_service.list_reports())
-    service_registry.register_handler("report_service", "get",
-        lambda rid: health_report_service.get_report(rid))
-    service_registry.register_handler("report_service", "search",
-        lambda kw: health_report_service.search_reports(kw))
-
-    # 对话服务处理器
+    # 对话服务处理器（仅 api_server 注册）
     service_registry.register_handler("chat_service", "get_history",
         lambda sid=None: chat_history_service.load_history(sid))
     service_registry.register_handler("chat_service", "save_history",
@@ -400,7 +388,7 @@ async def clear_chat_history(session_id: Optional[str] = None):
 
 @app.get("/api/v1/chat/stream")
 async def chat_stream(q: str = Query(..., min_length=1), session_id: Optional[str] = Query(None)):
-    """SSE流式对话 - 智能路由分发，支持多轮上下文"""
+    """SSE流式对话 - 智能路由分发，token级流式 + 中间步骤推送"""
     # 输入去噪
     from agent.preprocessing.input_denoiser import input_denoiser
     original_query = q
@@ -409,13 +397,16 @@ async def chat_stream(q: str = Query(..., min_length=1), session_id: Optional[st
     # 从 ChatHistoryService 加载历史
     history = chat_history_service.load_recent_history(session_id)
 
-    def event_generator():
+    async def event_generator():
         try:
-            # 使用智能路由器分发请求，透传历史和原始输入
-            for event in health_router.route_stream(denoised_query, history=history, original_query=original_query):
+            async for event in health_router.route_stream_async(
+                denoised_query, history=history, original_query=original_query
+            ):
                 yield event
         except Exception as e:
             yield {"event": "error", "data": str(e)}
+            yield {"event": "done", "data": ""}
+
     return EventSourceResponse(event_generator())
 
 
@@ -587,6 +578,20 @@ async def serve_index():
     return FileResponse(str(web_dir / "kg_index.html"))
 
 
+# ========== 健康检查 ==========
+
+@app.get("/health")
+async def health_check():
+    """数据库和 Neo4j 连接健康检查"""
+    db_ok = check_db_connection()
+    neo4j_ok = neo4j_conn.check_connection()
+    return {
+        "status": "ok" if db_ok and neo4j_ok else "degraded",
+        "db": db_ok,
+        "neo4j": neo4j_ok,
+    }
+
+
 # ========== 知识图谱 API ==========
 
 from agent.knowledge.health_kg import health_kg
@@ -613,10 +618,12 @@ async def get_kg_schema():
 @app.get("/api/v1/kg/stats")
 async def get_kg_stats():
     """获取知识图谱统计信息"""
+    stats = health_kg.get_stats_detailed()
+    schema = health_kg.get_schema()
     return {
-        "nodes": len(set(n.name for n in health_kg._nodes.values())),
-        "edges": sum(len(v) for v in health_kg._edges.values()),
-        "entity_types": {k: len(v) for k, v in health_kg._type_index.items()},
+        "nodes": stats.get("total_entities", 0),
+        "edges": stats.get("total_relations", 0),
+        "entity_types": stats.get("entity_types", {}),
     }
 
 @app.post("/api/v1/kg/query")
@@ -817,14 +824,7 @@ def process_document_background(doc_id: str, file_path: str):
         extraction_dict = merged_result.to_dict() if merged_result else None
         chunk_count = vs.load_single_document_with_kg(file_path, doc_id, extraction_dict)
 
-        # 6. 持久化图谱数据
-        try:
-            kg_data_path = get_abs_path("data/knowledge/kg_data.json")
-            health_kg.to_json_file(kg_data_path)
-        except Exception as e:
-            logger.warning(f"[文档处理] 图谱持久化失败: {e}")
-
-        # 7. 更新状态为completed
+        # 6. 更新状态为completed
         document_service.update_document_status(
             doc_id, "completed",
             chunk_count=chunk_count,
@@ -1058,31 +1058,31 @@ async def sync_ner_api():
 @app.post("/api/v1/kg/save")
 async def save_kg_api():
     """
-    手动持久化图谱
+    手动冷备份图谱到 JSON 文件
 
-    将当前知识图谱保存到JSON文件
+    将当前知识图谱导出到 JSON 文件（Neo4j 自动持久化，此为冷备份）
     """
     try:
         kg_data_path = get_abs_path("data/knowledge/kg_data.json")
-        success = health_kg.to_json_file(kg_data_path)
+        success = health_kg.export_to_json(kg_data_path)
         if success:
             stats = health_kg.get_stats_detailed()
             return {
                 "success": True,
-                "message": "知识图谱持久化成功",
+                "message": "知识图谱冷备份成功",
                 "file_path": kg_data_path,
                 "stats": stats
             }
         else:
             return {
                 "success": False,
-                "message": "知识图谱持久化失败"
+                "message": "知识图谱冷备份失败"
             }
     except Exception as e:
         return {
             "success": False,
             "error": str(e),
-            "message": "知识图谱持久化失败"
+            "message": "知识图谱冷备份失败"
         }
 
 

@@ -655,6 +655,17 @@
             background: var(--primary-dark);
         }
 
+        .chat-thinking-status {
+            font-size: 12px;
+            color: var(--text-secondary, #94a3b8);
+            padding: 4px 16px 0 16px;
+            animation: thinking-pulse 1.5s ease-in-out infinite;
+        }
+        @keyframes thinking-pulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+
         .chat-input-area {
             display: flex;
             gap: 12px;
@@ -2971,12 +2982,46 @@
             const assistantMsgId = 'msg-' + Date.now();
             addChatMessageWithId('assistant', '', assistantMsgId);
 
+            // 清除 thinking 状态的辅助函数
+            function removeThinking() {
+                const msgEl = document.getElementById(assistantMsgId);
+                const s = msgEl ? msgEl.querySelector('.chat-thinking-status') : null;
+                if (s) s.remove();
+            }
+
+            // 中间步骤状态（Agent 工具调用）
+            eventSource.addEventListener('thinking', function(event) {
+                const msgEl = document.getElementById(assistantMsgId);
+                if (msgEl) {
+                    let s = msgEl.querySelector('.chat-thinking-status');
+                    if (!s) {
+                        s = document.createElement('div');
+                        s.className = 'chat-thinking-status';
+                        const c = msgEl.querySelector('.chat-content');
+                        c.parentNode.insertBefore(s, c);
+                    }
+                    s.textContent = event.data;
+                }
+            });
+
             eventSource.addEventListener('message', function(event) {
+                removeThinking();
                 fullContent += event.data;
                 updateChatMessage(assistantMsgId, fullContent);
             });
 
+            // 知识图谱数据（Router 层发出，兼容新旧事件名）
             eventSource.addEventListener('graph_data', function(event) {
+                try {
+                    currentGraphData = JSON.parse(event.data);
+                    if (currentGraphData.relations && currentGraphData.relations.length > 0) {
+                        showChatGraph(currentGraphData);
+                    }
+                } catch (e) {
+                    console.error('图谱数据解析失败:', e);
+                }
+            });
+            eventSource.addEventListener('router:graph_data', function(event) {
                 try {
                     currentGraphData = JSON.parse(event.data);
                     if (currentGraphData.relations && currentGraphData.relations.length > 0) {
@@ -2988,13 +3033,21 @@
             });
 
             eventSource.addEventListener('done', function() {
+                removeThinking();
                 eventSource.close();
-                // 保存助手回复到历史
                 chatHistory.push({ role: 'assistant', content: fullContent });
                 saveChatHistory();
             });
 
+            eventSource.addEventListener('error', function(event) {
+                removeThinking();
+                const errMsg = event.data || '处理过程中出错';
+                fullContent += (fullContent ? '\n' : '') + errMsg;
+                updateChatMessage(assistantMsgId, fullContent);
+            });
+
             eventSource.onerror = function() {
+                removeThinking();
                 const fallbackMsg = fullContent || '抱歉，我暂时无法回答这个问题。';
                 updateChatMessage(assistantMsgId, fallbackMsg);
                 eventSource.close();

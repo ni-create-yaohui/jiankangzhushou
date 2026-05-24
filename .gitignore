@@ -4,3 +4,6 @@ __pycache__/
 chroma_db/
 logs/
 .env
+data/health_assistant.db
+开发代码规范/
+.CLAUDE.md

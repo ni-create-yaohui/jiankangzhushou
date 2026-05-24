@@ -10,7 +10,7 @@
 - Agent处理支持复杂任务和多轮对话
 """
 import json
-from typing import Dict, Generator, List, Optional
+from typing import Dict, Generator, AsyncGenerator, List, Optional
 from project.logger_handler import logger
 from project.config_hander import dynamic_prompts_conf
 
@@ -93,8 +93,9 @@ class HealthRouter:
 
         # 2. 路由执行
         if intent_result.intent == "faq":
-            # FAQ路径：不进行CQR改写
-            return self._route_faq(query, intent_result, history=history)
+            # FAQ路径：启用CQR改写，解决指代消解问题
+            rewritten_query = self._rewrite_query(query, history)
+            return self._route_faq(rewritten_query, intent_result, history=history)
         else:
             # Agent路径：CQR改写 → 用改写文本做 prompt匹配和 agent执行
             rewritten_query = self._rewrite_query(query, history)
@@ -103,7 +104,8 @@ class HealthRouter:
 
     def route_stream(self, query: str, history: Optional[List[Dict]] = None, original_query: str = None) -> Generator[Dict, None, None]:
         """
-        路由请求（流式输出）
+        [DEPRECATED] 请使用 route_stream_async。
+        路由请求（同步流式输出）
 
         Args:
             query: 用户输入（已去噪）
@@ -119,7 +121,10 @@ class HealthRouter:
 
         # 2. 路由执行
         if intent_result.intent == "faq":
-            # FAQ路径：不进行CQR改写
+            # FAQ路径：启用CQR改写，解决指代消解问题
+            rewritten_query = self._rewrite_query(query, history)
+            logger.info(f"[HealthRouter] FAQ路径 CQR改写: query={query[:30]}, rewritten={rewritten_query[:30]}")
+
             yield {"event": "intent", "data": json.dumps({
                 "intent": intent_result.intent,
                 "confidence": intent_result.confidence,
@@ -127,7 +132,7 @@ class HealthRouter:
             }, ensure_ascii=False)}
 
             # KG查询获取图谱数据
-            kg_result = self.kg_qa.answer(query)
+            kg_result = self.kg_qa.answer(rewritten_query)
             relations = kg_result.get("relations", [])
 
             if relations:
@@ -140,13 +145,13 @@ class HealthRouter:
 
             # KG增强RAG回答
             try:
-                rag_answer = self.kg_enhanced_rag.query(query, chat_history=history)
+                rag_answer = self.kg_enhanced_rag.query(rewritten_query, chat_history=history)
                 yield {"event": "message", "data": rag_answer}
             except Exception as e:
                 logger.error(f"[HealthRouter] KG增强RAG查询失败: {e}")
                 # KG增强RAG失败时回退到基础RAG
                 try:
-                    rag_answer = self.rag_service.rag_summarize(query)
+                    rag_answer = self.rag_service.rag_summarize(rewritten_query)
                     yield {"event": "message", "data": rag_answer}
                 except Exception as e2:
                     logger.error(f"[HealthRouter] 基础RAG也失败: {e2}")
@@ -174,8 +179,75 @@ class HealthRouter:
 
             yield {"event": "done", "data": ""}
 
+    async def route_stream_async(
+        self, query: str, history: Optional[List[Dict]] = None, original_query: str = None,
+    ) -> AsyncGenerator[Dict, None]:
+        """路由请求（异步流式，token 级 + 中间步骤）
+
+        事件协议：
+        - router:intent    — 意图分类结果（Router 层发出）
+        - router:graph_data — 知识图谱数据（Router 层发出）
+        - thinking         — 工具调用中间状态（Agent 层发出）
+        - message          — 文本 token 块（Agent / FAQ 共用）
+        - error            — 错误信息
+        - done             — 流结束
+        """
+        intent_result = self.intent_classifier.classify(query)
+        logger.info(f"[HealthRouter] 意图分类: {intent_result.intent}, 置信度: {intent_result.confidence}")
+
+        if intent_result.intent == "faq":
+            rewritten_query = self._rewrite_query(query, history)
+            logger.info(f"[HealthRouter] FAQ路径(async) CQR改写: query={query[:30]}, rewritten={rewritten_query[:30]}")
+
+            yield {"event": "router:intent", "data": json.dumps({
+                "intent": intent_result.intent,
+                "confidence": intent_result.confidence,
+                "matched_pattern": intent_result.matched_pattern,
+            }, ensure_ascii=False)}
+
+            try:
+                # KG查询获取图谱数据（同步，通常<100ms）
+                kg_result = self.kg_qa.answer(rewritten_query)
+                relations = kg_result.get("relations", [])
+
+                if relations:
+                    graph_data = {
+                        "answer": kg_result.get("answer", ""),
+                        "relations": relations,
+                        "confidence": kg_result.get("confidence", 0),
+                    }
+                    yield {"event": "router:graph_data", "data": json.dumps(graph_data, ensure_ascii=False)}
+
+                # KG增强RAG回答（异步 token 级流式）
+                async for event in self.kg_enhanced_rag.query_stream_async(
+                    rewritten_query, chat_history=history
+                ):
+                    yield event  # 包含 message + done/error 事件
+
+            except Exception as e:
+                logger.error(f"[HealthRouter] FAQ路径异常: {e}")
+                yield {"event": "error", "data": f"查询失败: {str(e)}"}
+                yield {"event": "done", "data": ""}
+
+        else:
+            # Agent路径
+            rewritten_query = self._rewrite_query(query, history)
+            dynamic_context = self._build_dynamic_context(rewritten_query, original_query, history)
+            logger.info(f"[HealthRouter] Agent路径(async) (query={query[:30]}, rewritten={rewritten_query[:30]})")
+
+            try:
+                async for event in self.health_agent.chat_async(
+                    rewritten_query, history=history, dynamic_context=dynamic_context,
+                ):
+                    yield event  # 包含 thinking + message + error 事件
+            except Exception as e:
+                logger.error(f"[HealthRouter] Agent异步对话失败: {e}")
+                yield {"event": "error", "data": str(e)}
+
+            yield {"event": "done", "data": ""}
+
     def _route_faq(self, query: str, intent_result, history: Optional[List[Dict]] = None) -> Dict:
-        """FAQ路由 - 快速响应"""
+        """FAQ路由 - 快速响应（query 已经过 CQR 改写）"""
         result = {
             "intent": intent_result.intent,
             "confidence": intent_result.confidence,
@@ -256,7 +328,7 @@ class HealthRouter:
             return {}
 
     def _rewrite_query(self, query: str, history: Optional[List[Dict]] = None) -> str:
-        """CQR改写（仅Agent路径、有历史、且启用时）
+        """CQR改写（FAQ和Agent路径共用，有历史且启用时生效）
 
         所有降级场景均返回原始 query，不中断流程。
         """

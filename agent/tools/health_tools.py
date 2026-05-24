@@ -7,10 +7,7 @@ from project.logger_handler import logger
 from rag.rag_service import RagSummarizeService
 from agent.services.user_service import user_service
 from agent.services.health_report_service import health_report_service
-from agent.tools.health_enums import (
-    get_genders, get_activity_levels, get_health_goals,
-    get_fitness_levels, get_exercise_types, get_diet_types
-)
+from agent.tools.health_enums import get_genders, get_activity_levels
 
 rag = RagSummarizeService()
 
@@ -41,34 +38,44 @@ NUTRIENT_DATABASE = {
 }
 
 
-# ==================== 结构化计算辅助函数（供 API 使用） ====================
+# ==================== 核心计算函数（@tool 和 REST API 共用） ====================
 
-def calculate_bmi_structured(height: float, weight: float) -> dict:
-    """计算 BMI，返回结构化字典（供 api_server 调用）"""
+def _compute_bmi_core(height: float, weight: float) -> dict:
+    """BMI 核心计算，返回结构化字典"""
     if height <= 0 or weight <= 0:
         raise ValueError("身高和体重必须为正数")
     height_m = height / 100
     bmi = weight / (height_m ** 2)
     if bmi < 18.5:
         category = "偏瘦"
+        advice = "建议适当增加营养摄入，多吃优质蛋白质和碳水化合物，配合适度力量训练增加肌肉量。"
+        color = "blue"
     elif bmi < 24:
         category = "正常"
+        advice = "体重健康，请继续保持均衡饮食和规律运动。"
+        color = "green"
     elif bmi < 28:
         category = "偏胖"
+        advice = "建议控制饮食热量摄入，增加有氧运动（如快走、慢跑），每周至少150分钟中等强度运动。"
+        color = "orange"
     else:
         category = "肥胖"
+        advice = "建议在医生指导下进行体重管理，控制饮食热量，循序渐进增加运动量，注意监测血压和血糖。"
+        color = "red"
     ideal_min = 18.5 * height_m ** 2
     ideal_max = 24 * height_m ** 2
     return {
         "bmi": round(bmi, 1),
         "category": category,
+        "advice": advice,
+        "color": color,
         "ideal_weight_min": round(ideal_min, 1),
         "ideal_weight_max": round(ideal_max, 1),
     }
 
 
-def calculate_daily_calorie_structured(gender: str, age: int, height: float, weight: float, activity_level: str = "轻度活动") -> dict:
-    """计算每日热量需求，返回结构化字典（供 api_server 调用）"""
+def _compute_calorie_core(gender: str, age: int, height: float, weight: float, activity_level: str = "轻度活动") -> dict:
+    """每日热量核心计算（Mifflin-St Jeor），返回结构化字典"""
     if gender == "男":
         bmr = 10 * weight + 6.25 * height - 5 * age + 5
     else:
@@ -79,9 +86,36 @@ def calculate_daily_calorie_structured(gender: str, age: int, height: float, wei
     return {
         "bmr": round(bmr, 0),
         "tdee": round(tdee, 0),
+        "factor": factor,
+        "protein_g": round(tdee * 0.30 / 4, 0),
+        "carb_g": round(tdee * 0.40 / 4, 0),
+        "fat_g": round(tdee * 0.30 / 9, 0),
         "lose_weight": round(tdee - 500, 0),
         "maintain": round(tdee, 0),
         "gain_muscle": round(tdee + 300, 0),
+    }
+
+
+def calculate_bmi_structured(height: float, weight: float) -> dict:
+    """计算 BMI，返回结构化字典（供 api_server 调用）"""
+    core = _compute_bmi_core(height, weight)
+    return {
+        "bmi": core["bmi"],
+        "category": core["category"],
+        "ideal_weight_min": core["ideal_weight_min"],
+        "ideal_weight_max": core["ideal_weight_max"],
+    }
+
+
+def calculate_daily_calorie_structured(gender: str, age: int, height: float, weight: float, activity_level: str = "轻度活动") -> dict:
+    """计算每日热量需求，返回结构化字典（供 api_server 调用）"""
+    core = _compute_calorie_core(gender, age, height, weight, activity_level)
+    return {
+        "bmr": core["bmr"],
+        "tdee": core["tdee"],
+        "lose_weight": core["lose_weight"],
+        "maintain": core["maintain"],
+        "gain_muscle": core["gain_muscle"],
     }
 
 
@@ -101,34 +135,12 @@ def calculate_bmi(height: float, weight: float) -> str:
     if height <= 0 or weight <= 0:
         return "身高和体重必须为正数。"
 
-    height_m = height / 100
-    bmi = weight / (height_m ** 2)
-
-    if bmi < 18.5:
-        category = "偏瘦"
-        advice = "建议适当增加营养摄入，多吃优质蛋白质和碳水化合物，配合适度力量训练增加肌肉量。"
-        color = "blue"
-    elif bmi < 24:
-        category = "正常"
-        advice = "体重健康，请继续保持均衡饮食和规律运动。"
-        color = "green"
-    elif bmi < 28:
-        category = "偏胖"
-        advice = "建议控制饮食热量摄入，增加有氧运动（如快走、慢跑），每周至少150分钟中等强度运动。"
-        color = "orange"
-    else:
-        category = "肥胖"
-        advice = "建议在医生指导下进行体重管理，控制饮食热量，循序渐进增加运动量，注意监测血压和血糖。"
-        color = "red"
-
-    # 理想体重范围
-    ideal_min = 18.5 * height_m ** 2
-    ideal_max = 24 * height_m ** 2
+    core = _compute_bmi_core(height, weight)
 
     result = f"""【BMI健康评估】
 
-您的BMI指数：{bmi:.1f}
-健康分类：{category}
+您的BMI指数：{core['bmi']}
+健康分类：{core['category']}
 
 BMI参考标准（中国标准）：
   - 偏瘦：BMI < 18.5
@@ -137,11 +149,11 @@ BMI参考标准（中国标准）：
   - 肥胖：BMI ≥ 28
 
 基于您的身高 {height:.0f}cm，理想体重范围：
-  - 下限：{ideal_min:.1f} kg
-  - 上限：{ideal_max:.1f} kg
+  - 下限：{core['ideal_weight_min']} kg
+  - 上限：{core['ideal_weight_max']} kg
 
 健康建议：
-{advice}
+{core['advice']}
 
 注意：BMI仅供参考，不能完全反映身体成分（如肌肉量、体脂率等）。如有疑虑，请咨询专业医生。"""
 
@@ -157,32 +169,11 @@ def calculate_daily_calorie(
     activity_level: str = "轻度活动"
 ) -> str:
     """计算每日推荐摄入热量（基于Mifflin-St Jeor公式）"""
-    # 基础代谢率（BMR）
-    if gender == "男":
-        bmr = 10 * weight + 6.25 * height - 5 * age + 5
-    else:
-        bmr = 10 * weight + 6.25 * height - 5 * age - 161
+    core = _compute_calorie_core(gender, age, height, weight, activity_level)
 
-    # 活动系数
-    activity_factors = {
-        "久坐不动": 1.2,
-        "轻度活动": 1.375,
-        "中度活动": 1.55,
-        "积极运动": 1.725,
-        "高强度运动": 1.9,
-    }
-    factor = activity_factors.get(activity_level, 1.375)
-
-    tdee = bmr * factor
-
-    # 营养素分配
-    protein_cal = tdee * 0.30
-    carb_cal = tdee * 0.40
-    fat_cal = tdee * 0.30
-
-    protein_g = protein_cal / 4
-    carb_g = carb_cal / 4
-    fat_g = fat_cal / 9
+    protein_cal = core["tdee"] * 0.30
+    carb_cal = core["tdee"] * 0.40
+    fat_cal = core["tdee"] * 0.30
 
     result = f"""【每日热量需求分析】
 
@@ -194,31 +185,31 @@ def calculate_daily_calorie(
   - 活动水平：{activity_level}
 
 计算结果：
-  - 基础代谢率(BMR)：{bmr:.0f} kcal/天
-  - 每日总消耗(TDEE)：{tdee:.0f} kcal/天
+  - 基础代谢率(BMR)：{core['bmr']:.0f} kcal/天
+  - 每日总消耗(TDEE)：{core['tdee']:.0f} kcal/天
 
 每日推荐营养素摄入：
-  - 蛋白质：{protein_g:.0f}g（{protein_cal:.0f} kcal，占30%）
-  - 碳水化合物：{carb_g:.0f}g（{carb_cal:.0f} kcal，占40%）
-  - 脂肪：{fat_g:.0f}g（{fat_cal:.0f} kcal，占30%）
+  - 蛋白质：{core['protein_g']:.0f}g（{protein_cal:.0f} kcal，占30%）
+  - 碳水化合物：{core['carb_g']:.0f}g（{carb_cal:.0f} kcal，占40%）
+  - 脂肪：{core['fat_g']:.0f}g（{fat_cal:.0f} kcal，占30%）
 
 不同目标的推荐摄入：
-  - 减脂（-500kcal）：{tdee - 500:.0f} kcal/天
-  - 保持体重：{tdee:.0f} kcal/天
-  - 增肌（+300kcal）：{tdee + 300:.0f} kcal/天
+  - 减脂（-500kcal）：{core['lose_weight']:.0f} kcal/天
+  - 保持体重：{core['maintain']:.0f} kcal/天
+  - 增肌（+300kcal）：{core['gain_muscle']:.0f} kcal/天
 
 注意：以上为参考值，实际需求因个人体质而异。建议咨询营养师获取个性化方案。"""
 
     return result
 
 
-@tool(description="分析饮食营养结构。参数foods为食物列表JSON字符串，格式如：[['米饭(一碗)',2],['鸡胸肉(100g)',1]]")
-def analyze_diet(foods: str) -> str:
-    """分析饮食营养结构"""
-    try:
-        food_list = json.loads(foods) if foods.startswith("[") else json.loads(f"[{foods}]")
-    except json.JSONDecodeError:
-        return "食物数据格式错误，请提供JSON格式的食物列表。"
+@tool(description=(
+    "分析食物的营养成分和饮食结构。提供食物名称列表，返回每项营养数据和整体膳食评估。"
+    "参数foods为食物名称列表，如 [\"米饭(一碗)\", \"鸡胸肉(100g)\", \"鸡蛋(1个)\"]"
+))
+def analyze_nutrition(foods: list) -> str:
+    """分析食物营养：优先查知识图谱，无结果回退内置食物库"""
+    from agent.tools.kg_tools import _kg_food_nutrients
 
     total_calories = 0
     total_protein = 0
@@ -227,7 +218,7 @@ def analyze_diet(foods: str) -> str:
     total_fiber = 0
     details = []
 
-    for item in food_list:
+    for item in foods:
         if isinstance(item, list):
             food_name = str(item[0])
             quantity = float(item[1]) if len(item) > 1 else 1
@@ -235,6 +226,27 @@ def analyze_diet(foods: str) -> str:
             food_name = str(item)
             quantity = 1
 
+        # 优先从知识图谱查营养数据（返回结构化 dict）
+        kg_result = _kg_food_nutrients(food_name)
+        if kg_result:
+            # 计入宏观营养统计
+            total_calories += kg_result.get("calories", 0) * quantity
+            total_protein += kg_result.get("protein", 0) * quantity
+            total_carbs += kg_result.get("carbs", 0) * quantity
+            total_fat += kg_result.get("fat", 0) * quantity
+            total_fiber += kg_result.get("fiber", 0) * quantity
+
+            # 构建显示文本
+            desc_parts = []
+            if kg_result.get("nutrients"):
+                desc_parts.append(f"含有营养素：{', '.join(kg_result['nutrients'])}")
+            for k in ("calories", "protein", "carbs", "fat"):
+                if k in kg_result:
+                    desc_parts.append(f"{k}: {kg_result[k]}")
+            details.append(f"  {food_name} x{quantity}（图谱数据）: {'; '.join(desc_parts)}")
+            continue
+
+        # 回退到内置食物库
         food_data = NUTRIENT_DATABASE.get(food_name)
         if food_data:
             cal = food_data["calories"] * quantity
@@ -254,13 +266,14 @@ def analyze_diet(foods: str) -> str:
             details.append(f"  {food_name} x{quantity}: 暂无营养数据")
 
     if total_calories == 0:
-        return "未找到任何已知的食物营养数据。支持的食物：" + "、".join(list(NUTRIENT_DATABASE.keys())[:10]) + "等。"
+        if details:
+            return "【饮食营养分析】\n\n摄入明细：\n" + "\n".join(details)
+        return "未找到任何食物营养数据。支持的食物：" + "、".join(list(NUTRIENT_DATABASE.keys())[:10]) + "等。"
 
     protein_ratio = (total_protein * 4 / total_calories * 100) if total_calories > 0 else 0
     carb_ratio = (total_carbs * 4 / total_calories * 100) if total_calories > 0 else 0
     fat_ratio = (total_fat * 9 / total_calories * 100) if total_calories > 0 else 0
 
-    # 评估
     assessment = []
     if protein_ratio < 15:
         assessment.append("蛋白质摄入偏低，建议增加优质蛋白（如鸡蛋、鸡胸肉、豆腐等）")
@@ -306,13 +319,21 @@ def analyze_diet(foods: str) -> str:
     return result
 
 
-@tool(description="推荐个性化运动方案。参数user_goal为运动目标(减脂瘦身/增肌塑形/保持健康/提升耐力/减压放松)，fitness_level为运动水平(初学者/中级/高级)，duration_minutes为每次运动时长(分钟)")
+@tool(description="推荐个性化运动方案。参数goal为运动目标(减脂瘦身/增肌塑形/保持健康/提升耐力/减压放松)，fitness_level为运动水平(初学者/中级/高级)，duration_minutes为每次运动时长(分钟)")
 def recommend_exercise(
-    user_goal: str = "保持健康",
+    goal: str = "保持健康",
     fitness_level: str = "初学者",
     duration_minutes: int = 60
 ) -> str:
-    """推荐个性化运动方案"""
+    """推荐运动方案：优先查知识图谱，无结果回退内置方案"""
+    from agent.tools.kg_tools import _kg_exercise_for_goal
+
+    # 先从知识图谱查询适合的运动
+    kg_result = _kg_exercise_for_goal(goal)
+    if kg_result:
+        kg_result += "\n\n以下为基于运动水平的详细方案：\n"
+
+    # 内置运动方案矩阵（回退数据源）
     exercise_plans = {
         "减脂瘦身": {
             "初学者": [
@@ -409,7 +430,7 @@ def recommend_exercise(
     }
 
     # 获取方案
-    goal_plans = exercise_plans.get(user_goal, exercise_plans["保持健康"])
+    goal_plans = exercise_plans.get(goal, exercise_plans["保持健康"])
     plan = goal_plans.get(fitness_level, goal_plans["初学者"])
 
     # 按时长调整
@@ -424,12 +445,12 @@ def recommend_exercise(
 
     result = f"""【个性化运动方案】
 
-目标：{user_goal}
+目标：{goal}
 运动水平：{fitness_level}
 建议时长：{duration_minutes} 分钟
 预估消耗：{total_calories:.0f} kcal
 
-训练计划：
+{kg_result or ''}训练计划：
 """
     for i, (name, dur, intensity) in enumerate(plan, 1):
         adjusted_dur = int(dur * scale)
@@ -524,145 +545,134 @@ def assess_sleep(sleep_hours: float, sleep_quality: int) -> str:
     return result
 
 
-# ==================== 用户健康数据工具 ====================
+# ==================== 用户管理工具（合并原 create_user + get_user_info + get_user_health_data + list_all_users） ====================
 
-@tool(description="获取用户健康数据。参数user_id为用户ID（如U001），data_type为数据类型（weight/blood_pressure/heart_rate/sleep/all）")
-def get_user_health_data(user_id: str, data_type: str = "all") -> str:
-    """获取用户健康数据"""
-    user = user_service.get_user(user_id)
-
-    if not user:
-        users = user_service.list_users()
-        if users:
-            available_ids = ', '.join(users.keys())
-            return f"未找到用户ID {user_id}。可用用户ID: {available_ids}"
-        else:
-            return f"未找到用户ID {user_id}。当前没有用户数据。"
-
-    basic = user.get("basic_info", {})
-    health_records = user.get("health_records", {})
-
-    if not health_records:
-        return f"""用户：{basic.get('name', user_id)}
-性别：{basic.get('gender', '未知')}
-年龄：{basic.get('age', '未知')}岁
-身高：{basic.get('height', 0):.0f}cm
-体重：{basic.get('weight', 0):.0f}kg
-
-暂无健康记录数据，请先添加健康记录。"""
-
-    result = f"""用户：{basic.get('name', user_id)}
-性别：{basic.get('gender', '未知')}
-年龄：{basic.get('age', '未知')}岁
-身高：{basic.get('height', 0):.0f}cm
-体重：{basic.get('weight', 0):.0f}kg
-
-健康记录：
-"""
-
-    for date, record in sorted(health_records.items()):
-        result += f"\n{date}:\n"
-        if data_type in ("all", "weight") and "weight" in record:
-            result += f"  - 体重: {record['weight']:.1f} kg\n"
-        if data_type in ("all", "blood_pressure") and "blood_pressure_systolic" in record:
-            result += f"  - 血压: {record['blood_pressure_systolic']}/{record['blood_pressure_diastolic']} mmHg\n"
-        if data_type in ("all", "heart_rate") and "heart_rate" in record:
-            result += f"  - 心率: {record['heart_rate']} bpm\n"
-        if data_type in ("all", "sleep") and "sleep_hours" in record:
-            result += f"  - 睡眠: {record['sleep_hours']}小时 (质量{record.get('sleep_quality', '未知')}/10)\n"
-        if data_type in ("all", "steps") and "steps" in record:
-            result += f"  - 步数: {record['steps']:,} 步\n"
-        if data_type in ("all", "calories_intake") and "calories_intake" in record:
-            result += f"  - 热量摄入: {record['calories_intake']:.0f} kcal\n"
-
-    return result
-
-
-@tool(description="获取所有用户列表，无参数")
-def list_all_users() -> str:
-    """获取所有用户列表"""
-    users = user_service.list_users()
-
-    if not users:
-        return "【用户列表】\n\n暂无用户数据，请先创建用户档案。"
-
-    result = f"【用户列表】共 {len(users)} 个用户\n\n"
-
-    for uid, user in users.items():
-        basic = user.get("basic_info", {})
-        records = user.get("health_records", {})
-        latest_date = sorted(records.keys())[-1] if records else "无记录"
-        latest = records.get(latest_date, {})
-
-        result += f"""用户ID: {uid}
-  姓名: {basic.get('name', '未命名')}
-  性别: {basic.get('gender', '未知')}
-  年龄: {basic.get('age', '未知')}岁
-  身高: {basic.get('height', 0):.0f}cm
-  体重: {basic.get('weight', 0):.0f}kg
-  活动水平: {basic.get('activity_level', '未知')}
-  健康目标: {basic.get('health_goal', '未知')}
-  最新记录: {latest_date}
-
-"""
-    return result
-
-
-# ==================== 用户管理工具 ====================
-
-@tool(description="创建新用户档案。参数name为姓名，gender为性别(男/女)，age为年龄，height为身高(cm)，weight为体重(kg)，activity_level为活动水平，health_goal为健康目标")
-def create_user(
-    name: str,
+@tool(description=(
+    "管理用户档案。通过 action 参数选择操作：\n"
+    '- action="list": 列出所有用户，无需额外参数\n'
+    '- action="get": 获取指定用户信息，需提供 user_id（如 "U001"）\n'
+    '- action="health_data": 获取用户健康数据，需提供 user_id，可选 data_type（weight/blood_pressure/heart_rate/sleep/all，默认 all）\n'
+    '- action="create": 创建新用户，需提供 name，可选 gender(男/女), age, height(cm), weight(kg), activity_level, health_goal\n'
+    '示例：查询用户U001的血压数据 → action="health_data", user_id="U001", data_type="blood_pressure"'
+))
+def manage_user(
+    action: str,
+    user_id: str = "",
+    name: str = "",
     gender: str = "男",
     age: int = 25,
     height: float = 170,
     weight: float = 65,
     activity_level: str = "轻度活动",
-    health_goal: str = "保持健康"
+    health_goal: str = "保持健康",
+    data_type: str = "all"
 ) -> str:
-    """创建新用户"""
-    valid_genders = get_genders()
-    if gender not in valid_genders:
-        return f"无效的性别: {gender}。有效值: {', '.join(valid_genders)}"
+    """管理用户档案"""
+    if action == "list":
+        users = user_service.list_users()
+        if not users:
+            return "【用户列表】\n\n暂无用户数据，请先创建用户档案。"
+        result = f"【用户列表】共 {len(users)} 个用户\n\n"
+        for uid, user in users.items():
+            basic = user.get("basic_info", {})
+            records = user.get("health_records", {})
+            latest_date = sorted(records.keys())[-1] if records else "无记录"
+            result += (
+                f"用户ID: {uid}\n"
+                f"  姓名: {basic.get('name', '未命名')}\n"
+                f"  性别: {basic.get('gender', '未知')}\n"
+                f"  年龄: {basic.get('age', '未知')}岁\n"
+                f"  身高: {basic.get('height', 0):.0f}cm\n"
+                f"  体重: {basic.get('weight', 0):.0f}kg\n"
+                f"  活动水平: {basic.get('activity_level', '未知')}\n"
+                f"  健康目标: {basic.get('health_goal', '未知')}\n"
+                f"  最新记录: {latest_date}\n\n"
+            )
+        return result
 
-    valid_levels = get_activity_levels()
-    if activity_level not in valid_levels:
-        return f"无效的活动水平: {activity_level}。有效值: {', '.join(valid_levels)}"
+    elif action == "get":
+        return user_service.get_user_summary(user_id)
 
-    try:
-        result = user_service.create_user(
-            name=name,
-            gender=gender,
-            age=age,
-            height=height,
-            weight=weight,
-            activity_level=activity_level,
-            health_goal=health_goal
+    elif action == "health_data":
+        user = user_service.get_user(user_id)
+        if not user:
+            users = user_service.list_users()
+            if users:
+                available_ids = ', '.join(users.keys())
+                return f"未找到用户ID {user_id}。可用用户ID: {available_ids}"
+            return f"未找到用户ID {user_id}。当前没有用户数据。"
+
+        basic = user.get("basic_info", {})
+        health_records = user.get("health_records", {})
+
+        if not health_records:
+            return (
+                f"用户：{basic.get('name', user_id)}\n"
+                f"性别：{basic.get('gender', '未知')}\n"
+                f"年龄：{basic.get('age', '未知')}岁\n"
+                f"身高：{basic.get('height', 0):.0f}cm\n"
+                f"体重：{basic.get('weight', 0):.0f}kg\n\n"
+                f"暂无健康记录数据，请先添加健康记录。"
+            )
+
+        result = (
+            f"用户：{basic.get('name', user_id)}\n"
+            f"性别：{basic.get('gender', '未知')}\n"
+            f"年龄：{basic.get('age', '未知')}岁\n"
+            f"身高：{basic.get('height', 0):.0f}cm\n"
+            f"体重：{basic.get('weight', 0):.0f}kg\n\n"
+            f"健康记录：\n"
         )
-        user_id = result["user_id"]
-        return f"""用户创建成功！
+        for date, record in sorted(health_records.items()):
+            result += f"\n{date}:\n"
+            if data_type in ("all", "weight") and "weight" in record:
+                result += f"  - 体重: {record['weight']:.1f} kg\n"
+            if data_type in ("all", "blood_pressure") and "blood_pressure_systolic" in record:
+                result += f"  - 血压: {record['blood_pressure_systolic']}/{record['blood_pressure_diastolic']} mmHg\n"
+            if data_type in ("all", "heart_rate") and "heart_rate" in record:
+                result += f"  - 心率: {record['heart_rate']} bpm\n"
+            if data_type in ("all", "sleep") and "sleep_hours" in record:
+                result += f"  - 睡眠: {record['sleep_hours']}小时 (质量{record.get('sleep_quality', '未知')}/10)\n"
+            if data_type in ("all", "steps") and "steps" in record:
+                result += f"  - 步数: {record['steps']:,} 步\n"
+            if data_type in ("all", "calories_intake") and "calories_intake" in record:
+                result += f"  - 热量摄入: {record['calories_intake']:.0f} kcal\n"
+        return result
 
-用户ID: {user_id}
-姓名: {name}
-性别: {gender}
-年龄: {age}岁
-身高: {height:.0f}cm
-体重: {weight:.0f}kg
-活动水平: {activity_level}
-健康目标: {health_goal}
+    elif action == "create":
+        valid_genders = get_genders()
+        if gender not in valid_genders:
+            return f"无效的性别: {gender}。有效值: {', '.join(valid_genders)}"
+        valid_levels = get_activity_levels()
+        if activity_level not in valid_levels:
+            return f"无效的活动水平: {activity_level}。有效值: {', '.join(valid_levels)}"
+        try:
+            result = user_service.create_user(
+                name=name, gender=gender, age=age, height=height,
+                weight=weight, activity_level=activity_level, health_goal=health_goal
+            )
+            user_id = result["user_id"]
+            return (
+                f"用户创建成功！\n\n"
+                f"用户ID: {user_id}\n"
+                f"姓名: {name}\n"
+                f"性别: {gender}\n"
+                f"年龄: {age}岁\n"
+                f"身高: {height:.0f}cm\n"
+                f"体重: {weight:.0f}kg\n"
+                f"活动水平: {activity_level}\n"
+                f"健康目标: {health_goal}\n\n"
+                f"您可以使用用户ID {user_id} 来管理健康数据。"
+            )
+        except Exception as e:
+            logger.error(f"创建用户失败: {e}")
+            return f"创建用户失败: {str(e)}"
 
-您可以使用用户ID {user_id} 来管理健康数据。
-"""
-    except Exception as e:
-        logger.error(f"创建用户失败: {e}")
-        return f"创建用户失败: {str(e)}"
+    else:
+        return f"不支持的操作: {action}。支持的操作：list, get, health_data, create"
 
 
-@tool(description="获取用户详细信息。参数user_id为用户ID（如U001）")
-def get_user_info(user_id: str) -> str:
-    """获取用户详细信息"""
-    return user_service.get_user_summary(user_id)
-
+# ==================== 健康记录工具 ====================
 
 @tool(description="添加用户健康记录。参数user_id为用户ID，date为日期(YYYY-MM-DD)，weight为体重(kg)，blood_pressure_systolic为收缩压，blood_pressure_diastolic为舒张压，heart_rate为心率(bpm)，sleep_hours为睡眠时长(小时)，sleep_quality为睡眠质量(1-10)，steps为步数，calories_intake为热量摄入(kcal)")
 def add_health_record(
@@ -713,34 +723,33 @@ def add_health_record(
         if calories_intake is not None:
             record_items.append(f"  - 热量摄入: {calories_intake:.0f} kcal")
 
-        return f"""健康记录添加成功！
+        return (
+            f"健康记录添加成功！\n\n"
+            f"用户ID: {user_id}\n"
+            f"用户姓名: {user.get('basic_info', {}).get('name', '未命名')}\n"
+            f"日期: {date}\n\n"
+            f"记录数据：\n"
+            + "\n".join(record_items)
+        )
+    return f"添加健康记录失败: {user_id}"
 
-用户ID: {user_id}
-用户姓名: {user.get('basic_info', {}).get('name', '未命名')}
-日期: {date}
 
-记录数据：
-{chr(10).join(record_items)}
-"""
+# ==================== 健康报告查询工具（合并原 list + get + search） ====================
+
+@tool(description=(
+    "查询健康知识报告。通过 action 参数选择操作：\n"
+    '- action="list": 列出所有报告，无需额外参数\n'
+    '- action="get": 获取指定报告详情，需提供 report_id（如 R001）\n'
+    '- action="search": 按关键词搜索报告，需提供 keyword\n'
+    '示例：搜索高血压相关报告 → action="search", keyword="高血压"'
+))
+def query_health_reports(action: str, report_id: str = "", keyword: str = "") -> str:
+    """查询健康知识报告"""
+    if action == "list":
+        return health_report_service.list_reports()
+    elif action == "get":
+        return health_report_service.get_report(report_id)
+    elif action == "search":
+        return health_report_service.search_reports(keyword)
     else:
-        return f"添加健康记录失败: {user_id}"
-
-
-# ==================== 健康报告查询工具 ====================
-
-@tool(description="列出所有可用的健康知识报告，无参数")
-def list_health_reports() -> str:
-    """列出所有健康报告"""
-    return health_report_service.list_reports()
-
-
-@tool(description="获取指定健康报告的详细内容。参数report_id为报告编号（如R001、R002等）")
-def get_health_report(report_id: str) -> str:
-    """获取指定报告的详细内容"""
-    return health_report_service.get_report(report_id)
-
-
-@tool(description="按关键词搜索健康报告。参数keyword为搜索关键词（如高血压、糖尿病、营养等）")
-def search_health_reports(keyword: str) -> str:
-    """按关键词搜索健康报告"""
-    return health_report_service.search_reports(keyword)
+        return f"不支持的操作: {action}。支持的操作：list, get, search"

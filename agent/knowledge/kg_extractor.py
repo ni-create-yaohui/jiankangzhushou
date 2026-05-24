@@ -2,6 +2,7 @@
 知识图谱抽取模块
 
 负责从文档文本中抽取实体和关系，用于动态更新知识图谱
+（Neo4j 后端自动持久化，无需手动调用 to_json_file）
 """
 import json
 import os
@@ -9,7 +10,6 @@ import re
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Tuple, Set
 from project.logger_handler import logger
-from project.path_tool import get_abs_path
 
 from agent.knowledge.health_kg import health_kg
 from agent.knowledge.ner import health_ner
@@ -55,15 +55,13 @@ class KGExtractor:
 
     def _load_config(self) -> Dict:
         """加载配置"""
+        from project.path_tool import get_abs_path
         config_path = get_abs_path("config/kg.yml")
         default_config = {
             "enable_llm_extraction": True,
             "min_chunk_length": 50,
             "max_chunks_to_extract": 10,
             "entity_confidence_threshold": 0.7,
-            "enable_persistence": True,
-            "persistence_file": "data/knowledge/kg_data.json",
-            "auto_save_interval": 300,
             "sync_ner_dictionary": True,
             "add_kg_metadata": True
         }

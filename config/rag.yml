@@ -1,2 +1,6 @@
 chat_model_name: "qwen-plus"
 embedding_model: "text-embedding-v4"
+reranker:
+  enabled: true
+  model: "gte-rerank-v2"
+  top_n: 5

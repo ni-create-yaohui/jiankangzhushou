@@ -1,0 +1,29 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cd \"C:/Users/NYH04/Desktop/健康助手\" && python -c \"\nimport ast, sys\n\nfiles = [\n    'agent/database/__init__.py',\n    'agent/database/db_config.py',\n    'agent/database/models.py',\n    'agent/database/neo4j_config.py',\n    'agent/database/neo4j_kg_store.py',\n    'agent/services/user_service.py',\n    'agent/services/chat_history_service.py',\n    'agent/services/document_service.py',\n    'agent/services/health_report_service.py',\n    'agent/knowledge/health_kg.py',\n    'agent/knowledge/ner.py',\n    'agent/knowledge/kg_extractor.py',\n    'migrate_json_to_db.py',\n]\n\nfor f in files:\n    try:\n        with open\\(f, 'r', encoding='utf-8'\\) as fh:\n            ast.parse\\(fh.read\\(\\)\\)\n        print\\(f'OK: {f}'\\)\n    except SyntaxError as e:\n        print\\(f'SYNTAX ERROR: {f}: {e}'\\)\n        sys.exit\\(1\\)\n\nprint\\('All files pass syntax check.'\\)\n\")",
+      "Bash(cd \"C:/Users/NYH04/Desktop/健康助手\" && pip install \"sqlalchemy>=2.0.0\" \"neo4j>=5.0.0\" 2>&1 | tail -10)",
+      "Bash(cd \"C:/Users/NYH04/Desktop/健康助手\" && python -c \"\nimport ast\nwith open\\('api_server.py', 'r', encoding='utf-8'\\) as f:\n    ast.parse\\(f.read\\(\\)\\)\nprint\\('OK: api_server.py syntax check passed'\\)\n\" 2>&1)",
+      "Bash(cd \"C:/Users/NYH04/Desktop/健康助手\" && python -c \"\nimport ast\nwith open\\('migrate_json_to_db.py', 'r', encoding='utf-8'\\) as f:\n    ast.parse\\(f.read\\(\\)\\)\nprint\\('OK: migrate_json_to_db.py syntax check passed'\\)\n\" 2>&1)",
+      "Bash(cd \"C:/Users/NYH04/Desktop/健康助手\" && wc -l agent/database/*.py migrate_json_to_db.py)",
+      "Bash(python -c \"import py_compile; py_compile.compile\\('agent/services/user_service.py', doraise=True\\); print\\('user_service OK'\\)\")",
+      "Bash(python -c \"import py_compile; py_compile.compile\\('agent/services/chat_history_service.py', doraise=True\\); print\\('chat_history_service OK'\\)\")",
+      "Bash(python -c \"import py_compile; py_compile.compile\\('agent/services/document_service.py', doraise=True\\); print\\('document_service OK'\\)\")",
+      "Bash(python -c \"import py_compile; py_compile.compile\\('agent/services/health_report_service.py', doraise=True\\); print\\('health_report_service OK'\\)\")",
+      "Bash(python -c \"import py_compile; py_compile.compile\\('agent/database/db_config.py', doraise=True\\); print\\('db_config OK'\\)\")",
+      "Bash(python -c \"import matplotlib; print\\('matplotlib', matplotlib.__version__\\)\" 2>/dev/null && python -c \"from PIL import Image; print\\('Pillow OK'\\)\" 2>/dev/null || echo \"missing libs\")",
+      "Bash(pip list:*)",
+      "Bash(cd \"C:/Users/NYH04/Desktop/健康助手\" && python generate_arch_diagram.py)",
+      "Bash(python -c \"\nimport matplotlib.font_manager as fm\nfonts = [f.name for f in fm.fontManager.ttflist if any\\(k in f.name.lower\\(\\) for k in ['simhei','simsun','microsoft yahei','msyh','dengxian','fangsong','kaiti','songti','heiti']\\)]\nfor f in sorted\\(set\\(fonts\\)\\):\n    print\\(f\\)\n\")",
+      "Bash(cd \"C:/Users/NYH04/Desktop/健康助手\" && python generate_arch_diagram.py 2>&1 | head -5)",
+      "mcp__zai-mcp-server__analyze_image",
+      "WebSearch",
+      "mcp__web-reader__webReader",
+      "Bash(pip show *)",
+      "Bash(python *)",
+      "mcp__plugin_context7_context7__resolve-library-id",
+      "mcp__plugin_context7_context7__query-docs",
+      "Bash(FALLBACK_BASE_URL=https://test.example.com/v1 FALLBACK_API_KEY=test-key FALLBACK_MODEL=test-model python -c ' *)"
+    ]
+  }
+}

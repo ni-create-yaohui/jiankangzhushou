@@ -1,65 +1,73 @@
 """
 用户服务模块 - 提供用户档案CRUD操作和健康记录管理
+（SQLAlchemy 2.0 后端）
 """
-import json
-from datetime import datetime
 from typing import Dict, List, Optional, Any
-from pathlib import Path
 
+from sqlalchemy import func, cast, Integer, select
+from sqlalchemy.orm import Session
+
+from agent.database.db_config import SessionLocal, with_session
+from agent.database.models import User, HealthRecord
 from project.logger_handler import logger
 
 
 class UserService:
     """用户服务类 - 管理用户数据和健康记录"""
 
-    def __init__(self, data_file: str = None):
-        if data_file is None:
-            project_root = Path(__file__).parent.parent.parent
-            data_file = project_root / "data" / "health_data" / "users.json"
+    def __init__(self):
+        pass  # 不再需要初始化 JSON 文件
 
-        self.data_file = Path(data_file)
-        self._ensure_data_file()
+    # ── 内部辅助 ──────────────────────────────────────────
 
-    def _ensure_data_file(self):
-        if not self.data_file.exists():
-            self.data_file.parent.mkdir(parents=True, exist_ok=True)
-            initial_data = {
-                "metadata": {
-                    "version": "1.0",
-                    "last_updated": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                },
-                "users": {}
-            }
-            self._save_data(initial_data)
-            logger.info(f"创建用户数据文件: {self.data_file}")
-
-    def _load_data(self) -> Dict:
-        try:
-            with open(self.data_file, 'r', encoding='utf-8') as f:
-                return json.load(f)
-        except Exception as e:
-            logger.error(f"加载用户数据失败: {e}")
-            return {"metadata": {}, "users": {}}
-
-    def _save_data(self, data: Dict):
-        data["metadata"]["last_updated"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        with open(self.data_file, 'w', encoding='utf-8') as f:
-            json.dump(data, f, ensure_ascii=False, indent=2)
-        logger.info(f"用户数据已保存")
-
-    def _generate_user_id(self) -> str:
-        data = self._load_data()
-        existing_ids = list(data.get("users", {}).keys())
-        max_num = 0
-        for uid in existing_ids:
-            if uid.startswith("U"):
-                try:
-                    num = int(uid[1:])
-                    max_num = max(max_num, num)
-                except ValueError:
-                    continue
+    def _generate_user_id(self, session: Session) -> str:
+        result = session.scalar(
+            select(func.max(cast(func.substr(User.user_id, 2), Integer)))
+        )
+        max_num = result or 0
         return f"U{max_num + 1:03d}"
 
+    @staticmethod
+    def _user_to_dict(user: User) -> Dict[str, Any]:
+        """ORM User → 嵌套 dict（保持原 JSON 格式）"""
+        records = {}
+        for hr in user.health_records:
+            rec = {}
+            if hr.weight is not None:
+                rec["weight"] = hr.weight
+            if hr.bp_systolic is not None:
+                rec["blood_pressure_systolic"] = hr.bp_systolic
+            if hr.bp_diastolic is not None:
+                rec["blood_pressure_diastolic"] = hr.bp_diastolic
+            if hr.heart_rate is not None:
+                rec["heart_rate"] = hr.heart_rate
+            if hr.sleep_hours is not None:
+                rec["sleep_hours"] = hr.sleep_hours
+            if hr.sleep_quality is not None:
+                rec["sleep_quality"] = hr.sleep_quality
+            if hr.steps is not None:
+                rec["steps"] = hr.steps
+            if hr.calories_intake is not None:
+                rec["calories_intake"] = hr.calories_intake
+            records[hr.date] = rec
+
+        return {
+            "basic_info": {
+                "name": user.name,
+                "gender": user.gender,
+                "age": user.age,
+                "height": user.height,
+                "weight": user.weight,
+                "activity_level": user.activity_level,
+                "health_goal": user.health_goal,
+                "created_at": user.created_at,
+            },
+            "health_records": records,
+        }
+
+    # ── CRUD ──────────────────────────────────────────────
+
+    @with_session
     def create_user(
         self,
         name: str,
@@ -68,67 +76,57 @@ class UserService:
         height: float = 170,
         weight: float = 65,
         activity_level: str = "轻度活动",
-        health_goal: str = "保持健康"
+        health_goal: str = "保持健康",
+        session: Session = None,
     ) -> Dict[str, Any]:
-        data = self._load_data()
-        user_id = self._generate_user_id()
-
-        user = {
-            "basic_info": {
-                "name": name,
-                "gender": gender,
-                "age": age,
-                "height": height,
-                "weight": weight,
-                "activity_level": activity_level,
-                "health_goal": health_goal,
-                "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            },
-            "health_records": {}
-        }
-
-        data["users"][user_id] = user
-        self._save_data(data)
-
+        user_id = self._generate_user_id(session)
+        user = User(
+            user_id=user_id,
+            name=name,
+            gender=gender,
+            age=age,
+            height=height,
+            weight=weight,
+            activity_level=activity_level,
+            health_goal=health_goal,
+        )
+        session.add(user)
+        result = self._user_to_dict(user)
         logger.info(f"创建用户成功: {user_id} - {name}")
-        return {"user_id": user_id, "user": user}
+        return {"user_id": user_id, "user": result}
 
-    def get_user(self, user_id: str) -> Optional[Dict[str, Any]]:
-        data = self._load_data()
-        return data.get("users", {}).get(user_id)
-
-    def list_users(self) -> Dict[str, Dict]:
-        data = self._load_data()
-        return data.get("users", {})
-
-    def update_user(self, user_id: str, **kwargs) -> Optional[Dict[str, Any]]:
-        data = self._load_data()
-        users = data.get("users", {})
-
-        if user_id not in users:
+    @with_session
+    def get_user(self, user_id: str, session: Session = None) -> Optional[Dict[str, Any]]:
+        user = session.query(User).filter_by(user_id=user_id).first()
+        if user is None:
             return None
+        return self._user_to_dict(user)
 
-        user = users[user_id]
+    @with_session
+    def list_users(self, session: Session = None) -> Dict[str, Dict]:
+        users = session.query(User).all()
+        return {u.user_id: self._user_to_dict(u) for u in users}
+
+    @with_session
+    def update_user(self, user_id: str, session: Session = None, **kwargs) -> Optional[Dict[str, Any]]:
+        user = session.query(User).filter_by(user_id=user_id).first()
+        if user is None:
+            return None
         valid_fields = ["name", "gender", "age", "height", "weight", "activity_level", "health_goal"]
         for field in valid_fields:
             if field in kwargs:
-                user["basic_info"][field] = kwargs[field]
+                setattr(user, field, kwargs[field])
+        return self._user_to_dict(user)
 
-        data["users"][user_id] = user
-        self._save_data(data)
-        return user
-
-    def delete_user(self, user_id: str) -> bool:
-        data = self._load_data()
-        users = data.get("users", {})
-
-        if user_id not in users:
+    @with_session
+    def delete_user(self, user_id: str, session: Session = None) -> bool:
+        user = session.query(User).filter_by(user_id=user_id).first()
+        if user is None:
             return False
-
-        del data["users"][user_id]
-        self._save_data(data)
+        session.delete(user)
         return True
 
+    @with_session
     def add_health_record(
         self,
         user_id: str,
@@ -140,47 +138,36 @@ class UserService:
         sleep_hours: float = None,
         sleep_quality: int = None,
         steps: int = None,
-        calories_intake: float = None
+        calories_intake: float = None,
+        session: Session = None,
     ) -> bool:
-        data = self._load_data()
-        users = data.get("users", {})
-
-        if user_id not in users:
+        user = session.query(User).filter_by(user_id=user_id).first()
+        if user is None:
             return False
 
-        record = {}
-        if weight is not None:
-            record["weight"] = weight
-        if blood_pressure_systolic is not None:
-            record["blood_pressure_systolic"] = blood_pressure_systolic
-        if blood_pressure_diastolic is not None:
-            record["blood_pressure_diastolic"] = blood_pressure_diastolic
-        if heart_rate is not None:
-            record["heart_rate"] = heart_rate
-        if sleep_hours is not None:
-            record["sleep_hours"] = sleep_hours
-        if sleep_quality is not None:
-            record["sleep_quality"] = sleep_quality
-        if steps is not None:
-            record["steps"] = steps
-        if calories_intake is not None:
-            record["calories_intake"] = calories_intake
-
-        if record:
-            users[user_id]["health_records"][date] = record
-            self._save_data(data)
-
+        record = HealthRecord(
+            user_id=user_id,
+            date=date,
+            weight=weight,
+            bp_systolic=blood_pressure_systolic,
+            bp_diastolic=blood_pressure_diastolic,
+            heart_rate=heart_rate,
+            sleep_hours=sleep_hours,
+            sleep_quality=sleep_quality,
+            steps=steps,
+            calories_intake=calories_intake,
+        )
+        session.add(record)
         return True
 
-    def get_user_summary(self, user_id: str) -> str:
-        user = self.get_user(user_id)
+    def get_user_summary(self, user_id: str, session: Session = None) -> str:
+        user = self.get_user(user_id, session=session)
         if not user:
             return f"未找到用户ID: {user_id}"
 
         basic = user.get("basic_info", {})
         records = user.get("health_records", {})
 
-        # 计算BMI
         height = basic.get("height", 170)
         weight = basic.get("weight", 65)
         bmi = weight / (height / 100) ** 2
@@ -194,7 +181,7 @@ class UserService:
         else:
             bmi_category = "肥胖"
 
-        summary = f"""【用户档案】
+        return f"""【用户档案】
 用户ID: {user_id}
 姓名: {basic.get('name', '未命名')}
 性别: {basic.get('gender', '未知')}
@@ -207,7 +194,7 @@ BMI: {bmi:.1f}（{bmi_category}）
 创建时间: {basic.get('created_at', '未知')}
 健康记录数: {len(records)} 条
 """
-        return summary
 
 
+# 全局单例
 user_service = UserService()

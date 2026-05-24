@@ -1,5 +1,8 @@
 """
 
+# DEPRECATED: 此模块已不再被使用，计划在下个大版本移除。
+# 工具展示名已迁移为 health_agent.py 中的静态字典。
+# 工具调用统计和启用/禁用功能如需恢复，请参考此模块实现。
 """
 from typing import Dict, List, Callable, Any, Optional
 from dataclasses import dataclass, field
@@ -16,6 +19,7 @@ class ToolMeta:
     returns: str = "str"
     category: str = "general"
     enabled: bool = True
+    display_name: str = ""  # 前端展示的中文名，如"正在计算BMI..."
 
 
 class ToolManager:
@@ -45,7 +49,8 @@ class ToolManager:
             parameters=meta.get("parameters", {}),
             returns=meta.get("returns", "str"),
             category=meta.get("category", "general"),
-            enabled=meta.get("enabled", True)
+            enabled=meta.get("enabled", True),
+            display_name=meta.get("display_name", ""),
         )
         self._tools[name] = tool
 
@@ -65,6 +70,13 @@ class ToolManager:
     def get(self, name: str) -> Optional[ToolMeta]:
         """获取工具元信息"""
         return self._tools.get(name)
+
+    def get_display_name(self, name: str) -> str:
+        """获取工具前端展示名，未注册时返回默认值"""
+        tool = self._tools.get(name)
+        if tool and tool.display_name:
+            return tool.display_name
+        return f"正在执行 {name}..."
 
     def get_handler(self, name: str) -> Optional[Callable]:
         """获取工具处理器"""

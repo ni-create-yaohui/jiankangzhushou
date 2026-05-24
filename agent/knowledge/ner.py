@@ -236,11 +236,11 @@ def refresh_entity_labels() -> Dict:
         for syn in e.synonyms:
             ENTITY_LABELS[syn] = e.entity_type.value
 
-    # 添加知识图谱中的所有实体
+    # 从 Neo4j 后端获取所有实体
     from agent.knowledge.health_kg import health_kg
-    for name, node in health_kg._nodes.items():
-        if name == node.name:  # 只添加主实体
-            ENTITY_LABELS[name] = node.entity_type
+    entity_map = health_kg.get_all_entity_names_and_types()
+    for name, type_id in entity_map.items():
+        ENTITY_LABELS[name] = type_id
 
     # 更新NER实例的词典引用
     health_ner.entity_labels = ENTITY_LABELS
@@ -274,11 +274,11 @@ def sync_ner_dictionary() -> Dict:
     except ImportError:
         pass
 
-    # 添加知识图谱中的所有实体
+    # 从 Neo4j 后端获取所有实体
     from agent.knowledge.health_kg import health_kg
-    for name, node in health_kg._nodes.items():
-        if name == node.name:  # 只添加主实体
-            ENTITY_LABELS[name] = node.entity_type
+    entity_map = health_kg.get_all_entity_names_and_types()
+    for name, type_id in entity_map.items():
+        ENTITY_LABELS[name] = type_id
 
     # 更新NER实例的词典引用
     health_ner.entity_labels = ENTITY_LABELS

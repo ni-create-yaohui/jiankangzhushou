@@ -32,32 +32,6 @@ class HealthGoal(str, Enum):
     DISEASE_PREVENTION = "疾病预防"
 
 
-class BloodPressureCategory(str, Enum):
-    """血压分类"""
-    NORMAL = "正常"
-    ELEVATED = "偏高"
-    HIGH_STAGE1 = "高血压1期"
-    HIGH_STAGE2 = "高血压2期"
-    CRISIS = "高血压危象"
-
-
-class BMICategory(str, Enum):
-    """BMI分类"""
-    UNDERWEIGHT = "偏瘦"
-    NORMAL = "正常"
-    OVERWEIGHT = "偏胖"
-    OBESE = "肥胖"
-
-
-class SleepQuality(str, Enum):
-    """睡眠质量"""
-    EXCELLENT = "优秀"
-    GOOD = "良好"
-    FAIR = "一般"
-    POOR = "较差"
-    VERY_POOR = "很差"
-
-
 class DietType(str, Enum):
     """饮食类型"""
     BALANCED = "均衡饮食"
@@ -99,12 +73,6 @@ def get_activity_levels() -> List[str]:
 
 def get_health_goals() -> List[str]:
     return [h.value for h in HealthGoal]
-
-def get_bmi_categories() -> List[str]:
-    return [b.value for b in BMICategory]
-
-def get_sleep_qualities() -> List[str]:
-    return [s.value for s in SleepQuality]
 
 def get_diet_types() -> List[str]:
     return [d.value for d in DietType]

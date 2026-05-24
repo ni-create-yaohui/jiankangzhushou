@@ -9,8 +9,8 @@ max_file_size_mb: 10
 max_files_per_upload: 5
 
 # 文本分片配置
-chunk_size: 300
-chunk_overlap: 30
+chunk_size: 500
+chunk_overlap: 75
 separators: ["\n\n","\n",".","!","?",",","", "。"," ","","，"]
 
 # 检索配置

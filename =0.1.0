@@ -1,0 +1,61 @@
+Collecting langchain-openai
+  Downloading langchain_openai-1.2.2-py3-none-any.whl.metadata (3.1 kB)
+Collecting langchain-core<2.0.0,>=1.4.0 (from langchain-openai)
+  Downloading langchain_core-1.4.0-py3-none-any.whl.metadata (4.5 kB)
+Collecting openai<3.0.0,>=2.26.0 (from langchain-openai)
+  Downloading openai-2.38.0-py3-none-any.whl.metadata (31 kB)
+Requirement already satisfied: tiktoken<1.0.0,>=0.7.0 in c:\users\nyh04\appdata\local\programs\python\python310\lib\site-packages (from langchain-openai) (0.7.0)
+Requirement already satisfied: jsonpatch<2.0.0,>=1.33.0 in c:\users\nyh04\appdata\local\programs\python\python310\lib\site-packages (from langchain-core<2.0.0,>=1.4.0->langchain-openai) (1.33)
+Collecting langchain-protocol>=0.0.14 (from langchain-core<2.0.0,>=1.4.0->langchain-openai)
+  Downloading langchain_protocol-0.0.15-py3-none-any.whl.metadata (2.4 kB)
+Requirement already satisfied: langsmith<1.0.0,>=0.3.45 in c:\users\nyh04\appdata\local\programs\python\python310\lib\site-packages (from langchain-core<2.0.0,>=1.4.0->langchain-openai) (0.7.13)
+Requirement already satisfied: packaging>=23.2.0 in c:\users\nyh04\appdata\local\programs\python\python310\lib\site-packages (from langchain-core<2.0.0,>=1.4.0->langchain-openai) (24.2)
+Requirement already satisfied: pydantic<3.0.0,>=2.7.4 in c:\users\nyh04\appdata\local\programs\python\python310\lib\site-packages (from langchain-core<2.0.0,>=1.4.0->langchain-openai) (2.12.5)
+Requirement already satisfied: pyyaml<7.0.0,>=5.3.0 in c:\users\nyh04\appdata\local\programs\python\python310\lib\site-packages (from langchain-core<2.0.0,>=1.4.0->langchain-openai) (6.0.3)
+Requirement already satisfied: tenacity!=8.4.0,<10.0.0,>=8.1.0 in c:\users\nyh04\appdata\local\programs\python\python310\lib\site-packages (from langchain-core<2.0.0,>=1.4.0->langchain-openai) (9.1.4)
+Requirement already satisfied: typing-extensions<5.0.0,>=4.7.0 in c:\users\nyh04\appdata\local\programs\python\python310\lib\site-packages (from langchain-core<2.0.0,>=1.4.0->langchain-openai) (4.15.0)
+Requirement already satisfied: uuid-utils<1.0,>=0.12.0 in c:\users\nyh04\appdata\local\programs\python\python310\lib\site-packages (from langchain-core<2.0.0,>=1.4.0->langchain-openai) (0.14.1)
+Requirement already satisfied: jsonpointer>=1.9 in c:\users\nyh04\appdata\local\programs\python\python310\lib\site-packages (from jsonpatch<2.0.0,>=1.33.0->langchain-core<2.0.0,>=1.4.0->langchain-openai) (3.0.0)
+Requirement already satisfied: httpx<1,>=0.23.0 in c:\users\nyh04\appdata\local\programs\python\python310\lib\site-packages (from langsmith<1.0.0,>=0.3.45->langchain-core<2.0.0,>=1.4.0->langchain-openai) (0.27.0)
+Requirement already satisfied: orjson>=3.9.14 in c:\users\nyh04\appdata\local\programs\python\python310\lib\site-packages (from langsmith<1.0.0,>=0.3.45->langchain-core<2.0.0,>=1.4.0->langchain-openai) (3.11.7)
+Requirement already satisfied: requests-toolbelt>=1.0.0 in c:\users\nyh04\appdata\local\programs\python\python310\lib\site-packages (from langsmith<1.0.0,>=0.3.45->langchain-core<2.0.0,>=1.4.0->langchain-openai) (1.0.0)
+Requirement already satisfied: requests>=2.0.0 in c:\users\nyh04\appdata\local\programs\python\python310\lib\site-packages (from langsmith<1.0.0,>=0.3.45->langchain-core<2.0.0,>=1.4.0->langchain-openai) (2.32.5)
+Requirement already satisfied: xxhash>=3.0.0 in c:\users\nyh04\appdata\local\programs\python\python310\lib\site-packages (from langsmith<1.0.0,>=0.3.45->langchain-core<2.0.0,>=1.4.0->langchain-openai) (3.6.0)
+Requirement already satisfied: zstandard>=0.23.0 in c:\users\nyh04\appdata\local\programs\python\python310\lib\site-packages (from langsmith<1.0.0,>=0.3.45->langchain-core<2.0.0,>=1.4.0->langchain-openai) (0.25.0)
+Requirement already satisfied: anyio in c:\users\nyh04\appdata\local\programs\python\python310\lib\site-packages (from httpx<1,>=0.23.0->langsmith<1.0.0,>=0.3.45->langchain-core<2.0.0,>=1.4.0->langchain-openai) (4.12.1)
+Requirement already satisfied: certifi in c:\users\nyh04\appdata\local\programs\python\python310\lib\site-packages (from httpx<1,>=0.23.0->langsmith<1.0.0,>=0.3.45->langchain-core<2.0.0,>=1.4.0->langchain-openai) (2026.2.25)
+Requirement already satisfied: httpcore==1.* in c:\users\nyh04\appdata\local\programs\python\python310\lib\site-packages (from httpx<1,>=0.23.0->langsmith<1.0.0,>=0.3.45->langchain-core<2.0.0,>=1.4.0->langchain-openai) (1.0.9)
+Requirement already satisfied: idna in c:\users\nyh04\appdata\local\programs\python\python310\lib\site-packages (from httpx<1,>=0.23.0->langsmith<1.0.0,>=0.3.45->langchain-core<2.0.0,>=1.4.0->langchain-openai) (3.11)
+Requirement already satisfied: sniffio in c:\users\nyh04\appdata\local\programs\python\python310\lib\site-packages (from httpx<1,>=0.23.0->langsmith<1.0.0,>=0.3.45->langchain-core<2.0.0,>=1.4.0->langchain-openai) (1.3.1)
+Requirement already satisfied: h11>=0.16 in c:\users\nyh04\appdata\local\programs\python\python310\lib\site-packages (from httpcore==1.*->httpx<1,>=0.23.0->langsmith<1.0.0,>=0.3.45->langchain-core<2.0.0,>=1.4.0->langchain-openai) (0.16.0)
+Requirement already satisfied: distro<2,>=1.7.0 in c:\users\nyh04\appdata\local\programs\python\python310\lib\site-packages (from openai<3.0.0,>=2.26.0->langchain-openai) (1.9.0)
+Requirement already satisfied: jiter<1,>=0.10.0 in c:\users\nyh04\appdata\local\programs\python\python310\lib\site-packages (from openai<3.0.0,>=2.26.0->langchain-openai) (0.13.0)
+Requirement already satisfied: tqdm>4 in c:\users\nyh04\appdata\local\programs\python\python310\lib\site-packages (from openai<3.0.0,>=2.26.0->langchain-openai) (4.67.3)
+Requirement already satisfied: exceptiongroup>=1.0.2 in c:\users\nyh04\appdata\local\programs\python\python310\lib\site-packages (from anyio->httpx<1,>=0.23.0->langsmith<1.0.0,>=0.3.45->langchain-core<2.0.0,>=1.4.0->langchain-openai) (1.3.1)
+Requirement already satisfied: annotated-types>=0.6.0 in c:\users\nyh04\appdata\local\programs\python\python310\lib\site-packages (from pydantic<3.0.0,>=2.7.4->langchain-core<2.0.0,>=1.4.0->langchain-openai) (0.7.0)
+Requirement already satisfied: pydantic-core==2.41.5 in c:\users\nyh04\appdata\local\programs\python\python310\lib\site-packages (from pydantic<3.0.0,>=2.7.4->langchain-core<2.0.0,>=1.4.0->langchain-openai) (2.41.5)
+Requirement already satisfied: typing-inspection>=0.4.2 in c:\users\nyh04\appdata\local\programs\python\python310\lib\site-packages (from pydantic<3.0.0,>=2.7.4->langchain-core<2.0.0,>=1.4.0->langchain-openai) (0.4.2)
+Requirement already satisfied: regex>=2022.1.18 in c:\users\nyh04\appdata\local\programs\python\python310\lib\site-packages (from tiktoken<1.0.0,>=0.7.0->langchain-openai) (2026.2.28)
+Requirement already satisfied: charset_normalizer<4,>=2 in c:\users\nyh04\appdata\local\programs\python\python310\lib\site-packages (from requests>=2.0.0->langsmith<1.0.0,>=0.3.45->langchain-core<2.0.0,>=1.4.0->langchain-openai) (3.4.4)
+Requirement already satisfied: urllib3<3,>=1.21.1 in c:\users\nyh04\appdata\local\programs\python\python310\lib\site-packages (from requests>=2.0.0->langsmith<1.0.0,>=0.3.45->langchain-core<2.0.0,>=1.4.0->langchain-openai) (2.6.3)
+Requirement already satisfied: colorama in c:\users\nyh04\appdata\local\programs\python\python310\lib\site-packages (from tqdm>4->openai<3.0.0,>=2.26.0->langchain-openai) (0.4.6)
+Downloading langchain_openai-1.2.2-py3-none-any.whl (99 kB)
+Downloading langchain_core-1.4.0-py3-none-any.whl (548 kB)
+   ---------------------------------------- 548.1/548.1 kB 28.1 kB/s  0:00:16
+Downloading openai-2.38.0-py3-none-any.whl (1.3 MB)
+   ---------------------------------------- 1.3/1.3 MB 30.4 kB/s  0:00:41
+Downloading langchain_protocol-0.0.15-py3-none-any.whl (7.0 kB)
+Installing collected packages: langchain-protocol, openai, langchain-core, langchain-openai
+  Attempting uninstall: openai
+    Found existing installation: openai 2.24.0
+    Uninstalling openai-2.24.0:
+      Successfully uninstalled openai-2.24.0
+  Attempting uninstall: langchain-core
+    Found existing installation: langchain-core 1.2.17
+    Uninstalling langchain-core-1.2.17:
+      Successfully uninstalled langchain-core-1.2.17
+
+Successfully installed langchain-core-1.4.0 langchain-openai-1.2.2 langchain-protocol-0.0.15 openai-2.38.0
+
+[notice] A new release of pip is available: 26.0.1 -> 26.1.1
+[notice] To update, run: python.exe -m pip install --upgrade pip

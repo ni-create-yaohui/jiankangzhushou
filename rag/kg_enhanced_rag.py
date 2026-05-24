@@ -3,16 +3,18 @@ KG增强RAG服务
 整合 NER实体抽取 + KG图采样 + VS向量检索，生成增强上下文
 """
 from pathlib import Path
-from typing import Optional
+from typing import Dict, List, Optional, Set, AsyncGenerator
 
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import PromptTemplate
+from langchain_core.documents import Document
 
 from rag.graph_sampler import GraphSampler, SampledSubgraph
 from rag.vector_store import VectorStoreService
+from rag.reranker import init_reranker, reranker as cross_encoder_reranker
 from agent.knowledge.ner import health_ner
 from model.factory import chat_model
-from project.config_hander import chroma_conf
+from project.config_hander import chroma_conf, rag_conf
 from project.logger_handler import logger
 
 
@@ -33,6 +35,11 @@ class KGEnhancedRAG:
         retriever_config = chroma_conf.get("retriever", {})
         search_type = retriever_config.get("search_type", "similarity")
         self.retriever = self._vector_store.get_retrive(search_type=search_type)
+
+        # 初始化 Cross-Encoder Reranker
+        reranker_cfg = rag_conf.get("reranker", {})
+        if reranker_cfg.get("enabled", True):
+            init_reranker(reranker_cfg)
 
         # 加载KG增强prompt
         self.prompt_text = self._load_kg_enhanced_prompt()
@@ -56,32 +63,29 @@ class KGEnhancedRAG:
 
     def query(self, query_str: str, chat_history: Optional[list] = None) -> str:
         """
-        KG增强RAG查询
-
-        流程:
-        1. NER实体抽取 → 种子节点
-        2. 图采样 → KG子图文本
-        3. 向量检索 → VS chunks
-        4. 上下文融合 → 增强context
-        5. LLM生成 → 回答
-
-        Args:
-            query_str: 用户查询
-            chat_history: 对话历史（可选），格式为 [{"role": "user/assistant", "content": "..."}]
-
-        Returns:
-            回答文本
+        [DEPRECATED] 请使用 query_stream_async。
+        KG增强RAG查询（同步，返回完整回答）
         """
         logger.info(f"[KGEnhancedRAG] 查询: {query_str}")
 
-        # 1. NER实体抽取
+        kg_context, vs_context = self._prepare_context(query_str)
+
+        if not kg_context and not vs_context:
+            return "抱歉，知识库中没有找到与您问题相关的资料。请尝试换一种方式提问或提供更多信息。"
+
+        if not kg_context:
+            logger.info("[KGEnhancedRAG] 无KG上下文，使用纯VS检索")
+            return self._pure_vs_query(query_str, vs_context, chat_history=chat_history)
+
+        return self._generate_answer(query_str, kg_context, vs_context, chat_history=chat_history)
+
+    def _prepare_context(self, query_str: str):
+        """NER + 图采样 + 向量检索 + rerank，返回 (kg_context, vs_context)"""
         entities = self.ner.extract_entities(query_str)
         logger.info(f"[KGEnhancedRAG] NER抽取实体: {entities}")
 
-        # 2. 种子节点确定
         seed_nodes = [name for name, etype in entities if name]
 
-        # 3. 图采样（如果有种子节点）
         kg_context = ""
         if seed_nodes:
             subgraph = self.graph_sampler.sample(seed_nodes)
@@ -92,33 +96,91 @@ class KGEnhancedRAG:
                     f"{len(subgraph.edges)}条边"
                 )
 
-        # 4. 向量检索
-        vs_context = self._retrieve_vs_context(query_str)
+        query_entity_names = {name for name, _ in entities}
+        candidates = self._retrieve_vs_candidates(query_str, k=15)
+        ranked_docs = self._rerank_by_kg_overlap(candidates, query_entity_names, top_k=5)
 
-        # 5. 回退逻辑：如果两者都为空，返回提示
-        if not kg_context and not vs_context:
-            return "抱歉，知识库中没有找到与您问题相关的资料。请尝试换一种方式提问或提供更多信息。"
+        if cross_encoder_reranker:
+            reranked = cross_encoder_reranker.rerank(query_str, ranked_docs)
+            ranked_docs = [doc for doc, score in reranked if score >= 0.3]
+            if not ranked_docs:
+                ranked_docs = candidates[:5]
 
-        # 6. 如果只有VS结果（NER未识别实体或图谱无匹配），回退到纯VS
-        if not kg_context:
-            logger.info("[KGEnhancedRAG] 无KG上下文，使用纯VS检索")
-            return self._pure_vs_query(query_str, vs_context, chat_history=chat_history)
+        vs_context = "\n\n".join(doc.page_content for doc in ranked_docs) if ranked_docs else ""
+        return kg_context, vs_context
 
-        # 7. 上下文融合 + LLM生成
-        return self._generate_answer(query_str, kg_context, vs_context, chat_history=chat_history)
+    async def query_stream_async(
+        self, query_str: str, chat_history: Optional[list] = None,
+    ) -> AsyncGenerator[Dict, None]:
+        """KG增强RAG查询（异步 token 级流式，yield SSE 事件字典）
 
-    def _retrieve_vs_context(self, query_str: str) -> str:
-        """向量检索获取VS上下文"""
+        内部处理所有异常和回退逻辑，保证始终 yield done 事件。
+        """
+        import asyncio
+
         try:
-            docs = self.retriever.invoke(query_str)
-            if not docs:
-                return ""
-            context = "\n\n".join(doc.page_content for doc in docs)
-            logger.info(f"[KGEnhancedRAG] VS检索到 {len(docs)} 个文档片段")
-            return context
+            kg_context, vs_context = await asyncio.to_thread(self._prepare_context, query_str)
+
+            if not kg_context and not vs_context:
+                yield {"event": "message", "data": "抱歉，知识库中没有找到与您问题相关的资料。请尝试换一种方式提问或提供更多信息。"}
+                yield {"event": "done", "data": ""}
+                return
+
+            if not kg_context:
+                kg_context = "暂无相关知识图谱信息。"
+
+            chain_input = {
+                "input": query_str,
+                "kg_context": kg_context,
+                "vs_context": vs_context,
+                "chat_history": self._format_chat_history(chat_history),
+            }
+
+            try:
+                async for token in self.chain.astream(chain_input):
+                    yield {"event": "message", "data": token}
+            except Exception as stream_err:
+                logger.error(f"[KGEnhancedRAG] 异步流式失败，回退同步: {stream_err}")
+                try:
+                    answer = self.chain.invoke(chain_input)
+                    yield {"event": "message", "data": answer}
+                except Exception as invoke_err:
+                    logger.error(f"[KGEnhancedRAG] 同步回退也失败: {invoke_err}")
+                    yield {"event": "error", "data": f"查询失败: {str(invoke_err)}"}
+
         except Exception as e:
-            logger.error(f"[KGEnhancedRAG] VS检索失败: {e}")
-            return ""
+            logger.error(f"[KGEnhancedRAG] query_stream_async 外层异常: {e}")
+            yield {"event": "error", "data": f"查询失败: {str(e)}"}
+
+        yield {"event": "done", "data": ""}
+
+    def _retrieve_vs_candidates(self, query_str: str, k: int = 15) -> List[Document]:
+        """向量检索获取候选文档（用于后续 rerank）"""
+        try:
+            retriever = self._vector_store.get_retrive(search_type="similarity", k=k)
+            docs = retriever.invoke(query_str)
+            logger.info(f"[KGEnhancedRAG] 向量检索到 {len(docs)} 个候选文档")
+            return docs
+        except Exception as e:
+            logger.error(f"[KGEnhancedRAG] 向量检索失败: {e}")
+            return []
+
+    def _rerank_by_kg_overlap(
+        self, docs: List[Document], query_entities: Set[str], top_k: int = 5
+    ) -> List[Document]:
+        """利用文档 metadata 中的 kg_entities 做 rerank"""
+        if not query_entities:
+            return docs[:top_k]
+
+        scored = []
+        for doc in docs:
+            doc_entities = set(doc.metadata.get("kg_entities", []))
+            overlap = len(query_entities & doc_entities)
+            scored.append((overlap, doc))
+
+        # 按 KG 实体重叠数降序，重叠数相同保持原始向量排序
+        scored.sort(key=lambda x: x[0], reverse=True)
+        return [doc for _, doc in scored[:top_k]]
 
     def _pure_vs_query(self, query_str: str, vs_context: str, chat_history: Optional[list] = None) -> str:
         """纯VS回退查询（无KG上下文时使用）"""
